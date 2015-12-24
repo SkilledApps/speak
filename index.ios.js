@@ -26,7 +26,7 @@ class speak extends React.Component {
 
     return (
       <View style={styles.container}>
-        <Video layout={width, height} source='example' style={{width, height: height / 3}}></Video>
+        <Video layout={this.state.layout} source='example' style={{width}}></Video>
       </View>
     );
   }

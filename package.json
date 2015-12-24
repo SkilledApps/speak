@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "react-native start"
+    "start": "react-native start",
+    "bundle": "react-native bundle --entry-file index.ios.js --platform ios --dev false --bundle-output ios/main.jsbundle"
   },
   "dependencies": {
     "react-native": "^0.17.0",
@@ -11,5 +12,8 @@
     "react-native-slider": "^0.4.0",
     "react-native-vector-icons": "^1.0.3",
     "react-native-video": "^0.6.1"
+  },
+  "devDependencies": {
+    "react-native-cli": "^0.1.7"
   }
 }

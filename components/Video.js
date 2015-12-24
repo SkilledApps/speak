@@ -8,17 +8,21 @@
 import 	React from 'react-native';
 import 	RNVideo from 'react-native-video';
 import 	Slider from 'react-native-slider';
+import 	Icon from 'react-native-vector-icons/Ionicons'
 
-const debug = 0;
+const debug = 1;
 
 const {
-  AppRegistry,
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  SliderIOS,
-  ScrollView,
+	AppRegistry,
+	StyleSheet,
+	Text,
+	View,
+	TouchableOpacity,
+	SliderIOS,
+	ScrollView,
+	Animated,
+	LayoutAnimation,
+	AlertIOS,
 } = React;
 
 export default class Video extends React.Component {
@@ -33,6 +37,8 @@ export default class Video extends React.Component {
 			currentTime: 0.0,
 			chapters: [],
 			currentChapter: null,
+			paused: false,
+			playIcon: 'pause',
 		};
 	}
 
@@ -41,19 +47,20 @@ export default class Video extends React.Component {
 	}
 
 	onProgress(data) {
-		if (debug) console.log(this.state.currentChapter);
+		// if (debug) console.log(data);
 		if (debug) {
 			if ( this.state.currentChapter) console.log(this.state.currentChapter.end);
 		}
-		if (this.state.currentChapter !== null && data.currentTime === this.state.currentChapter.end) {
-			alert();
+		if (this.state.currentChapter !== null && Math.round(data.currentTime, -2) === this.state.currentChapter.end) {
 			this.setState({paused: true});
 		}
 
-		this.setState({
-			currentTime: data.currentTime,
-			duration: data.playableDuration,
-		});
+		if (Math.round(data.currentTime, -2) % 0.05) {
+			this.setState({
+				currentTime: Math.round(data.currentTime, -2),
+				duration: data.playableDuration,
+			});
+		}
 	}
 
 	getCurrentTimePercentage() {
@@ -106,28 +113,99 @@ export default class Video extends React.Component {
 		const chapterName = chapter.length ? 'chapter' + c  : 'chapter1';
 		
 		if (this.state.chapters.length === 0) {
-			chapter = chapter.push({'chapterName' : chapterName, 'start': 0, 'end': time});
+			chapter = chapter.push({'chapterName' : chapterName, 'start': 0, 'end': Math.round(time, -2)});
 		} else {
-			chapter = chapter.push({'chapterName' : chapterName, start: chapter[chapter.length - 1].end, end: time});
+			if (chapter[chapter.length - 1].end > Math.round(time, -2)) { return false; }
+			chapter = chapter
+				.push(
+					{
+						'chapterName' : chapterName, 
+						start: chapter[chapter.length - 1].end, 
+						end: Math.round(time, -2)
+					});
 		}
 		this.setState({chapter});
+		LayoutAnimation.easeInEaseOut();
 		if (debug) console.log('CHAPTER', this.state.chapters);
 	}
 
-	startChapter(startTime, chapter) {
+	startChapter(startTime, chapter, index) {
+		if (debug) console.log('INDEX', index);
 		if (debug) console.log(startTime);
-		this.setState({currentChapter: chapter});
+		if (chapter) {
+			this.setState({currentChapter: chapter});
+		}
+		if (index >= 0) {
+			this.setState({currentChapterIndex: index});
+		}
 		this._videoComponent.seek(startTime);
 	}
 
+	playIcon() {
+		var playIcon = !this.state.paused ? 'pause' : 'play';
+		return playIcon;
+	}
+
+	renderChapterControls() {
+		const isChaptersAvailable = !(this.state.chapters.length === 0);
+		const isChapterMoreThenTwo = this.state.chapters.length > 1;
+		const { width, height } = this.props.layout;
+		const playIcon = this.playIcon();
+		return (
+			<View style={{
+				width: width * 0.9, top: height * 0.05, 
+				backgroundColor: 'transparent',
+				justifyContent: 'center', alignItems: 'center',
+				flexDirection: 'row',
+			}}>
+				<TouchableOpacity onPress={() => {this.setState({currentChapter: null, paused: this.state.paused ? false : true})}}>
+					<Icon name={playIcon} size={40} color='#000' style={{marginHorizontal: 10}}/>
+				</TouchableOpacity>
+				{isChaptersAvailable && 
+					<TouchableOpacity onPress={ () => { 
+						if (this.state.currentChapter !== null) {
+							this.startChapter(this.state.currentChapter.start); 
+							this.setState({paused: this.state.paused ? false : true}) 
+						} 
+					}}>
+						<Icon name='loop' size={40} color='#000' style={{marginHorizontal: 10}}/>
+					</TouchableOpacity>
+				}
+				{isChapterMoreThenTwo && 
+					<TouchableOpacity onPress={ () => { 
+						/*
+							Найти текущий отрезок в хранилище
+							Найти следующий за ним
+							Прокинуть следующий в startChapter()
+						*/
+						let currentChapterIndex = this.state.currentChapterIndex;
+						if (debug) console.log('currentChapterIndex', currentChapterIndex);
+						let nextChapterIndex = currentChapterIndex+1;
+						let chapters = this.state.chapters;
+						let nextChapter = chapters[nextChapterIndex];
+						if (debug) console.log('chapters', chapters);
+						if (debug) console.log('nextChapter', nextChapter)
+						this.startChapter(
+							nextChapter.start, 
+							nextChapter,
+							nextChapterIndex,
+						); 
+						this.setState({paused: this.state.paused ? false : true}) }}>
+						<Icon name='skip-forward' size={40} color='#000' style={{marginHorizontal: 10}}/>
+					</TouchableOpacity>
+				}
+			</View>
+		)
+	}
+
 	render() {
-		var flexCompleted = this.getCurrentTimePercentage() * 100;
-    	var flexRemaining = (1 - this.getCurrentTimePercentage()) * 100;
-		const {width, height } = this.props.layout;
-		var chapters = this.state.chapters.length ? this.state.chapters : null;
+		const 	flexCompleted = this.getCurrentTimePercentage() * 100;
+    	const 	flexRemaining = (1 - this.getCurrentTimePercentage()) * 100;
+		const 	{width, height } = this.props.layout;
+		let 	chapters = this.state.chapters.length ? this.state.chapters : null;
 		let renderChapters = undefined;
 		if (chapters) {
-			renderChapters = chapters.map( i => {				
+			renderChapters = chapters.map( (i, index) => {				
 				var chapterName = i.chapterName.toString();
 				var text = chapterName + ', startTime: ' + i.start + ', endTime: ' + i.end;
 				return(
@@ -135,7 +213,7 @@ export default class Video extends React.Component {
 						<TouchableOpacity style={{paddingVertical: 5, paddingHorizontal: 10, borderColor: '#007AFF', borderWidth: 1, 
 						borderRadius: 10,
 						overflow: 'hidden',
-						backgroundColor: '#34AADC'}} onPress={() => { this.startChapter(i.start, i) }}>
+						backgroundColor: '#34AADC'}} onPress={() => { this.startChapter(i.start, i, index) }}>
 							<Text style={{color: '#fff', fontSize: 12}}>{text}</Text>
 						</TouchableOpacity>
 					</View>
@@ -145,7 +223,7 @@ export default class Video extends React.Component {
 
 		return (
 			<View style={{justifyContent: 'flex-start', alignItems: 'center'}}>
-				<TouchableOpacity style={{width, height: height / 2}} onPress={() => {this.setState({paused: !this.state.paused})}}>
+				<View style={{width, height: height / 2.5, alignItems: 'center', justifyContent: 'flex-start'}}>
 					<RNVideo
 						ref={component => this._videoComponent = component}
 						source={{uri: this.props.source}} // Can be a URL or a local file.
@@ -155,13 +233,23 @@ export default class Video extends React.Component {
 						muted={this.state.muted}
 						resizeMode={this.state.resizeMode}
 						onLoad={(data) => { this.onLoad(data) }}
-						onProgress={(d) => { this.onProgress(d); /*if (debug) console.log('onPROGRESS', d);*/ }}
+						onProgress={(d) => { this.onProgress(d)}}
 						onEnd={() => { AlertIOS.alert('Done!') }}
 						repeat={true}
-						style={this.props.style}>
+						style={[this.props.style, {height: height * 0.25}]}>
 					</RNVideo>
-				</TouchableOpacity>
-				<TouchableOpacity style={{backgroundColor: 'orange', marginVertical: 10,}} onPress={ () => { this.createChapter(this.state.currentTime); }}>
+					{this.renderChapterControls()}
+				</View>
+				<TouchableOpacity 
+					style={{backgroundColor: 'orange', marginVertical: 5,}} 
+					onPress={ () => { 
+						if (this.state.paused !== true) {
+							this.createChapter(this.state.currentTime); 
+						} else {
+							AlertIOS.alert('You can\'t make a chapter on pause');
+						}
+					}}
+				>
 					<Text style={{fontSize: 24, fontWeight: '700', padding: 20}}>CREATE CHAPTER</Text>
 				</TouchableOpacity>
 				<View style={styles.controls}>
@@ -179,14 +267,14 @@ export default class Video extends React.Component {
 		            </View>
 		          </View>
 
-		          <View style={[styles.trackingControls, {width}]}>
-		            <Text>Progress</Text>
-		            <View style={[styles.progress, {width}]}>
+		          <View style={[styles.trackingControls, {width: width * 0.9}]}>
+		            <View style={[styles.progress, {width: width * 0.9}]}>
 		              <View style={[styles.innerProgressCompleted, {flex: flexCompleted}]} />
 		              <View style={[styles.innerProgressRemaining, {flex: flexRemaining}]} />
 		            </View>
 		          </View>
 			    </View>
+			    
 			    <View style={{width, justifyContent: 'flex-start', alignItems: 'center'}}>
 			    	<Text>Chapters</Text>
 			    	<ScrollView
@@ -200,6 +288,15 @@ export default class Video extends React.Component {
 		)
 	}
 }
+
+// <Slider
+// 	style={{width: width * 0.9}}
+// 	trackStyle={customStyles6.track}
+// 	thumbStyle={customStyles6.thumb}
+// 	minimumTrackTintColor='#e6a954'
+// 	minimumValue={0}
+// 	maximumValue={flexCompleted}
+// ></Slider>
 
 
 var styles = StyleSheet.create({
@@ -221,11 +318,11 @@ var styles = StyleSheet.create({
     overflow: 'hidden',
   },
   innerProgressCompleted: {
-    height: 20,
+    height: 10,
     backgroundColor: '#000',
   },
   innerProgressRemaining: {
-    height: 20,
+    height: 10,
     backgroundColor: 'green',
   },
   generalControls: {
