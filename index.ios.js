@@ -5,7 +5,8 @@
 'use strict';
 
 import React from 'react-native';
-import Edit from './components/Edit';
+import TrackContainer from './components/TrackContainer';
+
 const {
 	AppRegistry,
 	StyleSheet,
@@ -15,37 +16,11 @@ const {
 	Dimensions,
 } = React;
 
-class speak extends React.Component {
-	constructor() {
-		super();
-		this.state = {
-			layout: Dimensions.get('window'),
-		}
-	}
-
-	renderComponent(route, navigator) {
-		if (route.name === 'edit') {
-			return (
-				<View style={styles.container}>
-					<Edit navigator={navigator} layout={this.state.layout} source='example' style={{width}}></Edit>
-				</View>
-			);
-		} else if (route.name === 'practice') {
-			// this.props.navigator.push({name: 'practice', state: 4})
-			return (
-				<View style={styles.container}>
-					<Video state={route.state} layout={this.state.layout} source='example' style={{width}}></Video>
-				</View>
-			)
-		}
-	}
-
+class SpeakApp extends React.Component {
 	render() {
-		const { width, height} = this.state.layout;
-
 		return (
 			<View style={styles.container}>
-				<Edit layout={this.state.layout} source='example' style={{width}}></Edit>
+				<TrackContainer source='example' />
 			</View>
 		);
 	}
@@ -53,9 +28,9 @@ class speak extends React.Component {
 
 var styles = StyleSheet.create({
 	container: {
-		// flex: 1,
-		justifyContent: 'center',
-		alignItems: 'center',
+		flex: 1,
+		// justifyContent: 'center',
+		// alignItems: 'center',
 		backgroundColor: '#fff',
 	},
 	welcome: {
@@ -70,4 +45,4 @@ var styles = StyleSheet.create({
 	},
 });
 
-AppRegistry.registerComponent('speak', () => speak);
+AppRegistry.registerComponent('speak', () => SpeakApp);
