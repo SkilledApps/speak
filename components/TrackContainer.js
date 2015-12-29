@@ -74,7 +74,7 @@ export default class TrackContainer extends React.Component {
 		if (index < 0) {
 			index = 0;
 		}
-		if (index > this.state.timestamps.length - 1) {
+		if (this.state.timestamps && index > this.state.timestamps.length - 1) {
 			index = this.state.timestamps.length - 1;
 		}
 		this.setState({currentTimestampIndex: index, currentTime: this.state.timestamps[index].time});
@@ -95,8 +95,9 @@ export default class TrackContainer extends React.Component {
 	}
 
 	renderChapterControls() {
-		const isChaptersAvailable = !(this.state.timestamps.length === 0);
-		const isChapterMoreThenTwo = this.state.timestamps.length > 1;
+		
+		const isChaptersAvailable = this.state.timestamps ? !(this.state.timestamps.length === 0) : false;
+		const isChapterMoreThenTwo = this.state.timestamps ? this.state.timestamps.length > 1 : false;
 		const width = 100, height = 100; // TODO: remove?
 		const playIcon = this.playIcon();
 		return (
@@ -189,6 +190,7 @@ export default class TrackContainer extends React.Component {
 				{/* Если выбран не режим практики, а редактирования, то показать контейнер с метками */}
 			  {!this.state.practice && this.state.timestamps &&
 					<TimestampsContainer
+						startPractice={ (state) => { this.startPractice(state); if (debug) {console.log('START PRACTICE STATE =', state);} }}
 						currentTime={this.state.currentTime}
 						timestamps={this.state.timestamps}
 						onSelect={index => this.playTimestamp(index)}
