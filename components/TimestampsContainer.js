@@ -5,10 +5,12 @@ import Icon from 'react-native-vector-icons/Ionicons';
 
 class TimestampControl extends React.Component {
   render() {
+    const playedStyle = this.props.isPlayed ? {backgroundColor: 'rgba(0,0,0,0.5)'} : {};
+    const selectedStyle = this.props.isSelected ? { borderColor: 'yellow', borderWidth: 2} : {};
     return (
       <View style={[styles.timestampControl]}>
         <TouchableOpacity
-          style={[styles.caption, this.props.isPlayed ? {backgroundColor: 'rgba(0,0,0,0.5)'} : {}]}
+          style={[styles.caption, selectedStyle, playedStyle]}
           onPress={() => { this.props.onSelect(this.props.key) }}>
           <Text style={styles.captionText}>{this.props.title} {this.props.time} s.</Text>
         </TouchableOpacity>
@@ -38,7 +40,8 @@ export default class TimestampsContainer extends React.Component {
   render() {
     const timestamps = this.props.timestamps.map ((t, i) =>
       <TimestampControl {...t} key={t.time}
-        isPlayed={this.props.currentTime >= t.time}
+        isPlayed={this.props.currentTime > t.time}
+        isSelected={this.props.selectedIndex === i}
         onSelect={() => this.props.onSelect(i) }
         onDelete={() => this.props.onDelete(i) }
         onMove={(k, delta) => this.props.onMove(i, delta) }
@@ -46,6 +49,18 @@ export default class TimestampsContainer extends React.Component {
 
     return (
       <View style={{justifyContent: 'flex-start', alignItems: 'center'}}>
+
+        <TouchableOpacity
+          onPress={() => this.props.startPractice() }
+          style={{
+          marginBottom: 10, backgroundColor: 'orange', borderRadius: 5, overflow: 'hidden'}}>
+          <Text style={{paddingVertical: 10,
+            paddingHorizontal: 20,
+            color: 'white', fontSize: 14,
+            fontWeight: '700'
+          }}>{this.props.inPractice ? 'Stop Practice' : 'Start Practice'}</Text>
+        </TouchableOpacity>
+
         <ScrollView
           showsVerticalScrollIndicator={true}
           horizontal={false}
@@ -55,18 +70,6 @@ export default class TimestampsContainer extends React.Component {
         >
           {timestamps}
         </ScrollView>
-
-
-        <TouchableOpacity
-          onPress={() => { this.props.startPractice(true); }}
-          style={{
-          marginTop: 10, backgroundColor: 'orange', borderRadius: 5, overflow: 'hidden'}}>
-          <Text style={{paddingVertical: 10,
-            paddingHorizontal: 20,
-            color: 'white', fontSize: 14,
-            fontWeight: '700'
-          }}>Start practice</Text>
-        </TouchableOpacity>
 
       </View>
     );

@@ -43,8 +43,8 @@ export default class TrackContainer extends React.Component {
 			modeChapterDelete: false,
 			practice: false,
 			practiceScheme: {
-				repeating: 3, 	// repeat chapter 3 times
-				interval: 1, 	// 1s between repeatings
+				repeats: 3, 	// repeat chapter 3 times
+				intervalRatio: 2.5, 	// ratio between repeatings, 1 sec become 2.5 sec
 			}
 		};
 	}
@@ -147,25 +147,43 @@ export default class TrackContainer extends React.Component {
 	}
 
 
-	startPractice(state) {
+	togglePractice() {
 		/*
-			1. Взять все отрезки из state.chapters
-			2. Запустить каждый из них начиная с первого
-			3. Повторять каждый отрезок на основании state.practiceScheme (количество повторов + паузы между повторами)
+			Начинаем играть с текущего времени в режиме повтора каждого участка
 
 			@param currentTime : this.state.currentTime;
 			@func startChapter : startChapter(startTime, chapter, index) {}
 		*/
-		this.setState({practice: state});
+		this.setState({practice: !this.state.practice});
+		if (this.state.practice) {
+			const nextLoop = (repeats, timestamp) => {
+				const nextTimestampIndex = timestamp > 0 ? timestamp - 1 : 0;
+				if (nextTimestampIndex === timestamp) { // конец
+					return;
+				} else {
+					const deltaTime = this.state.timestamps[nextTimestampIndex].time - this.state.timestamps[timestamp].time;
+					this.playTimestamp(timestamp);
+					this.setState({paused: false});
+					// поставить на паузу после проигрывания этого участка
+					this.t1 = setTimeout(() => this.setState({paused: true}), deltaTime * 1000);
+					if (repeats < this.state.practiceScheme.repeats) {
+						// текущий урок, продолжаем повторять
+						this.t2 = setTimeout(() => nextLoop(repeats + 1, timestamp), deltaTime * 1000 * this.state.practiceScheme.intervalRatio);
+					} else {
+						// следующий урок (минус один потому что порядок обратный)
+						this.t2 = setTimeout(() => nextLoop(0, timestamp - 1), deltaTime * 1000 * this.state.practiceScheme.intervalRatio);
+					}
+				}
+			}
 
-		if (state === false) return; // disable practice mode and return;
+			const currentTimestampIndex = TimestampsAPI.getIndexByTime(this.state.timestamps, this.state.currentTime);
+			nextLoop(0, currentTimestampIndex < this.state.timestamps ? currentChapterIndex : currentTimestampIndex - 1);
 
-		let chapters = this.state.chapters;
-
-		const repeatCounter = this.state.practiceScheme.repeating;
-		let counter = 0;
-
-
+		} else {
+			// удалить таймауты чтобы корректно остановить режим тренировки
+			clearTimeout(this.t1);
+			clearTimeout(this.t2);
+		}
 	}
 
 	render() {
@@ -182,43 +200,24 @@ export default class TrackContainer extends React.Component {
 				/>
 
 				{/* Управление видео или аудио */}
-				{!this.state.practice && this.renderChapterControls()}
+				{this.renderChapterControls()}
 
 				{/* Если меток нет, то отображать приветствие */}
 				{!this.state.timestamps && <OnboardingTip where={'Edit'} /> }
 
 				{/* Если выбран не режим практики, а редактирования, то показать контейнер с метками */}
-			  {!this.state.practice && this.state.timestamps &&
+			  {this.state.timestamps &&
 					<TimestampsContainer
-						startPractice={ (state) => { this.startPractice(state); if (debug) {console.log('START PRACTICE STATE =', state);} }}
-						currentTime={this.state.currentTime}
-						timestamps={this.state.timestamps}
-						onSelect={index => this.playTimestamp(index)}
-						onDelete={index => this.deleteTimestamp(index)}
+						currentTime={ this.state.currentTime }
+						timestamps={ this.state.timestamps }
+						inPractice={ this.state.practice }
+						selectedIndex={ this.state.currentTimestampIndex }
+						onSelect={ index => { this.togglePractice(); this.playTimestamp(index) } }
+						onDelete={ index => this.deleteTimestamp(index) }
+						startPractice={ () => this.togglePractice() }
 						onMove={(index, delta) => this.moveTimestamp(index, delta) }
 					/> }
 
-				{/* Режим практики (на самом деле можно просто скрыть часть контролов возможно и добавить настроку количества повторений)*/}
-		    {this.state.practice &&
-		    	<View style={{paddingTop: 75, justifyContent: 'center', alignItems: 'center'}}>
-		    		<View>
-			    		<TouchableOpacity onPress={ () => { this.setState({paused: false, currentChapter: null}); }}>
-			    			<Icon name={this.playIcon()} color='orange' size={50}/>
-			    		</TouchableOpacity>
-		    		</View>
-
-		    		<TouchableOpacity
-		    			onPress={() => { this.setState({practice: false}); }}
-		    			style={{
-			    		marginTop: 50, backgroundColor: 'orange', borderRadius: 5, overflow: 'hidden'}}>
-			    		<Text style={{paddingVertical: 10,
-			    			paddingHorizontal: 20,
-			    			color: 'white', fontSize: 14,
-			    			fontWeight: '700'
-			    		}}>Edit chapters</Text>
-			    	</TouchableOpacity>
-		    	</View>
-		    }
 			</View>
 		)
 	}
