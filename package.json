@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "react-native start",
-    "bundle": "react-native bundle --entry-file index.ios.js --platform ios --dev false --bundle-output ios/main.jsbundle"
+    "bundle": "react-native bundle --entry-file index.ios.js --platform ios --dev false --bundle-output ./main.jsbundle"
   },
   "dependencies": {
     "react-native": "^0.17.0",

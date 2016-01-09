@@ -17,6 +17,7 @@ import TimestampsAPI from '../timestampsAPI';
 const debug = 1;
 
 const {
+	Dimensions,
 	AppRegistry,
 	StyleSheet,
 	Text,
@@ -31,6 +32,7 @@ const {
 } = React;
 
 const HOLD_TIMER = 400;
+const layout = Dimensions.get('window');
 
 export default class TrackContainer extends React.Component {
 	constructor() {
@@ -42,6 +44,7 @@ export default class TrackContainer extends React.Component {
 			playIcon: 'pause',
 			modeChapterDelete: false,
 			practice: false,
+			repeatsIndicator: 0,
 			practiceScheme: {
 				repeats: 3, 	// repeat chapter 3 times
 				intervalRatio: 2.5, 	// ratio between repeatings, 1 sec become 2.5 sec
@@ -50,13 +53,21 @@ export default class TrackContainer extends React.Component {
 	}
 
 	componentWillMount() {
+		if (!this.state.source) {
+			this.setState({source: this.props.source[0]});
+		}
+		this.parseVideoData();
+	}
+
+	parseVideoData() {
 		TimestampsAPI
-			.restore(this.props.source) // TODO: use hash or path (now bundled video)
+			.restore(this.state.source) // TODO: use hash or path (now bundled video)
 			.then(raw => JSON.parse(raw))
 			.then(timestamps => this.setState({timestamps}))
 	}
 
 	componentWillReceiveProps(nextProps) {
+		LayoutAnimation.easeInEaseOut();
 		// if (this.state.practice === true) {
 		// 	this.startPractice();
 		// }
@@ -66,7 +77,7 @@ export default class TrackContainer extends React.Component {
 		// TODO: immutable js or dirty flag
 		if (this.state.timestamps && nextState.timestamps && nextState.timestamps !== this.state.timestamps) {
 			LayoutAnimation.easeInEaseOut();
-			TimestampsAPI.persist(this.props.source, nextState.timestamps);
+			TimestampsAPI.persist(this.state.source, nextState.timestamps);
 		}
 	}
 
@@ -110,36 +121,28 @@ export default class TrackContainer extends React.Component {
 				{isChapterMoreThenTwo &&
 					<TouchableOpacity
 						onPress={ () => this.playTimestamp(TimestampsAPI.getIndexByTime(this.state.timestamps, this.state.currentTime) + 1) }>
-						<Icon name='skip-backward' size={30} color='orange' style={{padding: 15}}/>
+						<Icon name='skip-backward' size={30} color='#FF9500' style={{padding: 15}}/>
 					</TouchableOpacity>
 				}
 
 				<TouchableOpacity onPress={() => {this.setState({currentChapter: null, paused: this.state.paused ? false : true})}}>
-					<Icon name={playIcon} size={30} color='orange' style={{padding: 15}}/>
+					<Icon name={playIcon} size={30} color='#FF9500' style={{padding: 15}}/>
 				</TouchableOpacity>
 
-				<TouchableOpacity
-					style={{}}
-					onPress={ () => this.setState({timestamps: TimestampsAPI.addTimestamp(this.state.timestamps, this.state.currentTime)}) }>
-					<Icon name='ios-circle-filled' size={35} color='orange'
-						style={{padding: 15}}
-					/>
-				</TouchableOpacity>
-
-				{/*isChaptersAvailable &&
-					<TouchableOpacity onPress={ () => {
-						if (this.state.currentChapter !== null) {
-							this.startChapter(this.state.currentChapter.start, this.state.currentChapter);
-							this.setState({paused: false})
-						}
-					}}>
-						<Icon name='loop' size={30} color='orange' style={{padding: 15}}/>
-					</TouchableOpacity>*/
+				{!this.state.practice && 
+					<TouchableOpacity
+						style={{}}
+						onPress={ () => this.setState({timestamps: TimestampsAPI.addTimestamp(this.state.timestamps, this.state.currentTime)}) }>
+						<Icon name='ios-circle-filled' size={35} color='#FF9500'
+							style={{padding: 15}}
+						/>
+					</TouchableOpacity>
 				}
+
 				{isChapterMoreThenTwo &&
 					<TouchableOpacity
 						onPress={() => this.playTimestamp(TimestampsAPI.getIndexByTime(this.state.timestamps, this.state.currentTime) - 1) }>
-						<Icon name='skip-forward' size={30} color='orange' style={{marginHorizontal: 10}}/>
+						<Icon name='skip-forward' size={30} color='#FF9500' style={{marginHorizontal: 10}}/>
 					</TouchableOpacity>
 				}
 			</View>
@@ -161,7 +164,7 @@ export default class TrackContainer extends React.Component {
 				if (nextTimestampIndex === timestamp) { // конец
 					return;
 				} else {
-					const deltaTime = this.state.timestamps[nextTimestampIndex].time - this.state.timestamps[timestamp].time;
+					const deltaTime = this.state.timestamps[nextTimestampIndex].time ? this.state.timestamps[nextTimestampIndex].time - this.state.timestamps[timestamp].time : 1;
 					this.playTimestamp(timestamp);
 					this.setState({paused: false});
 					// поставить на паузу после проигрывания этого участка
@@ -173,6 +176,7 @@ export default class TrackContainer extends React.Component {
 						// следующий урок (минус один потому что порядок обратный)
 						this.t2 = setTimeout(() => nextLoop(0, timestamp - 1), deltaTime * 1000 * this.state.practiceScheme.intervalRatio);
 					}
+					this.setState({repeatsIndicator: repeats + 1});
 				}
 			}
 
@@ -186,18 +190,64 @@ export default class TrackContainer extends React.Component {
 		}
 	}
 
+	renderVideoItems() {
+		// array of video links
+		const video = this.props.source;
+		var videos = video.map( (e, index) => {
+			return (
+				<TouchableOpacity key={index} 
+					onPress={ () => {this.setState({source: e, isMenuVisible: !this.state.isMenuVisible}); this.parseVideoData();}} 
+					style={{width: layout.width, height: 50, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f7f7f7'}}>
+					<Text style={{padding: 10, fontSize: 16}}>{e.toString()}</Text>
+				</TouchableOpacity>
+			)
+		});
+
+		return videos;
+	}
+
 	render() {
+
+		const closeButton = () => {
+			return (<TouchableOpacity onPress={() => { this.setState({isMenuVisible: !this.state.isMenuVisible}); }}
+					style={{position: 'absolute', top: layout.width * 0.05, left: layout.width * 0.05, backgroundColor: 'transparent'}}>
+					<Icon name='navicon-round' color='#FF9500' size={40}/>
+				</TouchableOpacity>)
+		};
 
 		return (
 			<View style={{justifyContent: 'flex-start', alignItems: 'center'}}>
+
+				{this.state.isMenuVisible && 
+					<Modal
+						animated={this.state.animated}
+						transparent={false}
+						visible={true}
+						syule={{flex: 1, backgroundColor: '#fff'}}>
+						<View style={{width: layout.width, height: layout.height, justifyContent: 'center', alignItems: 'center'}}>
+							{closeButton}
+							{this.renderVideoItems()}
+						</View>
+					</Modal>
+				}
+
 
 				{/* VideoWrapper для отображение видео (потом можно добавить AudioWrapper или YoutubeWrapper) */}
 				<VideoWrapper
 					ref={component => this._videoComponent = component}
 					onProgress={s => this.setState(s)}
-					source={this.props.source}
+					source={this.state.source}
 					paused={this.state.paused}
-				/>
+					repeatsIndicator={this.state.repeatsIndicator}
+					>
+				</VideoWrapper>
+
+				{closeButton}
+
+				<TouchableOpacity onPress={() => { this.setState({isMenuVisible: !this.state.isMenuVisible}) }}
+					style={{position: 'absolute', top: layout.width * 0.02, left: layout.width * 0.03, backgroundColor: 'transparent'}}>
+					<Icon name='navicon-round' color='#FF9500' size={50}/>
+				</TouchableOpacity>
 
 				{/* Управление видео или аудио */}
 				{this.renderChapterControls()}
@@ -212,7 +262,7 @@ export default class TrackContainer extends React.Component {
 						timestamps={ this.state.timestamps }
 						inPractice={ this.state.practice }
 						selectedIndex={ this.state.currentTimestampIndex }
-						onSelect={ index => { this.togglePractice(); this.playTimestamp(index) } }
+						onSelect={ index => { this.setState({practice: false, repeatsIndicator: 0}); this.playTimestamp(index); } }
 						onDelete={ index => this.deleteTimestamp(index) }
 						startPractice={ () => this.togglePractice() }
 						onMove={(index, delta) => this.moveTimestamp(index, delta) }

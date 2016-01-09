@@ -21,8 +21,13 @@
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		146834051AC3E58100842450 /* libReact.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 146834041AC3E56700842450 /* libReact.a */; };
+		15065A081C341D1600BD1B83 /* french2.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 15065A071C341D1600BD1B83 /* french2.mp4 */; };
+		15065A151C341E2700BD1B83 /* french3.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 15065A141C341E2700BD1B83 /* french3.mp4 */; };
+		15121A0B1C34086500B8ADE9 /* english1.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 15121A071C34086500B8ADE9 /* english1.mp4 */; };
+		15121A0C1C34086500B8ADE9 /* english2.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 15121A081C34086500B8ADE9 /* english2.mp4 */; };
+		15121A0D1C34086500B8ADE9 /* english3.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 15121A091C34086500B8ADE9 /* english3.mp4 */; };
+		15121A0E1C34086500B8ADE9 /* french1.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 15121A0A1C34086500B8ADE9 /* french1.mp4 */; };
 		15CA07441C2AAEDC00DF13F1 /* libRCTVideo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 15CA07431C2AAECB00DF13F1 /* libRCTVideo.a */; };
-		15CA07461C2AB3D500DF13F1 /* example.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 15CA07451C2AB3D500DF13F1 /* example.mp4 */; };
 		15CA074A1C2BBF7B00DF13F1 /* main.jsbundle in Resources */ = {isa = PBXBuildFile; fileRef = 15CA07491C2BBF7B00DF13F1 /* main.jsbundle */; };
 		15CA075A1C2BDE0000DF13F1 /* Ionicons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 15CA07591C2BDE0000DF13F1 /* Ionicons.ttf */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
@@ -134,8 +139,13 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = speak/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = speak/main.m; sourceTree = "<group>"; };
 		146833FF1AC3E56700842450 /* React.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = React.xcodeproj; path = "../node_modules/react-native/React/React.xcodeproj"; sourceTree = "<group>"; };
+		15065A071C341D1600BD1B83 /* french2.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; name = french2.mp4; path = ../sources/french2.mp4; sourceTree = "<group>"; };
+		15065A141C341E2700BD1B83 /* french3.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; name = french3.mp4; path = ../sources/french3.mp4; sourceTree = "<group>"; };
+		15121A071C34086500B8ADE9 /* english1.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; name = english1.mp4; path = ../sources/english1.mp4; sourceTree = "<group>"; };
+		15121A081C34086500B8ADE9 /* english2.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; name = english2.mp4; path = ../sources/english2.mp4; sourceTree = "<group>"; };
+		15121A091C34086500B8ADE9 /* english3.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; name = english3.mp4; path = ../sources/english3.mp4; sourceTree = "<group>"; };
+		15121A0A1C34086500B8ADE9 /* french1.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; name = french1.mp4; path = ../sources/french1.mp4; sourceTree = "<group>"; };
 		15CA073E1C2AAECB00DF13F1 /* RCTVideo.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTVideo.xcodeproj; path = "../node_modules/react-native-video/RCTVideo.xcodeproj"; sourceTree = "<group>"; };
-		15CA07451C2AB3D500DF13F1 /* example.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; name = example.mp4; path = ../sources/example.mp4; sourceTree = "<group>"; };
 		15CA07491C2BBF7B00DF13F1 /* main.jsbundle */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = main.jsbundle; path = ../main.jsbundle; sourceTree = "<group>"; };
 		15CA07591C2BDE0000DF13F1 /* Ionicons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Ionicons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Ionicons.ttf"; sourceTree = "<group>"; };
 		78C398B01ACF4ADC00677621 /* RCTLinking.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTLinking.xcodeproj; path = "../node_modules/react-native/Libraries/LinkingIOS/RCTLinking.xcodeproj"; sourceTree = "<group>"; };
@@ -277,6 +287,12 @@
 		15CA07581C2BDDE100DF13F1 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				15065A141C341E2700BD1B83 /* french3.mp4 */,
+				15065A071C341D1600BD1B83 /* french2.mp4 */,
+				15121A071C34086500B8ADE9 /* english1.mp4 */,
+				15121A081C34086500B8ADE9 /* english2.mp4 */,
+				15121A091C34086500B8ADE9 /* english3.mp4 */,
+				15121A0A1C34086500B8ADE9 /* french1.mp4 */,
 				15CA07591C2BDE0000DF13F1 /* Ionicons.ttf */,
 			);
 			name = Resources;
@@ -320,7 +336,6 @@
 			isa = PBXGroup;
 			children = (
 				15CA07581C2BDDE100DF13F1 /* Resources */,
-				15CA07451C2AB3D500DF13F1 /* example.mp4 */,
 				13B07FAE1A68108700A75B9A /* speak */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* speakTests */,
@@ -554,10 +569,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				15CA075A1C2BDE0000DF13F1 /* Ionicons.ttf in Resources */,
-				15CA07461C2AB3D500DF13F1 /* example.mp4 in Resources */,
+				15065A151C341E2700BD1B83 /* french3.mp4 in Resources */,
+				15121A0E1C34086500B8ADE9 /* french1.mp4 in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
+				15121A0D1C34086500B8ADE9 /* english3.mp4 in Resources */,
 				13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */,
+				15065A081C341D1600BD1B83 /* french2.mp4 in Resources */,
+				15121A0C1C34086500B8ADE9 /* english2.mp4 in Resources */,
 				15CA074A1C2BBF7B00DF13F1 /* main.jsbundle in Resources */,
+				15121A0B1C34086500B8ADE9 /* english1.mp4 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

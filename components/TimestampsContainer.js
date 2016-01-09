@@ -1,12 +1,13 @@
 import React from 'react-native';
 
-const { View, Text, TouchableOpacity, ScrollView } = React;
+const { View, Text, TouchableOpacity, Dimensions, ScrollView } = React;
 import Icon from 'react-native-vector-icons/Ionicons';
+const layout = Dimensions.get('window');
 
 class TimestampControl extends React.Component {
   render() {
     const playedStyle = this.props.isPlayed ? {backgroundColor: 'rgba(0,0,0,0.5)'} : {};
-    const selectedStyle = this.props.isSelected ? { borderColor: 'yellow', borderWidth: 2} : {};
+    const selectedStyle = this.props.isSelected ? { borderColor: '#FF9500', borderWidth: 2} : {};
     return (
       <View style={[styles.timestampControl]}>
         <TouchableOpacity
@@ -18,17 +19,17 @@ class TimestampControl extends React.Component {
         <View style={{justifyContent: 'space-between', flexDirection: 'row'}}>
           <TouchableOpacity style={styles.button2}
             onPress={ () => { this.props.onDelete(this.props.key); }}>
-            <Icon name='trash-a' size={30} color='orange'/>
+            <Icon name='trash-a' size={30} color='#FF9500'/>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.button2}
               onPress={ () => { this.props.onMove(this.props.key, -0.2) }}>
-            <Icon name='minus' size={30} color='orange'/>
+            <Icon name='minus' size={30} color='#FF9500'/>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.button2}
             onPress={ () => { this.props.onMove(this.props.key, 0.2); }}>
-            <Icon name='plus' size={30} color='orange'/>
+            <Icon name='plus' size={30} color='#FF9500'/>
           </TouchableOpacity>
         </View>
       </View>
@@ -44,8 +45,7 @@ export default class TimestampsContainer extends React.Component {
         isSelected={this.props.selectedIndex === i}
         onSelect={() => this.props.onSelect(i) }
         onDelete={() => this.props.onDelete(i) }
-        onMove={(k, delta) => this.props.onMove(i, delta) }
-      /> );
+        onMove={(k, delta) => this.props.onMove(i, delta) }/>);
 
     return (
       <View style={{justifyContent: 'flex-start', alignItems: 'center'}}>
@@ -53,7 +53,7 @@ export default class TimestampsContainer extends React.Component {
         <TouchableOpacity
           onPress={() => this.props.startPractice() }
           style={{
-          marginBottom: 10, backgroundColor: 'orange', borderRadius: 5, overflow: 'hidden'}}>
+            marginBottom: 5, backgroundColor: '#FF9500', borderRadius: 5, overflow: 'hidden'}}>
           <Text style={{paddingVertical: 10,
             paddingHorizontal: 20,
             color: 'white', fontSize: 14,
@@ -67,6 +67,7 @@ export default class TimestampsContainer extends React.Component {
           contentContainerStyle={{
             justifyContent: 'flex-start',
             alignItems: 'center', paddingBottom: 25}}
+            style={{height: layout.height / 2, width: layout.width}}
         >
           {timestamps}
         </ScrollView>
@@ -81,8 +82,9 @@ const styles = {
     marginVertical: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    flex: 1
+    alignItems: 'flex-end',
+    flex: 1,
+    width: layout.width * 0.9
   },
   caption: {
     paddingVertical: 5,
@@ -96,16 +98,3 @@ const styles = {
   },
   captionText: {color: '#fff', fontSize: 16}
 }
-//
-//
-// let 	chapters = this.state.chapters.length ? this.state.chapters : null;
-// let renderChapters = undefined;
-// if (chapters) {
-//   renderChapters = chapters.map( (i, index) => {
-//     var chapterName = i.chapterName.toString();
-//     var text = i.start + ' : ' + i.end;
-//     return(
-
-//     )
-//   });
-// }

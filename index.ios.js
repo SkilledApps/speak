@@ -17,10 +17,24 @@ const {
 } = React;
 
 class SpeakApp extends React.Component {
+	constructor() {
+		super();
+		this.state = {
+			videos: 
+			[
+				'english1',
+				'english2',
+				'english3',
+				'french1',
+				'french2',
+				'french3',
+			]
+		}
+	}
 	render() {
 		return (
 			<View style={styles.container}>
-				<TrackContainer source='example' />
+				<TrackContainer source={this.state.videos} />
 			</View>
 		);
 	}
