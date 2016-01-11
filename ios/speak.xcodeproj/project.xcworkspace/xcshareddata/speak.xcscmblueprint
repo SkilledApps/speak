@@ -1,0 +1,30 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "31D4FBBF120E37FA80E7494618A4E7C8F416EAC5",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "31D4FBBF120E37FA80E7494618A4E7C8F416EAC5" : 0,
+    "DB6CFD9FA00ED7F782032A6A1D85B55BB13604EB" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "3742BC86-8ECB-4175-B076-482024A32054",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "31D4FBBF120E37FA80E7494618A4E7C8F416EAC5" : "speak\/",
+    "DB6CFD9FA00ED7F782032A6A1D85B55BB13604EB" : "Namaste\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "speak",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "ios\/speak.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/SkilledApps\/speak.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "31D4FBBF120E37FA80E7494618A4E7C8F416EAC5"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/SkilledApps\/Namaste.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "DB6CFD9FA00ED7F782032A6A1D85B55BB13604EB"
+    }
+  ]
+}

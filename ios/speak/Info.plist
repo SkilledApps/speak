@@ -35,6 +35,8 @@
 	<string></string>
 	<key>UIAppFonts</key>
 	<array>
+		<string>BreeSerif-Regular.ttf</string>
+		<string></string>
 		<string>Ionicons.ttf</string>
 	</array>
 	<key>UILaunchStoryboardName</key>

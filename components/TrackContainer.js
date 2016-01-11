@@ -13,6 +13,8 @@ import VideoWrapper from './VideoWrapper';
 import OnboardingTip from './OnboardingTip';
 import TimestampsContainer from './TimestampsContainer';
 import TimestampsAPI from '../timestampsAPI';
+import Header from './Header';
+import VideoItem from './VideoItem';
 
 const debug = 1;
 
@@ -45,6 +47,10 @@ export default class TrackContainer extends React.Component {
 			modeChapterDelete: false,
 			practice: false,
 			repeatsIndicator: 0,
+			title: 'Speak talks',
+			titlePrepMode: 'Prep Mode',
+			titlePracticeMode: 'Practice Mode',
+			titleVideoName: 'VideoNameTitleHere',
 			practiceScheme: {
 				repeats: 3, 	// repeat chapter 3 times
 				intervalRatio: 2.5, 	// ratio between repeatings, 1 sec become 2.5 sec
@@ -194,13 +200,24 @@ export default class TrackContainer extends React.Component {
 		// array of video links
 		const video = this.props.source;
 		var videos = video.map( (e, index) => {
+
 			return (
-				<TouchableOpacity key={index} 
-					onPress={ () => {this.setState({source: e, isMenuVisible: !this.state.isMenuVisible}); this.parseVideoData();}} 
-					style={{width: layout.width, height: 50, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f7f7f7'}}>
-					<Text style={{padding: 10, fontSize: 16}}>{e.toString()}</Text>
-				</TouchableOpacity>
+				<VideoItem
+					image={{src : 'https://i.ytimg.com/vi/Q1AxO6Bt-kk/default.jpg'}}
+					onPress={ () => {this.setState({source: e, isMenuVisible: !this.state.isMenuVisible}); this.parseVideoData();}}
+				    title={e.toString()}
+				    author={e.toString()}
+					descr={e.toString()}
+				/>
 			)
+
+			//return (
+			//	<TouchableOpacity key={index}
+			//		onPress={ () => {this.setState({source: e, isMenuVisible: !this.state.isMenuVisible}); this.parseVideoData();}}
+			//		style={{width: layout.width, height: 50, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f7f7f7'}}>
+			//		<Text style={{padding: 10, fontSize: 16}}>{e.toString()}</Text>
+			//	</TouchableOpacity>
+			//)
 		});
 
 		return videos;
@@ -208,24 +225,35 @@ export default class TrackContainer extends React.Component {
 
 	render() {
 
-		const closeButton = () => {
-			return (<TouchableOpacity onPress={() => { this.setState({isMenuVisible: !this.state.isMenuVisible}); }}
-					style={{position: 'absolute', top: layout.width * 0.05, left: layout.width * 0.05, backgroundColor: 'transparent'}}>
-					<Icon name='navicon-round' color='#FF9500' size={40}/>
-				</TouchableOpacity>)
-		};
-
 		return (
 			<View style={{justifyContent: 'flex-start', alignItems: 'center'}}>
 
+				<Header
+					color={{left: '#FF9500', right: '#FF9500'}}
+					size={{left: 30, right: 25}}
+					icon={{left: 'navicon', right: 'ios-settings'}}
+					actionLeft={ () => { this.setState({isMenuVisible: !this.state.isMenuVisible}) }}
+				    actionRight={ () => { this.setState({isSettingsVisible: !this.state.isSettingsVisible }) }}
+				    title={this.state.title}
+				/>
+
 				{this.state.isMenuVisible && 
 					<Modal
-						animated={this.state.animated}
+						animated={true}
 						transparent={false}
 						visible={true}
-						syule={{flex: 1, backgroundColor: '#fff'}}>
-						<View style={{width: layout.width, height: layout.height, justifyContent: 'center', alignItems: 'center'}}>
-							{closeButton}
+						syule={{flex: 1, backgroundColor: '#fff', height: layout.height}}>
+
+						<View style={{width: layout.width, height: layout.height, justifyContent: 'flex-start', alignItems: 'center'}}>
+							<Header
+								color={{left: '#4A4A4A', right: '#FF9500'}}
+								size={{left: 30, right: 30}}
+								icon={{left: 'ios-arrow-back', right: false}}
+							    actionLeft={ () => { this.setState({isMenuVisible: !this.state.isMenuVisible}) }}
+							    isSearch={true}
+							    onChangeText={ (text) => { if (debug) { console.log(text); } }}
+							    onEndEditign={ (event) => { if (debug) { console.log(event); } } }
+							/>
 							{this.renderVideoItems()}
 						</View>
 					</Modal>
@@ -242,12 +270,6 @@ export default class TrackContainer extends React.Component {
 					>
 				</VideoWrapper>
 
-				{closeButton}
-
-				<TouchableOpacity onPress={() => { this.setState({isMenuVisible: !this.state.isMenuVisible}) }}
-					style={{position: 'absolute', top: layout.width * 0.02, left: layout.width * 0.03, backgroundColor: 'transparent'}}>
-					<Icon name='navicon-round' color='#FF9500' size={50}/>
-				</TouchableOpacity>
 
 				{/* Управление видео или аудио */}
 				{this.renderChapterControls()}
