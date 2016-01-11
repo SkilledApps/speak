@@ -18,22 +18,8 @@ import VideoItem from './VideoItem';
 
 const debug = 1;
 
-const {
-	Dimensions,
-	AppRegistry,
-	StyleSheet,
-	Text,
-	View,
-	TouchableOpacity,
-	SliderIOS,
-	ScrollView,
-	Animated,
-	LayoutAnimation,
-	AlertIOS,
-	Modal,
-} = React;
+const { Dimensions, StyleSheet, View, TouchableOpacity, LayoutAnimation, Modal, } = React;
 
-const HOLD_TIMER = 400;
 const layout = Dimensions.get('window');
 
 export default class TrackContainer extends React.Component {
@@ -166,10 +152,11 @@ export default class TrackContainer extends React.Component {
 		this.setState({practice: !this.state.practice});
 		if (this.state.practice) {
 			const nextLoop = (repeats, timestamp) => {
-				const nextTimestampIndex = timestamp > 0 ? timestamp - 1 : 0;
+				const nextTimestampIndex = timestamp >= 0 ? timestamp - 1 : 0;
 				if (nextTimestampIndex === timestamp) { // конец
 					return;
 				} else {
+					if (this.state.timestamps[nextTimestampIndex] === undefined) { return; }
 					const deltaTime = this.state.timestamps[nextTimestampIndex].time ? this.state.timestamps[nextTimestampIndex].time - this.state.timestamps[timestamp].time : 1;
 					this.playTimestamp(timestamp);
 					this.setState({paused: false});
@@ -231,7 +218,7 @@ export default class TrackContainer extends React.Component {
 				<Header
 					color={{left: '#FF9500', right: '#FF9500'}}
 					size={{left: 30, right: 25}}
-					icon={{left: 'navicon', right: 'ios-settings'}}
+					icon={{left: 'navicon', right: 'ios-settings-strong'}}
 					actionLeft={ () => { this.setState({isMenuVisible: !this.state.isMenuVisible}) }}
 				    actionRight={ () => { this.setState({isSettingsVisible: !this.state.isSettingsVisible }) }}
 				    title={this.state.title}

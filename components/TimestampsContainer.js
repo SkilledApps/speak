@@ -10,6 +10,16 @@ class TimestampControl extends React.Component {
     const selectedStyle = this.props.isSelected ? { borderColor: '#FF9500', borderWidth: 2} : {};
     return (
       <View style={[styles.timestampControl]}>
+        <View style={{justifyContent: 'space-between', flexDirection: 'row'}}>
+          <TouchableOpacity style={styles.button2}
+                            onPress={ () => { this.props.onMove(this.props.key, -0.2) }}>
+            <Icon name='minus' size={30} color='#FF9500'/>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button2}
+                            onPress={ () => { this.props.onMove(this.props.key, 0.2); }}>
+            <Icon name='plus' size={30} color='#FF9500'/>
+          </TouchableOpacity>
+        </View>
         <TouchableOpacity
           style={[styles.caption, selectedStyle, playedStyle]}
           onPress={() => { this.props.onSelect(this.props.key) }}>
@@ -18,18 +28,8 @@ class TimestampControl extends React.Component {
 
         <View style={{justifyContent: 'space-between', flexDirection: 'row'}}>
           <TouchableOpacity style={styles.button2}
-            onPress={ () => { this.props.onDelete(this.props.key); }}>
+                            onPress={ () => { this.props.onDelete(this.props.key); }}>
             <Icon name='trash-a' size={30} color='#FF9500'/>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.button2}
-              onPress={ () => { this.props.onMove(this.props.key, -0.2) }}>
-            <Icon name='minus' size={30} color='#FF9500'/>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.button2}
-            onPress={ () => { this.props.onMove(this.props.key, 0.2); }}>
-            <Icon name='plus' size={30} color='#FF9500'/>
           </TouchableOpacity>
         </View>
       </View>
