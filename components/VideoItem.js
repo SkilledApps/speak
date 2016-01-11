@@ -27,7 +27,7 @@ export default class VideoItem extends React.Component {
 					</TouchableOpacity>
 					<View style={styles.actionArea}>
 						<TouchableOpacity onPress={this.props.deleteVideo}>
-							<Icon name='ios-trash' size={40} color='#4A4A4A'/>
+							<Icon name='ios-trash' size={40} color='#1F1F21'/>
 						</TouchableOpacity>
 					</View>
 				</View>
@@ -38,12 +38,12 @@ export default class VideoItem extends React.Component {
 
 
 const styles = StyleSheet.create({
-	videoWrapperBasics  : { width: width * 0.80, justifyContent: 'space-between', alignItems: 'flex-start', overflow: 'hidden' },
+	videoWrapperBasics  : { width: width * 0.85, justifyContent: 'space-between', alignItems: 'flex-start', overflow: 'hidden' },
 	componentWrapper:  { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
 	image   : { flex: 1 },
 	screen  : { width: width * 0.25, height: width * 0.166, backgroundColor: '#f7f7f7' },
-	meta    : { justifyContent: 'flex-start', alignItems: 'flex-start', paddingHorizontal: 10, width: width * 0.5},
+	meta    : { justifyContent: 'flex-start', alignItems: 'flex-start', paddingHorizontal: 10, width: width * 0.6},
 	title   : { color: '#4A4A4A', fontSize: 14, },
 	descr   : { color: '#BDBEC2', fontSize: 11, },
-	actionArea : { width: width * 0.15, alignItems: 'center' }
+	actionArea : { width: width * 0.10, alignItems: 'center' }
 });
