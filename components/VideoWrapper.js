@@ -37,7 +37,7 @@ export default class VideoWrapper extends React.Component {
 	onProgress(data) {
 		// if (Math.round(data.currentTime, -2) % 0.05) {
       const progress = {
-        currentTime: Math.round(data.currentTime * 100) / 100,
+        currentTime: Math.round(data.currentTime * 100, 1) / 100,
 				duration: data.playableDuration,
       }
       this.setState({currentTime: progress.currentTime, duration: progress.duration});
@@ -53,7 +53,7 @@ export default class VideoWrapper extends React.Component {
     const isRepeatIndicatorShow = +this.props.repeatsIndicator > 0;
     const completed = this.state.currentTime ? parseFloat(this.state.currentTime) / parseFloat(this.state.duration) * 100: 0;
     const remaining = 100 - completed;
-
+	const paused  = this.props.paused ? 1 : 0;
     return (
       <View style={{
         alignItems: 'center', justifyContent: 'flex-start'
@@ -62,7 +62,7 @@ export default class VideoWrapper extends React.Component {
           ref={component => this._videoComponent = component}
           source={{uri: this.props.source}} // Can be a URL or a local file.
           rate={this.state.rate}
-          paused={this.props.paused}
+          paused={paused}
           volume={this.state.volume}
           muted={this.state.muted}
           resizeMode={this.state.resizeMode}

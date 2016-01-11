@@ -33,7 +33,7 @@ const TimestampsAPI = {
   /* Сдвинуть границу отрезка (маркер) влево или вправо на заданное число delta (in sec) */
   moveTimestamp(timestamps, index, delta) {
     const changedMarker = timestamps[index];
-    changedMarker.time = Math.round((changedMarker.time + delta) * 100) / 100;
+    changedMarker.time = Math.round((changedMarker.time + delta) * 100, 1) / 100;
     return timestamps.slice(0, index).concat([changedMarker], timestamps.slice(index + 1));
   },
   /* Получить индекс зная только время */

@@ -15,10 +15,11 @@ import TimestampsContainer from './TimestampsContainer';
 import TimestampsAPI from '../timestampsAPI';
 import Header from './Header';
 import VideoItem from './VideoItem';
+import Settings from './Settings';
 
 const debug = 1;
 
-const { Dimensions, StyleSheet, View, TouchableOpacity, LayoutAnimation, Modal, } = React;
+const { Dimensions, StyleSheet, View, TouchableOpacity, LayoutAnimation, Modal, SliderIOS, } = React;
 
 const layout = Dimensions.get('window');
 
@@ -28,10 +29,11 @@ export default class TrackContainer extends React.Component {
 		this.state = {
 			currentTime: 0.0,
 			timestamps: [],
-			paused: false,
+			paused: debug,
 			playIcon: 'pause',
 			modeChapterDelete: false,
 			practice: false,
+			isSettingsVisible: debug,
 			repeatsIndicator: 0,
 			title: 'Speak talks',
 			titlePrepMode: 'Prep Mode',
@@ -39,7 +41,7 @@ export default class TrackContainer extends React.Component {
 			titleVideoName: 'VideoNameTitleHere',
 			practiceScheme: {
 				repeats: 3, 	// repeat chapter 3 times
-				intervalRatio: 2.5, 	// ratio between repeatings, 1 sec become 2.5 sec
+				intervalRatio: 3, 	// ratio between repeatings, 1 sec become 2.5 sec
 			}
 		};
 	}
@@ -220,16 +222,41 @@ export default class TrackContainer extends React.Component {
 					size={{left: 30, right: 25}}
 					icon={{left: 'navicon', right: 'ios-settings-strong'}}
 					actionLeft={ () => { this.setState({isMenuVisible: !this.state.isMenuVisible}) }}
-				    actionRight={ () => { this.setState({isSettingsVisible: !this.state.isSettingsVisible }) }}
+				    actionRight={ () => { this.setState({isSettingsVisible: !this.state.isSettingsVisible}) }}
 				    title={this.state.title}
 				/>
+
+				{this.state.isSettingsVisible &&
+					<Modal animated={true} visible={true} transparent={false} style={{backgroundColor: '#7f7f7'}}>
+						<Settings
+							debug
+							onSwitchStartMode={ (value) => { if (debug) {console.log(value);}}}
+							switchStartMode={0}
+							estimatePracticeTime={990}
+							currentCycleTimeCount={this.state.practiceScheme.intervalRatio}
+							currentRepeatCount={this.state.practiceScheme.repeats}
+							onHideModal={ () => { this.setState({isSettingsVisible: !this.state.isSettingsVisible}) }}
+							onRepeatsValueChange={ (value) => {
+								var practiceScheme = { repeats: value, intervalRatio: this.state.practiceScheme.intervalRatio };
+								this.setState({practiceScheme: practiceScheme});
+						    }}
+						    onCycleTimeCount={ (value) => {
+						        var practiceScheme = { repeats: this.state.practiceScheme.repeats, intervalRatio: value };
+						        this.setState({practiceScheme: practiceScheme});
+						    } }
+						>
+
+						</Settings>
+
+					</Modal>
+				}
 
 				{this.state.isMenuVisible && 
 					<Modal
 						animated={true}
 						transparent={false}
 						visible={true}
-						syule={{flex: 1, backgroundColor: '#fff', height: layout.height}}>
+						style={{backgroundColor: '#fff', height: layout.height}}>
 
 						<View style={{width: layout.width, height: layout.height, justifyContent: 'flex-start', alignItems: 'center'}}>
 							<Header
@@ -282,50 +309,51 @@ export default class TrackContainer extends React.Component {
 	}
 }
 
-var styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'black',
-  },
 
-  controls: {
-    backgroundColor: "transparent",
-    borderRadius: 5,
-    marginVertical: 20,
-  },
-  generalControls: {
-    flex: 1,
-    flexDirection: 'row',
-    borderRadius: 4,
-    overflow: 'hidden',
-    paddingBottom: 10,
-  },
-  rateControl: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  volumeControl: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  resizeModeControl: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  controlOption: {
-    alignSelf: 'center',
-    fontSize: 11,
-    color: "#000",
-    paddingLeft: 2,
-    paddingRight: 2,
-    lineHeight: 12,
-  },
+var styles = StyleSheet.create({
+	container: {
+	flex: 1,
+	justifyContent: 'center',
+	alignItems: 'center',
+	backgroundColor: 'black',
+	},
+
+	controls: {
+	backgroundColor: "transparent",
+	borderRadius: 5,
+	marginVertical: 20,
+	},
+	generalControls: {
+	flex: 1,
+	flexDirection: 'row',
+	borderRadius: 4,
+	overflow: 'hidden',
+	paddingBottom: 10,
+	},
+	rateControl: {
+	flex: 1,
+	flexDirection: 'row',
+	justifyContent: 'center',
+	},
+	volumeControl: {
+	flex: 1,
+	flexDirection: 'row',
+	justifyContent: 'center',
+	},
+	resizeModeControl: {
+	flex: 1,
+	flexDirection: 'row',
+	alignItems: 'center',
+	justifyContent: 'center',
+	},
+	controlOption: {
+	alignSelf: 'center',
+	fontSize: 11,
+	color: "#000",
+	paddingLeft: 2,
+	paddingRight: 2,
+	lineHeight: 12,
+	},
 });
 var customStyles6 = StyleSheet.create({
   track: {

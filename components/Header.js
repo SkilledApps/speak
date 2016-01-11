@@ -24,7 +24,7 @@ export default class Header extends React.Component {
 			<View style={[styles.headerBasics, styles.headerTheme]}>
 				<Button action={this.props.actionLeft} color={this.props.color.left} size={this.props.size.left} icon={this.props.icon.left}/>
 				{isTitleAvailable && !this.props.isSearch && <Text style={styles.titleTheme}>{this.props.title}</Text>}
-				{isRightButtonActive && !this.props.isSearch && <Button color={this.props.color.right} size={this.props.size.right} icon={this.props.icon.right}/>}
+				{isRightButtonActive && !this.props.isSearch && <Button color={this.props.color.right} size={this.props.size.right} action={this.props.actionRight} icon={this.props.icon.right}/>}
 				{this.props.isSearch &&
 					<TextInput
 						autoCorrect={true}
