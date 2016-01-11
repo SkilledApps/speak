@@ -17,7 +17,7 @@ import Header from './Header';
 import VideoItem from './VideoItem';
 import Settings from './Settings';
 
-const debug = 1;
+const debug = 0;
 
 const { Dimensions, StyleSheet, View, TouchableOpacity, LayoutAnimation, Modal, SliderIOS, } = React;
 
