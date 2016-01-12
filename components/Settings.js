@@ -13,7 +13,7 @@ export default class Settings extends React.Component {
 			<View style={styles.wrapper}>
 				<Header
 					color={{left: '#4A4A4A', right: 'transparent'}}
-					size={{left: 30, right: 30}}
+					size={{left: 40, right: 30}}
 					icon={{left: 'ios-arrow-back', right: ' '}}
 					actionLeft={this.props.onHideModal}
 					actionRight={this.props.onHideModal}

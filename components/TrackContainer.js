@@ -17,7 +17,7 @@ import Header from './Header';
 import VideoItem from './VideoItem';
 import Settings from './Settings';
 
-const debug = 0;
+const debug = false;
 
 const { Dimensions, StyleSheet, View, TouchableOpacity, LayoutAnimation, Modal, SliderIOS, } = React;
 
@@ -29,11 +29,11 @@ export default class TrackContainer extends React.Component {
 		this.state = {
 			currentTime: 0.0,
 			timestamps: [],
-			paused: debug,
+			paused: false,
 			playIcon: 'pause',
 			modeChapterDelete: false,
 			practice: false,
-			isSettingsVisible: debug,
+			isSettingsVisible: false,
 			repeatsIndicator: 0,
 			title: 'Speak talks',
 			titlePrepMode: 'Prep Mode',
@@ -219,7 +219,7 @@ export default class TrackContainer extends React.Component {
 
 				<Header
 					color={{left: '#FF9500', right: '#FF9500'}}
-					size={{left: 30, right: 25}}
+					size={{left: 35, right: 30}}
 					icon={{left: 'navicon', right: 'ios-settings-strong'}}
 					actionLeft={ () => { this.setState({isMenuVisible: !this.state.isMenuVisible}) }}
 				    actionRight={ () => { this.setState({isSettingsVisible: !this.state.isSettingsVisible}) }}
@@ -261,7 +261,7 @@ export default class TrackContainer extends React.Component {
 						<View style={{width: layout.width, height: layout.height, justifyContent: 'flex-start', alignItems: 'center'}}>
 							<Header
 								color={{left: '#4A4A4A', right: '#FF9500'}}
-								size={{left: 30, right: 30}}
+								size={{left: 40, right: 35}}
 								icon={{left: 'ios-arrow-back', right: false}}
 							    actionLeft={ () => { this.setState({isMenuVisible: !this.state.isMenuVisible}) }}
 							    isSearch={true}

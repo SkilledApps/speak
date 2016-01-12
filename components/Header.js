@@ -41,10 +41,10 @@ export default class Header extends React.Component {
 }
 
 const styles = StyleSheet.create({
-	headerBasics: { width: width, paddingHorizontal: width * 0.025, paddingVertical: width * 0.01, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottomWidth: 1, },
+	headerBasics: { width: width, height: 45, paddingHorizontal: width * 0.025, paddingVertical: width * 0.01, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottomWidth: 1, },
 	headerTheme : { backgroundColor: '#F7F7F7', borderBottomColor: '#BDBEC2' },
 
-	buttonBasics: { padding: 5, textAlign: 'center' },
+	buttonBasics: { paddingVertical: 5, paddingHorizontal: 10, textAlign: 'center' },
 	buttonTheme	: { /**/ },
 
 	titleTheme  : { fontSize: 22, color: '#4A4A4A', textAlign: 'center', fontFamily: 'Bree Serif', top: -3 },

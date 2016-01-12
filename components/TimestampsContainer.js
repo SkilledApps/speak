@@ -27,10 +27,10 @@ class TimestampControl extends React.Component {
         </TouchableOpacity>
 
         <View style={{justifyContent: 'space-between', flexDirection: 'row'}}>
-          <TouchableOpacity style={styles.button2}
+            <TouchableOpacity style={styles.button2}
                             onPress={ () => { this.props.onDelete(this.props.key); }}>
             <Icon name='trash-a' size={30} color='#FF9500'/>
-          </TouchableOpacity>
+            </TouchableOpacity>
         </View>
       </View>
     );
@@ -49,7 +49,9 @@ export default class TimestampsContainer extends React.Component {
 
     return (
       <View style={{justifyContent: 'flex-start', alignItems: 'center'}}>
-
+        <TouchableOpacity onPress={this.props.speakVoice} style={styles.voiceButton}>
+          <Icon name='volume-medium' size={40} color='#4A4A4A'/>
+        </TouchableOpacity>
         <TouchableOpacity
           onPress={() => this.props.startPractice() }
           style={{
@@ -78,23 +80,26 @@ export default class TimestampsContainer extends React.Component {
 }
 
 const styles = {
-  timestampControl: {
-    marginVertical: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-end',
-    flex: 1,
-    width: layout.width * 0.9
-  },
-  caption: {
-    paddingVertical: 5,
-    paddingHorizontal: 30,
-    borderRadius: 15,
-    overflow: 'hidden',
-    backgroundColor: '#34AADC'
-  },
-  button2: {
-    marginHorizontal: 10
-  },
-  captionText: {color: '#fff', fontSize: 16}
+    timestampControl: {
+        marginVertical: 10,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-end',
+        flex: 1,
+        width: layout.width * 0.9
+    },
+    caption: {
+        paddingVertical: 5,
+        paddingHorizontal: 30,
+        borderRadius: 15,
+        overflow: 'hidden',
+        backgroundColor: '#34AADC'
+    },
+    button2: {
+        marginHorizontal: 10
+    },
+    captionText: { color: '#fff', fontSize: 16 },
+    voiceButton: { position: 'absolute', left: layout.width * 0.2, }
+
+
 }
