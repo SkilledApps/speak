@@ -14,7 +14,6 @@ import OnboardingTip from './OnboardingTip';
 import TimestampsContainer from './TimestampsContainer';
 import TimestampsAPI from '../timestampsAPI';
 import Header from './Header';
-import VideoItem from './VideoItem';
 import Settings from './Settings';
 
 const debug = false;
@@ -23,7 +22,7 @@ const { Dimensions, StyleSheet, View, TouchableOpacity, LayoutAnimation, Modal, 
 
 const layout = Dimensions.get('window');
 
-export default class TrackContainer extends React.Component {
+export default class SingleTrackContainer extends React.Component {
 	constructor() {
 		super();
 		this.state = {
@@ -100,7 +99,7 @@ export default class TrackContainer extends React.Component {
 	}
 
 	renderChapterControls() {
-		
+
 		const isChaptersAvailable = this.state.timestamps ? !(this.state.timestamps.length === 0) : false;
 		const isChapterMoreThenTwo = this.state.timestamps ? this.state.timestamps.length > 1 : false;
 		const width = 100, height = 100; // TODO: remove?
@@ -123,7 +122,7 @@ export default class TrackContainer extends React.Component {
 					<Icon name={playIcon} size={30} color='#FF9500' style={{padding: 15}}/>
 				</TouchableOpacity>
 
-				{!this.state.practice && 
+				{!this.state.practice &&
 					<TouchableOpacity
 						style={{}}
 						onPress={ () => this.setState({timestamps: TimestampsAPI.addTimestamp(this.state.timestamps, this.state.currentTime)}) }>
@@ -185,46 +184,11 @@ export default class TrackContainer extends React.Component {
 		}
 	}
 
-	renderVideoItems() {
-		// array of video links
-		const video = this.props.source;
-		var videos = video.map( (e, index) => {
-
-			return (
-				<VideoItem
-					image={{src : 'https://i.ytimg.com/vi/Q1AxO6Bt-kk/default.jpg'}}
-					onPress={ () => {this.setState({source: e, isMenuVisible: !this.state.isMenuVisible}); this.parseVideoData();}}
-				    title={e.toString()}
-				    author={e.toString()}
-					descr={e.toString()}
-				/>
-			)
-
-			//return (
-			//	<TouchableOpacity key={index}
-			//		onPress={ () => {this.setState({source: e, isMenuVisible: !this.state.isMenuVisible}); this.parseVideoData();}}
-			//		style={{width: layout.width, height: 50, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f7f7f7'}}>
-			//		<Text style={{padding: 10, fontSize: 16}}>{e.toString()}</Text>
-			//	</TouchableOpacity>
-			//)
-		});
-
-		return videos;
-	}
 
 	render() {
 
 		return (
 			<View style={{justifyContent: 'flex-start', alignItems: 'center'}}>
-
-				<Header
-					color={{left: '#FF9500', right: '#FF9500'}}
-					size={{left: 35, right: 30}}
-					icon={{left: 'navicon', right: 'ios-settings-strong'}}
-					actionLeft={ () => { this.setState({isMenuVisible: !this.state.isMenuVisible}) }}
-				    actionRight={ () => { this.setState({isSettingsVisible: !this.state.isSettingsVisible}) }}
-				    title={this.state.title}
-				/>
 
 				{this.state.isSettingsVisible &&
 					<Modal animated={true} visible={true} transparent={false} style={{backgroundColor: '#7f7f7'}}>
@@ -251,27 +215,7 @@ export default class TrackContainer extends React.Component {
 					</Modal>
 				}
 
-				{this.state.isMenuVisible && 
-					<Modal
-						animated={true}
-						transparent={false}
-						visible={true}
-						style={{backgroundColor: '#fff', height: layout.height}}>
 
-						<View style={{width: layout.width, height: layout.height, justifyContent: 'flex-start', alignItems: 'center'}}>
-							<Header
-								color={{left: '#4A4A4A', right: '#FF9500'}}
-								size={{left: 40, right: 35}}
-								icon={{left: 'ios-arrow-back', right: false}}
-							    actionLeft={ () => { this.setState({isMenuVisible: !this.state.isMenuVisible}) }}
-							    isSearch={true}
-							    onChangeText={ (text) => { if (debug) { console.log(text); } }}
-							    onEndEditign={ (event) => { if (debug) { console.log(event); } } }
-							/>
-							{this.renderVideoItems()}
-						</View>
-					</Modal>
-				}
 
 
 				{/* VideoWrapper для отображение видео (потом можно добавить AudioWrapper или YoutubeWrapper) */}

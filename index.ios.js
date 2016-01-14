@@ -5,12 +5,16 @@
 'use strict';
 
 import React from 'react-native';
-import TrackContainer from './components/TrackContainer';
+import SingleTrackContainer from './components/SingleTrackContainer';
+import TracksList from './components/TracksList';
+import Navbar from './components/Navbar';
+import { searchYoutube } from './API/youtubeAPI'
 
 const {
 	AppRegistry,
 	StyleSheet,
 	Text,
+	TextInput,
 	Navigator,
 	View,
 	Dimensions,
@@ -20,27 +24,65 @@ class SpeakApp extends React.Component {
 	constructor() {
 		super();
 		this.state = {
-			videos: 
+			tracks:
 			[
-				'english1',
-				'english2',
-				'english3',
-				'french1',
-				'french2',
-				'french3',
+
 			]
 		}
 	}
 	render() {
 		return (
+			<Navigator
+					ref={'navigator'}
+					initialRouteStack={[{name: 'TracksList'}]}
+					renderScene={this.renderContainer.bind(this)}
+			/>
+		);
+	}
+
+	renderContainer(route, navigator) {
+		return (
 			<View style={styles.container}>
-				<TrackContainer source={this.state.videos} />
+				<Navbar titleComponent={this.renderTitle(route)} />
+				{this.renderScene(route, navigator)}
 			</View>
 		);
 	}
+
+	renderScene(route, navigator) {
+		if (route.name === 'TracksList') {
+        return <TracksList
+					navigator={navigator}
+					tracks={this.state.tracks} />
+    }
+	}
+
+	renderTitle(route) {
+		if (route.name === 'TracksList') {
+        return <SearchInput
+					onSearch={tracks => this.setState({tracks})}
+					onLoading={(loading) => this.setState({loading})} />
+    }
+	}
 }
 
-var styles = StyleSheet.create({
+class SearchInput extends React.Component {
+  render() {
+    return(
+      <TextInput
+        placeholder={'Search for video...'}
+        style={{height: 32, width: 200, top: 5, textAlign: 'center', backgroundColor: 'white'}}
+        onChangeText={query => {
+					if (query.length < 3) {
+						return;
+					}
+					searchYoutube(query).then(tracks => this.props.onSearch(tracks))
+			}} />
+    )
+  }
+}
+
+const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		// justifyContent: 'center',

@@ -8,30 +8,32 @@ import Icon from 'react-native-vector-icons/Ionicons';
 const { View, Text, TouchableOpacity, Dimensions, StyleSheet, Image, } = React;
 const { width, height} = Dimensions.get('window');
 
-export default class VideoItem extends React.Component {
+export default class TracksListItem extends React.Component {
 	render() {
-		return(
-			<View>
+		console.log(this.props)
+		return (
 				<View style={{width: width * 0.95, justifyContent: 'space-between', alignItems: 'flex-start', flexDirection: 'row', marginTop: 10}}>
 					<TouchableOpacity style={[styles.videoWrapperBasics, styles.videoWrapperTheme]} onPress={this.props.onPress}>
 						<View style={styles.componentWrapper}>
 							<View style={styles.screen}>
-								<Image source={{uri: this.props.image.src}} resizeMode='cover' style={styles.image}/>
+								<Image source={{uri: this.props.snippet.thumbnails.default.url}} resizeMode='cover' style={styles.image}/>
 							</View>
 							<View style={styles.meta}>
-								<Text numberOfLines={2} style={styles.title}>E85 Fuel Explained - Race Fuel of the Future?</Text>
-								<Text style={styles.descr}>MightyCarMods</Text>
-								<Text style={styles.descr}>4M views - 5 months ago</Text>
+								<Text numberOfLines={2} style={styles.title}>{this.props.snippet.title}</Text>
+								<Text style={styles.descr}>{this.props.snippet.channelTitle}</Text>
+								<Text style={styles.descr}>{Math.round(this.props.details.statistics.viewCount / 1000)}K views
+								— {this.props.details.contentDetails.caption ? 'CC' : 'No CC'}
+								— {new Date(this.props.snippet.publishedAt).toLocaleDateString()}</Text>
 							</View>
 						</View>
 					</TouchableOpacity>
 					<View style={styles.actionArea}>
 						<TouchableOpacity onPress={this.props.deleteVideo}>
-							<Icon name='ios-trash' size={40} color='#1F1F21'/>
+							<Icon name={this.props.inSearch ? 'ios-plus-outline' : 'ios-trash-outline'} size={40} color='#1F1F21'/>
 						</TouchableOpacity>
 					</View>
 				</View>
-			</View>
+
 		)
 	}
 }
