@@ -2,7 +2,7 @@
 import React from 'react-native';
 import Video from 'react-native-video';
 
-const { View, Dimensions, Text } = React;
+const { View, Dimensions, Text, TouchableWithoutFeedback } = React;
 
 const window = Dimensions.get('window'); // TODO: get rid of it
 
@@ -53,26 +53,28 @@ export default class VideoWrapper extends React.Component {
     const isRepeatIndicatorShow = +this.props.repeatsIndicator > 0;
     const completed = this.state.currentTime ? parseFloat(this.state.currentTime) / parseFloat(this.state.duration) * 100: 0;
     const remaining = 100 - completed;
-	const paused  = this.props.paused ? 1 : 0;
+  	//const paused  = this.props.paused ? 1 : 0;
     return (
       <View style={{
         alignItems: 'center', justifyContent: 'flex-start'
       }}>
-        <Video
-          ref={component => this._videoComponent = component}
-          source={{uri: this.props.source}} // Can be a URL or a local file.
-          rate={this.state.rate}
-          paused={paused}
-          volume={this.state.volume}
-          muted={this.state.muted}
-          resizeMode={this.state.resizeMode}
-          onLoad={(data) => { this.onLoad(data) }}
-          onProgress={(d) => this.onProgress.bind(this)(d) }
-          onEnd={() => { /* repeat video */ }}
-          repeat={true}
-          style={[this.props.style, {flex: 1, height: window.height / 3, width: window.width}]}>
-        </Video>
-        {isRepeatIndicatorShow && 
+        <TouchableWithoutFeedback onPress={() => this.props.onPress()}>
+          <Video
+            ref={component => this._videoComponent = component}
+            source={{uri: this.props.source}} // Can be a URL or a local file.
+            rate={this.state.rate}
+            paused={this.props.paused}
+            volume={this.state.volume}
+            muted={this.state.muted}
+            resizeMode={this.state.resizeMode}
+            onLoad={(data) => { this.onLoad(data) }}
+            onProgress={(d) => this.onProgress.bind(this)(d) }
+            onEnd={() => { /* repeat video */ }}
+            repeat={true}
+            style={[this.props.style, {flex: 1, height: window.height / 3, width: window.width}]}>
+          </Video>
+        </TouchableWithoutFeedback>
+        {isRepeatIndicatorShow &&
           <View style={styles.repeatsIndicator}>
             <Text style={{color: '#000', fontSize: 13}}>{this.props.repeatsIndicator}</Text>
           </View>

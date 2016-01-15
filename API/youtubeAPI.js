@@ -1,9 +1,12 @@
+var DOMParser = require('xmldom').DOMParser
 
 const API_KEY = 'AIzaSyCnkNKecXxIbzhI-0BMLzFwza_0BUv29ek';
 
 const SEARCH_ENDPOINT = 'https://www.googleapis.com/youtube/v3/search?type=video&maxResults=10&part=snippet&key=' + API_KEY + '&q='
 
 const VIDEO_ENDPOINT = 'https://www.googleapis.com/youtube/v3/videos?part=contentDetails,statistics&key=' + API_KEY + '&id='
+
+const CAPTIONS_ENDPOINT = 'http://video.google.com/timedtext?lang='
 
 export function searchYoutube(query) {
   return fetch(SEARCH_ENDPOINT + query)
@@ -22,4 +25,33 @@ export function searchYoutube(query) {
         })
     })
     .catch(e => console.error(e));
+}
+
+
+export function obtainVideoFromLink(youtubeId) {
+  const NativeModules = require('react-native').NativeModules;
+  const link = NativeModules.YoutubeParser.obtainVideoFromLink('http://www.youtube.com/watch?v=' + youtubeId);
+  //console.log(youtubeId, link);
+  return link;
+}
+
+function parseIntoTimestamps(xml) {
+  // var parseString = require('xml2js').parseString;
+  // var xml = "<root>Hello xml2js!</root>"
+  // parseString(xml, function (err, result) {
+  //     console.dir(result);
+  // });
+  var doc = new DOMParser().parseFromString(
+    xml
+    ,'text/xml');
+
+  console.log('elements <text>', doc.documentElement.childNodes.map(a => a.getAttribute()).join(','))
+  return 'test'
+  //console.log(doc.documentElement.getElementsByTagName('transcript')[0].getElementsByTagName('text').map(a => a.getAttribute()).join(',')) //.childNamed('transcript')
+}
+export function getCaptions(lang, youtubeId) {
+  return fetch(CAPTIONS_ENDPOINT + lang + '&v=' + youtubeId)
+    .then(r => r.text())
+    .then(r => parseIntoTimestamps(r))
+    .catch(e => console.error(e))
 }

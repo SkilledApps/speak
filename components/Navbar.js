@@ -22,11 +22,16 @@ export default class TracksListItem extends React.Component {
       title: 'Hello, world',
     };
 
+		const leftButton = <TouchableOpacity onPress={() => this.props.onBack()}>
+			<Icon name={'ios-arrow-left'} size={28} color={'#222'} style={{marginHorizontal: 10, top: 0, marginTop: 0}}/>
+		</TouchableOpacity>
+
     return (
       <NavigationBar
         title={this.props.titleComponent}
-        tintColor={'yellow'}
-        rightButton={rightButtonConfig} />
+        tintColor={'#F5D700'}
+        rightButton={rightButtonConfig}
+				leftButton={this.props.isBack ? leftButton : {title:''}} />
     );
   }
 }

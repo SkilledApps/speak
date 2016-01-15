@@ -2,6 +2,32 @@
  * Created by tronin on 11.01.16.
  */
 
+
+ 			// 	{this.state.isSettingsVisible &&
+ 			// 		<Modal animated={true} visible={true} transparent={false} style={{backgroundColor: '#7f7f7'}}>
+ 			// 			<Settings
+ 			// 				debug
+ 			// 				onSwitchStartMode={ (value) => { if (debug) {console.log(value);}}}
+ 			// 				switchStartMode={0}
+ 			// 				estimatePracticeTime={990}
+ 			// 				currentCycleTimeCount={this.state.practiceScheme.intervalRatio}
+ 			// 				currentRepeatCount={this.state.practiceScheme.repeats}
+ 			// 				onHideModal={ () => { this.setState({isSettingsVisible: !this.state.isSettingsVisible}) }}
+ 			// 				onRepeatsValueChange={ (value) => {
+ 			// 					var practiceScheme = { repeats: value, intervalRatio: this.state.practiceScheme.intervalRatio };
+ 			// 					this.setState({practiceScheme: practiceScheme});
+ 			// 			    }}
+ 			// 			    onCycleTimeCount={ (value) => {
+ 			// 			        var practiceScheme = { repeats: this.state.practiceScheme.repeats, intervalRatio: value };
+ 			// 			        this.setState({practiceScheme: practiceScheme});
+ 			// 			    } }
+ 			// 			>
+				//
+ 			// 			</Settings>
+				//
+ 			// 		</Modal>
+ 			// 	}
+				//
 import React from 'react-native';
 import Header from './Header';
 const { View, Text, TouchableOpacity, SliderIOS, StyleSheet, Dimensions, Switch,} = React;
@@ -11,15 +37,6 @@ export default class Settings extends React.Component {
 	render() {
 		return (
 			<View style={styles.wrapper}>
-				<Header
-					color={{left: '#4A4A4A', right: 'transparent'}}
-					size={{left: 40, right: 30}}
-					icon={{left: 'ios-arrow-back', right: ' '}}
-					actionLeft={this.props.onHideModal}
-					actionRight={this.props.onHideModal}
-				    title="Practice Settings"
-				    style={{marginBottom: 20}}
-				/>
 
 				<Text style={[styles.title, { marginTop: 20 }]}>Start From</Text>
 				<View style={styles.toggleWrapper}>

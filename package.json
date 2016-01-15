@@ -12,7 +12,9 @@
     "react-native-navbar": "^1.1.6",
     "react-native-slider": "^0.4.0",
     "react-native-vector-icons": "^1.0.3",
-    "react-native-video": "^0.6.1"
+    "react-native-video": "^0.6.1",
+    "xml2js": "^0.4.15",
+    "xmldom": "^0.1.21"
   },
   "devDependencies": {
     "react-native-cli": "^0.1.7"

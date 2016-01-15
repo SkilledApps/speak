@@ -13,8 +13,8 @@ import VideoWrapper from './VideoWrapper';
 import OnboardingTip from './OnboardingTip';
 import TimestampsContainer from './TimestampsContainer';
 import TimestampsAPI from '../timestampsAPI';
-import Header from './Header';
-import Settings from './Settings';
+import { getCaptions } from '../API/youtubeAPI'
+
 
 const debug = false;
 
@@ -32,12 +32,9 @@ export default class SingleTrackContainer extends React.Component {
 			playIcon: 'pause',
 			modeChapterDelete: false,
 			practice: false,
-			isSettingsVisible: false,
 			repeatsIndicator: 0,
-			title: 'Speak talks',
 			titlePrepMode: 'Prep Mode',
 			titlePracticeMode: 'Practice Mode',
-			titleVideoName: 'VideoNameTitleHere',
 			practiceScheme: {
 				repeats: 3, 	// repeat chapter 3 times
 				intervalRatio: 3, 	// ratio between repeatings, 1 sec become 2.5 sec
@@ -46,31 +43,25 @@ export default class SingleTrackContainer extends React.Component {
 	}
 
 	componentWillMount() {
-		if (!this.state.source) {
-			this.setState({source: this.props.source[0]});
-		}
-		this.parseVideoData();
+		getCaptions('en', this.props.meta.id.videoId);
 	}
 
 	parseVideoData() {
 		TimestampsAPI
-			.restore(this.state.source) // TODO: use hash or path (now bundled video)
+			.restore(this.props.meta.id.videoId) // TODO: platform independent
 			.then(raw => JSON.parse(raw))
 			.then(timestamps => this.setState({timestamps}))
 	}
 
 	componentWillReceiveProps(nextProps) {
 		LayoutAnimation.easeInEaseOut();
-		// if (this.state.practice === true) {
-		// 	this.startPractice();
-		// }
 	}
 
 	componentWillUpdate(nextProps, nextState) {
 		// TODO: immutable js or dirty flag
 		if (this.state.timestamps && nextState.timestamps && nextState.timestamps !== this.state.timestamps) {
 			LayoutAnimation.easeInEaseOut();
-			TimestampsAPI.persist(this.state.source, nextState.timestamps);
+			TimestampsAPI.persist(this.props.meta.id.videoId, nextState.timestamps);
 		}
 	}
 
@@ -126,7 +117,7 @@ export default class SingleTrackContainer extends React.Component {
 					<TouchableOpacity
 						style={{}}
 						onPress={ () => this.setState({timestamps: TimestampsAPI.addTimestamp(this.state.timestamps, this.state.currentTime)}) }>
-						<Icon name='ios-circle-filled' size={35} color='#FF9500'
+						<Icon name='scissors' size={35} color='#FF9500'
 							style={{padding: 15}}
 						/>
 					</TouchableOpacity>
@@ -190,43 +181,15 @@ export default class SingleTrackContainer extends React.Component {
 		return (
 			<View style={{justifyContent: 'flex-start', alignItems: 'center'}}>
 
-				{this.state.isSettingsVisible &&
-					<Modal animated={true} visible={true} transparent={false} style={{backgroundColor: '#7f7f7'}}>
-						<Settings
-							debug
-							onSwitchStartMode={ (value) => { if (debug) {console.log(value);}}}
-							switchStartMode={0}
-							estimatePracticeTime={990}
-							currentCycleTimeCount={this.state.practiceScheme.intervalRatio}
-							currentRepeatCount={this.state.practiceScheme.repeats}
-							onHideModal={ () => { this.setState({isSettingsVisible: !this.state.isSettingsVisible}) }}
-							onRepeatsValueChange={ (value) => {
-								var practiceScheme = { repeats: value, intervalRatio: this.state.practiceScheme.intervalRatio };
-								this.setState({practiceScheme: practiceScheme});
-						    }}
-						    onCycleTimeCount={ (value) => {
-						        var practiceScheme = { repeats: this.state.practiceScheme.repeats, intervalRatio: value };
-						        this.setState({practiceScheme: practiceScheme});
-						    } }
-						>
-
-						</Settings>
-
-					</Modal>
-				}
-
-
-
-
 				{/* VideoWrapper для отображение видео (потом можно добавить AudioWrapper или YoutubeWrapper) */}
 				<VideoWrapper
 					ref={component => this._videoComponent = component}
 					onProgress={s => this.setState(s)}
-					source={this.state.source}
+					source={this.props.track}
 					paused={this.state.paused}
+					onPress={() => this.setState({paused: !this.state.paused})}
 					repeatsIndicator={this.state.repeatsIndicator}
-					>
-				</VideoWrapper>
+				/>
 
 
 				{/* Управление видео или аудио */}

@@ -12,8 +12,7 @@ export default class TracksList extends React.Component {
             <TracksListItem
               key={index}
               {...e}
-              onPress={ () => { alert('onPress') }}
-              descr={e.toString()}
+              onPress={() => this.props.onSelect(e) }
             />
         )}
       </ScrollView>);
