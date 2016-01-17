@@ -45,8 +45,22 @@ function parseIntoTimestamps(xml) {
     xml
     ,'text/xml');
 
-  console.log('elements <text>', doc.documentElement.childNodes.map(a => a.getAttribute()).join(','))
-  return 'test'
+  const childs = [];
+  for (var i=0; i<doc.documentElement.childNodes.length; i++) {
+    let node = doc.documentElement.childNodes[i];
+    childs.push({
+      title: node.firstChild.data,
+      time: node.getAttribute('start'),
+      isMuted: false
+    });
+    childs.push({
+      title: '',
+      time: node.getAttribute('start') + node.getAttribute('dur'),
+      isMuted: true
+    });
+  }
+  //console.log('elements <text>', doc.documentElement.childNodes.map(a => a.getAttribute()).join(','))
+  return childs;
   //console.log(doc.documentElement.getElementsByTagName('transcript')[0].getElementsByTagName('text').map(a => a.getAttribute()).join(',')) //.childNamed('transcript')
 }
 export function getCaptions(lang, youtubeId) {

@@ -12,8 +12,8 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import VideoWrapper from './VideoWrapper';
 import OnboardingTip from './OnboardingTip';
 import TimestampsContainer from './TimestampsContainer';
-import TimestampsAPI from '../timestampsAPI';
-import { getCaptions } from '../API/youtubeAPI'
+// import TimestampsAPI from '../timestampsAPI';
+// import { getCaptions } from '../API/youtubeAPI'
 
 
 const debug = false;
@@ -42,15 +42,15 @@ export default class SingleTrackContainer extends React.Component {
 		};
 	}
 
-	componentWillMount() {
-		getCaptions('en', this.props.meta.id.videoId);
+	componentDidMount() {
+		//getCaptions('en', this.props.meta.id.videoId).then(timestamps => this.setState({timestamps}));
 	}
 
 	parseVideoData() {
-		TimestampsAPI
-			.restore(this.props.meta.id.videoId) // TODO: platform independent
-			.then(raw => JSON.parse(raw))
-			.then(timestamps => this.setState({timestamps}))
+		// TimestampsAPI
+		// 	.restore(this.props.meta.id.videoId) // TODO: platform independent
+		// 	.then(raw => JSON.parse(raw))
+		// 	.then(timestamps => this.setState({timestamps}))
 	}
 
 	componentWillReceiveProps(nextProps) {
@@ -61,7 +61,7 @@ export default class SingleTrackContainer extends React.Component {
 		// TODO: immutable js or dirty flag
 		if (this.state.timestamps && nextState.timestamps && nextState.timestamps !== this.state.timestamps) {
 			LayoutAnimation.easeInEaseOut();
-			TimestampsAPI.persist(this.props.meta.id.videoId, nextState.timestamps);
+			//TimestampsAPI.persist(this.props.meta.id.videoId, nextState.timestamps);
 		}
 	}
 

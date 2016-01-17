@@ -24,7 +24,6 @@
 		146834051AC3E58100842450 /* libReact.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 146834041AC3E56700842450 /* libReact.a */; };
 		1545B4A71C43A77800BBCDFC /* BreeSerif-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1545B4A61C43A77800BBCDFC /* BreeSerif-Regular.ttf */; };
 		15CA07441C2AAEDC00DF13F1 /* libRCTVideo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 15CA07431C2AAECB00DF13F1 /* libRCTVideo.a */; };
-		15CA074A1C2BBF7B00DF13F1 /* main.jsbundle in Resources */ = {isa = PBXBuildFile; fileRef = 15CA07491C2BBF7B00DF13F1 /* main.jsbundle */; };
 		15CA075A1C2BDE0000DF13F1 /* Ionicons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 15CA07591C2BDE0000DF13F1 /* Ionicons.ttf */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
 /* End PBXBuildFile section */
@@ -139,7 +138,6 @@
 		146833FF1AC3E56700842450 /* React.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = React.xcodeproj; path = "../node_modules/react-native/React/React.xcodeproj"; sourceTree = "<group>"; };
 		1545B4A61C43A77800BBCDFC /* BreeSerif-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "BreeSerif-Regular.ttf"; path = "../fonts/BreeSerif-Regular.ttf"; sourceTree = "<group>"; };
 		15CA073E1C2AAECB00DF13F1 /* RCTVideo.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTVideo.xcodeproj; path = "../node_modules/react-native-video/RCTVideo.xcodeproj"; sourceTree = "<group>"; };
-		15CA07491C2BBF7B00DF13F1 /* main.jsbundle */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = main.jsbundle; path = ../main.jsbundle; sourceTree = "<group>"; };
 		15CA07591C2BDE0000DF13F1 /* Ionicons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Ionicons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Ionicons.ttf"; sourceTree = "<group>"; };
 		78C398B01ACF4ADC00677621 /* RCTLinking.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTLinking.xcodeproj; path = "../node_modules/react-native/Libraries/LinkingIOS/RCTLinking.xcodeproj"; sourceTree = "<group>"; };
 		832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTText.xcodeproj; path = "../node_modules/react-native/Libraries/Text/RCTText.xcodeproj"; sourceTree = "<group>"; };
@@ -252,7 +250,6 @@
 			children = (
 				032711231C47F9650020D5B8 /* YoutubeParser.h */,
 				032711241C47F9660020D5B8 /* YoutubeParser.m */,
-				15CA07491C2BBF7B00DF13F1 /* main.jsbundle */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
@@ -570,7 +567,6 @@
 				1545B4A71C43A77800BBCDFC /* BreeSerif-Regular.ttf in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */,
-				15CA074A1C2BBF7B00DF13F1 /* main.jsbundle in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

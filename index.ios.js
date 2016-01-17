@@ -1,139 +1,65 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- */
-'use strict';
+/* @flow */
 
 import React from 'react-native';
-import SingleTrackContainer from './components/SingleTrackContainer';
-import TracksList from './components/TracksList';
-import Navbar from './components/Navbar';
-import { searchYoutube, obtainVideoFromLink, getCaptions } from './API/youtubeAPI'
+import { createStore, applyMiddleware, bindActionCreators } from 'redux';
+import { Provider, connect } from 'react-redux/native';
+import logger from 'redux-logger';
+import thunk from 'redux-thunk';
+import storage from 'redux-storage';
+import createEngine from 'redux-storage/engines/reactNativeAsyncStorage';
 
-const {
-	AppRegistry,
-	StyleSheet,
-	Text,
-	TextInput,
-	Navigator,
-	View,
-	LayoutAnimation,
-	Dimensions,
-} = React;
+
+import * as Actions from './actions';
+import reducer from './reducers';
+import App from './components/App';
+
+const engine = createEngine('speakapp_');
+const wrappedReducer = storage.reducer(reducer);
+const storageMiddleware = storage.createMiddleware(engine);
+
+const middleware = process.env.NODE_ENV === 'production' ?
+  [ thunk, storageMiddleware ] :
+  [ thunk, logger(), storageMiddleware ];
+
+const createStoreWithMiddleware = applyMiddleware(...middleware)(createStore);
+const store = createStoreWithMiddleware(wrappedReducer);
+
+function mapStateToProps(state) {
+  return state;
+}
 
 class SpeakApp extends React.Component {
-	constructor() {
-		super();
-		this.state = {
-			tracks:
-			[
-
-			]
-		}
-	}
-	render() {
-		return (
-			<Navigator
-					ref={'navigator'}
-					initialRouteStack={[{name: 'TracksList'}]}
-					renderScene={this.renderContainer.bind(this)}
-			/>
-		);
-	}
-
-	renderContainer(route, navigator) {
-		return (
-			<View style={styles.container}>
-				<Navbar
-					titleComponent={this.renderTitle(route)}
-					isBack={route.name !== 'TracksList'}
-					onBack={() => navigator.pop()}/>
-				{this.renderScene(route, navigator)}
-			</View>
-		);
-	}
-
-	componentDidMount() {
-		// debug
-		console.log('get captions')
-		getCaptions('en', 'yJXTXN4xrI8').then(r => console.log(r));
-	}
-
-	renderScene(route, navigator) {
-		if (route.name === 'TracksList') {
-        return <TracksList
-					navigator={navigator}
-					tracks={this.state.tracks}
-					onSelect={(track) => obtainVideoFromLink(track.id.videoId)
-						.then(url => navigator.push({name: 'Track', url: url, meta: track})) } />
-    }
-		if (route.name === 'Track') {
-        return <SingleTrackContainer
-					navigator={navigator}
-					meta={route.meta}
-					track={route.url}
-				/>
-    }
-	}
-
-	renderTitle(route) {
-		if (route.name === 'TracksList') {
-        return <SearchInput
-					onSearch={tracks => this.setState({tracks})}
-					onLoading={(loading) => this.setState({loading})} />
-    }
-		if (route.name === 'Track') {
-      return <Text
-				style={{fontSize: 12, width: 200, textAlign: 'center'}}
-				numberOfLines={2}>{route.meta.snippet.title}</Text>;
-    }
-	}
-}
-
-class SearchInput extends React.Component {
-	constructor() {
-		super();
-		this.state = {width: 200, color: '#FFE94A'}
-	}
-	componentWillUpdate() {
-		LayoutAnimation.easeInEaseOut();
-	}
+  componentWillMount() {
+    const load = storage.createLoader(engine);
+    load(store);
+  }
   render() {
-    return(
-      <TextInput
-        placeholder={'Search for video...'}
-				autoCapitalize={'none'}
-				autoCorrect={false}
-        style={{height: 28, width: this.state.width, top: 5, left: 5, textAlign: 'center', backgroundColor: this.state.color}}
-				onFocus={() => this.setState({width: 250, color: 'white'})}
-				onBlur={() => this.setState({width: 200, color: '#FFE94A'})}
-        onChangeText={query => {
-					if (query.length < 3) {
-						return;
-					}
-					searchYoutube(query).then(tracks => this.props.onSearch(tracks))
-			}} />
-    )
+    return (
+      <Provider store={store}>
+        {() => <AppContainer />}
+      </Provider>
+    );
   }
 }
+//
+// class Container extends React.Component {
+//   render() {
+//     console.log(this.props)
+//     const actions = bindActionCreators(Actions, this.props.dispatch);
+//     console.log(actions)
+//     return <App actions={actions} />;
+//   }
+// }
 
-const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		// justifyContent: 'center',
-		// alignItems: 'center',
-		backgroundColor: '#fff',
-	},
-	welcome: {
-		fontSize: 20,
-		textAlign: 'center',
-		margin: 10,
-	},
-	instructions: {
-		textAlign: 'center',
-		color: '#333333',
-		marginBottom: 5,
-	},
-});
+function mapStateToProps(state) {
+  return state;
+}
 
-AppRegistry.registerComponent('speak', () => SpeakApp);
+function mapDispatchToProps(dispatch) {
+  return bindActionCreators(Actions, dispatch)
+}
+
+const AppContainer = connect(mapStateToProps, mapDispatchToProps)(App);
+
+
+React.AppRegistry.registerComponent('speak', () => SpeakApp);
