@@ -12,6 +12,7 @@ export const FETCHED_SOURCE_FOR_TRACK = 'FETCHED_SOURCE_FOR_TRACK';
 export const FETCHED_CAPTIONS_FOR_TRACK = 'FETCHED_CAPTIONS_FOR_TRACK';
 
 export const ADD_TIMESTAMP = 'ADD_TIMESTAMP';
+export const CHANGE_TITLE_FOR_TIMESTAMP = 'CHANGE_TITLE_FOR_TIMESTAMP';
 export const MOVE_TIMESTAMP = 'MOVE_TIMESTAMP';
 export const DELETE_TIMESTAMP = 'DELETE_TIMESTAMP';
 export const RENAME_TIMESTAMP = 'RENAME_TIMESTAMP';
@@ -98,5 +99,13 @@ export function addTimestamp(time) {
   return {
     type: ADD_TIMESTAMP,
     time
+  }
+}
+
+export function changeTitleForTimestamp(index, title) {
+  return {
+    type: CHANGE_TITLE_FOR_TIMESTAMP,
+    index,
+    title
   }
 }

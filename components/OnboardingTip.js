@@ -11,7 +11,7 @@ export default class OnboardingTip extends React.Component {
             Hi! You are in the <Text style={{fontWeight: 'bold'}}>Edit Mode</Text>!
         </Text>
         <Text style={{color: '#888', lineHeight: 30}}>
-            Press  <Icon name='scissors' size={20} color='orange' style={{paddingHorizontal: 10}}/> to start splitting video into segments
+            Press  <Icon name='scissors' size={20} color='orange' style={{paddingHorizontal: 10}}/> to start splitting the video into segments
         </Text>
       </View>
     );

@@ -152,7 +152,8 @@ export default class SingleTrackContainer extends React.Component {
 							timestamps={ track.timestamps }
 							inPractice={ this.state.practice }
 							selectedIndex={ this.state.currentTimestampIndex }
-							onSelect={ index => { this.setState({practice: false, repeatsIndicator: 0}); this.playTimestamp(index); } }
+							onSelect={ index => { this.setState({practice: false, repeatsIndicator: 0}); this.playTimestamp(index - 1); } }
+							onTitleChange={(index, title) => this.props.changeTitleForTimestamp(index, title)}
 							onDelete={ index => this.deleteTimestamp(index) }
 							startPractice={ () => this.togglePractice() }
 							onMove={(index, delta) => this.moveTimestamp(index, delta) }

@@ -111,19 +111,21 @@ export default class VideoWrapper extends React.Component {
                 style={{paddingVertical: 4, paddingHorizontal: 15}}/>
             </TouchableOpacity>
             <Text style={{color: '#F5D700'}}>{played} / {duration}</Text>
-            <TouchableOpacity onPress={() => this.setState({rate: 1}) }
-              style={[styles.rateButton, this.state.rate === 1 ? {backgroundColor: '#F5D700'} : {}]}>
-              <Text style={{color:  this.state.rate === 1 ? 'black' : '#F5D700'}}>1.0x</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => this.setState({rate: 0.5}) }
-              style={[styles.rateButton, this.state.rate === 0.5 ? {backgroundColor: '#F5D700'} : {}]}>
-              <Text style={{color:  this.state.rate === 1 ? '#F5D700' : 'black'}}>0.5x</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => this.props.addTimestamp() }>
-            <Icon name={'scissors'}
-              size={28} color='#F5D700'
-              style={{paddingVertical: 4, paddingHorizontal: 15}}/>
-            </TouchableOpacity>
+            <View style={{position: 'absolute', alignItems: 'center', right: 0, flexDirection: 'row'}}>
+              <TouchableOpacity onPress={() => this.setState({rate: 1}) }
+                style={[styles.rateButton, this.state.rate === 1 ? {backgroundColor: '#F5D700'} : {}]}>
+                <Text style={{color:  this.state.rate === 1 ? 'black' : '#F5D700'}}>1.0x</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => this.setState({rate: 0.5}) }
+                style={[styles.rateButton, this.state.rate === 0.5 ? {backgroundColor: '#F5D700'} : {}]}>
+                <Text style={{color:  this.state.rate === 1 ? '#F5D700' : 'black'}}>0.5x</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => this.props.addTimestamp() }>
+              <Icon name={'scissors'}
+                size={28} color='#F5D700'
+                style={{paddingVertical: 4, paddingHorizontal: 25}}/>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
         {isRepeatIndicatorShow &&
@@ -162,5 +164,5 @@ const styles = {
     right: window.width * 0.05,
   },
   rateButton: {marginLeft: 10, padding: 5, borderWidth: 1, borderColor: '#F5D700'},
-  controls: {height: 40, alignItems: 'center', width: window.width, flexDirection: 'row', justifyContent: 'space-around', backgroundColor: 'black', opacity: 0.7}
+  controls: {height: 40, alignItems: 'center', width: window.width, flexDirection: 'row', justifyContent: 'flex-start', backgroundColor: 'black', opacity: 0.7}
 }

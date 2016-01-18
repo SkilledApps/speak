@@ -1,8 +1,5 @@
 import React from 'react-native';
-import { AllHtmlEntities } from 'html-entities';
-
-const entitiesDecoder = new AllHtmlEntities();
-
+import EditableCaption from './EditableCaption';
 
 const { View, Text, TouchableOpacity, Dimensions, ListView, TextInput, LayoutAnimation } = React;
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -18,7 +15,7 @@ class TimestampControl extends React.Component {
   }
 
   render() {
-    const playedStyle = this.props.isPlayed ? {backgroundColor: '#FFF8CA'} : {};
+    const playedStyle = this.props.isPlayed ? {backgroundColor: '#F6FBC7'} : {};
     const selectedStyle = this.props.isSelected ? { borderLeftColor: '#FF9500', borderLeftWidth: 10} : {};
     const progress = this.props.currentTime >= this.props.prevTime && this.props.currentTime < this.props.time &&
       ((this.props.currentTime - this.props.prevTime) / (this.props.time - this.props.prevTime));
@@ -29,16 +26,11 @@ class TimestampControl extends React.Component {
 
         <Text style={styles.timingText}>{this.reformat(this.props.prevTime)} - {this.reformat(this.props.time)}</Text>
         <View style={{width: 200}}>
-          {!this.props.title ?
-            <TouchableOpacity style={styles.button2} onPress={ () => this.setState({showInput: true})}>
-              <TextInput style={styles.captionInput} placeholder={'Add caption'}/>
-            </TouchableOpacity> :
-            <Text style={styles.captionText} numberOfLines={2}>{entitiesDecoder.decode(this.props.title)}</Text>
-          }
+          <EditableCaption editMode={!this.props.title} title={this.props.title} onTitleChange={this.props.onTitleChange}/>
         </View>
         <View style={{justifyContent: 'space-between', flexDirection: 'row', backgroundColor: 'transparent'}}>
           <TouchableOpacity style={styles.button2} onPress={ () => { }}>
-            <Icon name='ios-arrow-down' size={30} color='#FF9500'/>
+            <Icon name='ios-arrow-down' size={30} color='#222'/>
           </TouchableOpacity>
         </View>
 
@@ -73,6 +65,7 @@ export default class TimestampsContainer extends React.Component {
         isSelected={this.props.selectedIndex === rowID}
         onSelect={() => this.props.onSelect(rowID) }
         onDelete={() => this.props.onDelete(rowID) }
+        onTitleChange={title => this.props.onTitleChange(rowID, title)}
         onMove={(k, delta) => this.props.onMove(rowID, delta) }/>
     )
   }
@@ -124,11 +117,9 @@ const styles = {
         padding: 5
     },
     hyperlink: {textDecorationLine: 'underline', color: '#494000', textDecorationStyle: 'dotted', fontSize: 16},
-    captionInput: {width: 200, height: 26},
     button2: {
         marginHorizontal: 10
     },
-    captionText: { fontSize: 16 },
     timingText: { fontSize: 12, backgroundColor: 'transparent'},
     voiceButton: { position: 'absolute', left: layout.width * 0.2, }
 

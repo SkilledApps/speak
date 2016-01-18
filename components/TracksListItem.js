@@ -42,11 +42,11 @@ export default class TracksListItem extends React.Component {
 							</View>
 							<View style={styles.statItem}>
 								<Icon name="bookmark" size={20} />
-								<Text style={{marginLeft: 5}}>23</Text>
+								<Text style={{marginLeft: 5}}>{this.props.timestamps.length}</Text>
 							</View>
 							<View style={styles.statItem}>
 								<Icon name="ios-star-outline" size={20} />
-								<Text style={{marginLeft: 5}}>1</Text>
+								<Text style={{marginLeft: 5}}>{this.props.favs ? this.props.favs.length : 0}</Text>
 							</View>
 						</View>
 					}

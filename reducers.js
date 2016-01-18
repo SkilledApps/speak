@@ -10,7 +10,8 @@ import {
   SELECT_TRACK,
   FETCHED_SOURCE_FOR_TRACK,
   FETCHED_CAPTIONS_FOR_TRACK,
-  ADD_TIMESTAMP
+  ADD_TIMESTAMP,
+  CHANGE_TITLE_FOR_TIMESTAMP,
 } from './actions';
 
 import { LOAD, SAVE } from 'redux-storage';
@@ -143,11 +144,19 @@ export default function reducer(state = defaultState, action): GlobalState {
         track.timestamps = track.timestamps ? track.timestamps.concat([newTimestamp]).sort((a, b) => a.time - b.time) : [newTimestamp];
         return {
           ...state,
-          foundTracks: state.foundTracks,
-          savedTracks: state.savedTracks
+          foundTracks: [...state.foundTracks],
+          savedTracks: [...state.savedTracks]
         }
       }
 
+    case CHANGE_TITLE_FOR_TIMESTAMP:
+      const track2 = getTrack(state)
+      track2.timestamps[action.index].title = action.title;
+      return {
+        ...state,
+        foundTracks: [...state.foundTracks],
+        savedTracks: [...state.savedTracks]
+      }
     default:
       return state;
   }
