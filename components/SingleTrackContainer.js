@@ -18,7 +18,7 @@ import TimestampsContainer from './TimestampsContainer';
 
 const debug = false;
 
-const { Dimensions, StyleSheet, View, TouchableOpacity, LayoutAnimation, Modal, SliderIOS, } = React;
+const { Dimensions, StyleSheet, View, TouchableOpacity, LayoutAnimation, Modal, SliderIOS, ActivityIndicatorIOS} = React;
 
 const layout = Dimensions.get('window');
 
@@ -29,7 +29,6 @@ export default class SingleTrackContainer extends React.Component {
 			currentTime: 0.0,
 			timestamps: [],
 			paused: false,
-			playIcon: 'pause',
 			modeChapterDelete: false,
 			practice: false,
 			repeatsIndicator: 0,
@@ -42,8 +41,13 @@ export default class SingleTrackContainer extends React.Component {
 		};
 	}
 
-	componentDidMount() {
-		//getCaptions('en', this.props.meta.id.videoId).then(timestamps => this.setState({timestamps}));
+	getTrack() {
+		if (!this.props.selectedIndex) {
+			return false;
+		}
+		return this.props.selectedIndex.type === 'found' ?
+			this.props.foundTracks[this.props.selectedIndex.index] :
+			this.props.savedTracks[this.props.selectedIndex.index];
 	}
 
 	parseVideoData() {
@@ -109,10 +113,6 @@ export default class SingleTrackContainer extends React.Component {
 					</TouchableOpacity>
 				}
 
-				<TouchableOpacity onPress={() => {this.setState({currentChapter: null, paused: this.state.paused ? false : true})}}>
-					<Icon name={playIcon} size={30} color='#FF9500' style={{padding: 15}}/>
-				</TouchableOpacity>
-
 				{!this.state.practice &&
 					<TouchableOpacity
 						style={{}}
@@ -177,7 +177,14 @@ export default class SingleTrackContainer extends React.Component {
 
 
 	render() {
+		if (!this.getTrack() || !this.getTrack().source) {
 
+			return (
+				<View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+					<ActivityIndicatorIOS size={'large'} />
+				</View>
+			)
+		}
 		return (
 			<View style={{justifyContent: 'flex-start', alignItems: 'center'}}>
 
@@ -185,15 +192,12 @@ export default class SingleTrackContainer extends React.Component {
 				<VideoWrapper
 					ref={component => this._videoComponent = component}
 					onProgress={s => this.setState(s)}
-					source={this.props.track}
+					source={this.getTrack().source}
+					selectTrack={() => this.props.selectTrack(this.getTrack())}
 					paused={this.state.paused}
-					onPress={() => this.setState({paused: !this.state.paused})}
+					onPlayPause={() => this.setState({paused: !this.state.paused})}
 					repeatsIndicator={this.state.repeatsIndicator}
 				/>
-
-
-				{/* Управление видео или аудио */}
-				{this.renderChapterControls()}
 
 				{/* Если меток нет, то отображать приветствие */}
 				{!this.state.timestamps && <OnboardingTip where={'Edit'} /> }

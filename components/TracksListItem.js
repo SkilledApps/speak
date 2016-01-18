@@ -14,7 +14,7 @@ export default class TracksListItem extends React.Component {
 		return (
 				<View style={styles.mainContainer}>
 						<View style={styles.rowWrapper}>
-						<TouchableOpacity style={[styles.videoWrapperBasics, styles.videoWrapperTheme]} onPress={this.props.onPress}>
+						<TouchableOpacity style={[styles.videoWrapperBasics, styles.videoWrapperTheme]} onPress={this.props.onSelect}>
 							<View style={styles.componentWrapper}>
 								<View style={styles.screen}>
 									<Image source={{uri: this.props.snippet.thumbnails.default.url}} resizeMode='cover' style={styles.image}/>

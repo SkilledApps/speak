@@ -49,19 +49,6 @@ export default class TimestampsContainer extends React.Component {
 
     return (
       <View style={{justifyContent: 'flex-start', alignItems: 'center'}}>
-        <TouchableOpacity onPress={this.props.speakVoice} style={styles.voiceButton}>
-          <Icon name='volume-medium' size={40} color='#4A4A4A'/>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => this.props.startPractice() }
-          style={{
-            marginBottom: 5, backgroundColor: '#FF9500', borderRadius: 5, overflow: 'hidden'}}>
-          <Text style={{paddingVertical: 10,
-            paddingHorizontal: 20,
-            color: 'white', fontSize: 14,
-            fontWeight: '700'
-          }}>{this.props.inPractice ? 'Stop Practice' : 'Start Practice'}</Text>
-        </TouchableOpacity>
 
         <ScrollView
           showsVerticalScrollIndicator={true}
@@ -69,11 +56,21 @@ export default class TimestampsContainer extends React.Component {
           contentContainerStyle={{
             justifyContent: 'flex-start',
             alignItems: 'center', paddingBottom: 25}}
-            style={{height: layout.height / 2, width: layout.width}}
+            style={{height: 2 * layout.height / 3 - 50, width: layout.width}}
         >
           {timestamps}
         </ScrollView>
 
+        <TouchableOpacity
+          onPress={() => this.props.startPractice() }
+          style={{position: 'absolute', bottom: 13, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', width: layout.width, backgroundColor: '#F5D700'}}>
+          <Icon name={'mic-a'} size={25} color={'#494000'}/>
+          <Text style={{paddingVertical: 15,
+            paddingHorizontal: 20,
+            color: '#494000', fontSize: 20,
+            
+          }}>{this.props.inPractice ? 'Stop Practice' : 'Start Practice'}</Text>
+        </TouchableOpacity>
       </View>
     );
   }

@@ -27,7 +27,7 @@ export default class TracksList extends React.Component {
 			)
 		}
     return (
-      <ScrollView style={{flex: 1}}>
+      <ScrollView style={{flex: 1}} keyboardShouldPersistTaps={true}>
         {this.props.tracks.map( (e, index) =>
             <TracksListItem
               key={index}

@@ -22,7 +22,7 @@ export default class App extends React.Component {
 		return (
 			<Navigator
 					ref={'navigator'}
-					initialRouteStack={[{name: 'TracksList'}]}
+					initialRouteStack={[{name: 'Track'}]}
 					renderScene={this.renderContainer.bind(this)}
 			/>
 		);
@@ -53,14 +53,15 @@ export default class App extends React.Component {
 					tracks={this.props.isSearching ? this.props.foundTracks : this.props.savedTracks}
 					isLoading={this.props.isLoading}
 					{...this.props}
-					onSelect={(track) => obtainVideoFromLink(track.id.videoId)
-						.then(url => navigator.push({name: 'Track', url: url, meta: track})) } />
+					onSelect={(track) => {
+						this.props.selectTrack(track);
+						navigator.push({name: 'Track', trackId: track.id});
+					}} />
     }
 		if (route.name === 'Track') {
         return <SingleTrackContainer
 					navigator={navigator}
-					meta={route.meta}
-					track={route.url}
+					{...this.props}
 				/>
     }
 	}
@@ -70,14 +71,14 @@ export default class App extends React.Component {
         return <SearchInput
 					onSearch={q => this.props.searchYoutube(q)}
 					onStopSearching={() => this.props.stopSearching()}
-					//onSearch={tracks => this.setState({tracks})}
-				//	onLoading={(loading) => this.setState({loading})}
 				/>
     }
 		if (route.name === 'Track') {
-      return <Text
-				style={{fontSize: 12, width: 200, textAlign: 'center'}}
-				numberOfLines={2}>{route.meta.snippet.title}</Text>;
+      return this.props.selectedIndex && <Text
+				style={{fontSize: 12, width: 200, top: 10, textAlign: 'center'}}
+				numberOfLines={2}>{(this.props.selectedIndex.type === 'found' ?
+					this.props.foundTracks[this.props.selectedIndex.index] :
+					this.props.savedTracks[this.props.selectedIndex.index]).snippet.title}</Text>;
     }
 	}
 }

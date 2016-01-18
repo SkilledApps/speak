@@ -10,6 +10,7 @@ const {
 	Dimensions,
 } = React;
 
+
 export default class SearchInput extends React.Component {
 	constructor() {
 		super();
@@ -23,7 +24,7 @@ export default class SearchInput extends React.Component {
       <View style={{flexDirection: 'row', alignSelf: 'flex-start', alignItems: 'center', top: 5, height: 28, left: 5, flex: 1, marginHorizontal: 10, justifyContent: 'center'}}>
         <Icon name={'ios-search'} size={28} />
         <TextInput
-          placeholder={'Search for video..'}
+          placeholder={'Search...'}
   				autoCapitalize={'none'}
   				autoCorrect={false}
           clearButtonMode={'always'}
@@ -38,9 +39,10 @@ export default class SearchInput extends React.Component {
   						return;
   					}
             this.props.onSearch(query)
-  					//searchYoutube(query).then(tracks => this.props.onSearch(tracks))
   			}} />
       </View>
     )
   }
 }
+
+module.exports = SearchInput;

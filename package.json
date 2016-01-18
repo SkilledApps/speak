@@ -7,10 +7,11 @@
     "bundle": "react-native bundle --entry-file index.ios.js --platform ios --dev false --bundle-output ./main.jsbundle"
   },
   "dependencies": {
-    "react-native": "^0.17.0",
+    "react": "^0.14.6",
+    "react-native": "SkilledApps/react-native",
     "react-native-audio": "^0.3.2",
     "react-native-navbar": "^1.1.6",
-    "react-native-slider": "^0.4.0",
+    "react-native-slider": "*",
     "react-native-vector-icons": "^1.0.3",
     "react-native-video": "^0.6.1",
     "react-redux": "^3.1.2",

@@ -1,8 +1,9 @@
-
+/* @flow */
 import React from 'react-native';
 import Video from 'react-native-video';
+import Icon from 'react-native-vector-icons/Ionicons';
 
-const { View, Dimensions, Text, TouchableWithoutFeedback } = React;
+const { View, Dimensions, Text, TouchableWithoutFeedback, TouchableOpacity } = React;
 
 const window = Dimensions.get('window'); // TODO: get rid of it
 
@@ -15,7 +16,7 @@ export default class VideoWrapper extends React.Component {
 			muted: false,
 			resizeMode: 'cover',
 			duration: 0.0,
-			//currentTime: 0.0,
+			currentTime: 0.0,
 			chapters: [],
 			currentChapter: null,
 			paused: true,
@@ -33,6 +34,15 @@ export default class VideoWrapper extends React.Component {
     this.setState({duration: data.duration});
   }
 
+  componentDidMount() {
+    setTimeout(() => {
+      // check if video has been loaded
+      console.log('check if video is loaded', this.state.duration)
+      if (this.state.duration === '0.0' || this.state.duration === 0) {
+        this.props.selectTrack()
+      }
+    }, 1000)
+  }
 
 	onProgress(data) {
 		// if (Math.round(data.currentTime, -2) % 0.05) {
@@ -49,16 +59,26 @@ export default class VideoWrapper extends React.Component {
     this._videoComponent.seek(time);
   }
 
+  reformat(time) {
+    time = Math.round(time);
+    const pad = v => (new Array(3).join('0') + v).slice(-2);
+    const minutes = Math.floor(time / 60);
+    const seconds = time - minutes * 60;
+    return pad(minutes) + ':' + pad(seconds);
+  }
+
   render() {
     const isRepeatIndicatorShow = +this.props.repeatsIndicator > 0;
     const completed = this.state.currentTime ? parseFloat(this.state.currentTime) / parseFloat(this.state.duration) * 100: 0;
     const remaining = 100 - completed;
-  	//const paused  = this.props.paused ? 1 : 0;
+  	const played = this.reformat(this.state.currentTime);
+    const duration = this.reformat(this.state.duration);
+  
     return (
       <View style={{
         alignItems: 'center', justifyContent: 'flex-start'
       }}>
-        <TouchableWithoutFeedback onPress={() => this.props.onPress()}>
+        <TouchableWithoutFeedback onPress={() => this.props.onPlayPause()}>
           <Video
             ref={component => this._videoComponent = component}
             source={{uri: this.props.source}} // Can be a URL or a local file.
@@ -69,25 +89,34 @@ export default class VideoWrapper extends React.Component {
             resizeMode={this.state.resizeMode}
             onLoad={(data) => { this.onLoad(data) }}
             onProgress={(d) => this.onProgress.bind(this)(d) }
-            onEnd={() => { /* repeat video */ }}
+            onEnd={() => console.log('ended')}
+            onError={(e) => console.log(e)}
             repeat={true}
             style={[this.props.style, {flex: 1, height: window.height / 3, width: window.width}]}>
           </Video>
         </TouchableWithoutFeedback>
+        <View style={{position: 'absolute', top: window.height / 3 - 50}}>
+          <View style={[styles.trackingControls, {width: window.width, opacity: 0.5}]}>
+            <View style={[styles.progress]}>
+              <View style={[styles.innerProgressCompleted, {flex: completed}]} />
+              <View style={[styles.innerProgressRemaining, {flex: remaining}]} />
+            </View>
+          </View>
+          <View style={styles.controls}>
+            <TouchableOpacity onPress={() => this.props.onPlayPause() }>
+              <Icon name={this.props.paused ? 'play' : 'pause'}
+              size={28} color='#F5D700'
+              style={{paddingVertical: 4, paddingHorizontal: 15}}/>
+            </TouchableOpacity>
+
+            <Text style={{color: '#F5D700'}}>{played} / {duration}</Text>
+          </View>
+        </View>
         {isRepeatIndicatorShow &&
           <View style={styles.repeatsIndicator}>
             <Text style={{color: '#000', fontSize: 13}}>{this.props.repeatsIndicator}</Text>
           </View>
         }
-        <View style={[styles.repeatsIndicator, {top: window.height * 0.28, right: window.width * 0.02, width: 80}]}>
-          <Text style={{color: '#000', fontSize: 13, textAlign: 'right'}}>{this.state.currentTime}s.</Text>
-        </View>
-        <View style={[styles.trackingControls, {width: window.width}]}>
-          <View style={[styles.progress]}>
-            <View style={[styles.innerProgressCompleted, {flex: completed}]} />
-            <View style={[styles.innerProgressRemaining, {flex: remaining}]} />
-          </View>
-        </View>
       </View>
     );
   }
@@ -96,7 +125,7 @@ export default class VideoWrapper extends React.Component {
 const styles = {
   trackingControls: {
     flex: 1,
-    height: 5,
+    height: 10,
     backgroundColor: '#f7f7f7'
   },
   progress: {
@@ -105,17 +134,18 @@ const styles = {
     overflow: 'hidden',
   },
   innerProgressCompleted: {
-    height: 5,
+    height: 25,
     backgroundColor: '#FF9500',
   },
   innerProgressRemaining: {
     top: -5,
-    height: 5,
+    height: 25,
     backgroundColor: '#f7f7f7',
   },
   repeatsIndicator: {
     width: 25, height: 25, borderRadius: 12.5, backgroundColor: 'rgba(255,255,255,0.5)', alignItems: 'center', justifyContent: 'center',
     position: 'absolute', top: window.width * 0.05,
     right: window.width * 0.05,
-  }
+  },
+  controls: {height: 40, alignItems: 'center', width: window.width, flexDirection: 'row', backgroundColor: 'black', opacity: 0.7}
 }
