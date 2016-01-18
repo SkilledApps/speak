@@ -69,17 +69,14 @@ export default class SingleTrackContainer extends React.Component {
 		if (track.timestamps && index > track.timestamps.length - 1) {
 			index = track.timestamps.length - 1;
 		}
-		this.setState({currentTimestampIndex: index, currentTime: track.timestamps[index].time});
-		this._videoComponent.seek(track.timestamps[index].time);
+		//this.setState();
+		this.playTime(track.timestamps[index].time, index);
 		// this.setState({paused: false}); TODO: should we played even we've already in the pause?
 	}
-
-	deleteTimestamp(index) {
-		this.setState({timestamps: TimestampsAPI.deleteTimestamp(this.state.timestamps, index)});
-	}
-
-	moveTimestamp(index, delta) {
-		this.setState({timestamps: TimestampsAPI.moveTimestamp(this.state.timestamps, index, delta)});
+	playTime(time, index) {
+		this._videoComponent.seek(time);
+		console.log(time, index)
+		this.setState({currentTime: time, currentTimestampIndex: index})
 	}
 
 	togglePractice() {
@@ -134,12 +131,13 @@ export default class SingleTrackContainer extends React.Component {
 						ref={component => this._videoComponent = component}
 						onProgress={s => this.setState(s)}
 						source={track.source}
-						selectTrack={() => this.props.selectTrack(track)}
+						selectTrack={(force) => this.props.selectTrack(track, force)}
 						paused={this.state.paused}
 						currentTime={ this.state.currentTime }
 						onPlayPause={() => this.setState({paused: !this.state.paused})}
 						repeatsIndicator={this.state.repeatsIndicator}
 						addTimestamp={() => this.props.addTimestamp(this.state.currentTime)}
+						onProgressChange={x => this.playTime(x)}
 					/>
 
 					{/* Если меток нет, то отображать приветствие */}

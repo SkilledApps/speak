@@ -2,10 +2,12 @@
 import React from 'react-native';
 import Video from 'react-native-video';
 import Icon from 'react-native-vector-icons/Ionicons';
+import Cursor from './Cursor';
 
 const { View, Dimensions, Text, TouchableWithoutFeedback, TouchableOpacity } = React;
 
 const window = Dimensions.get('window'); // TODO: get rid of it
+const VIDEO_HEIGHT = window.height / 3;
 
 export default class VideoWrapper extends React.Component {
   constructor() {
@@ -39,9 +41,9 @@ export default class VideoWrapper extends React.Component {
   componentDidMount() {
     setTimeout(() => {
       // check if video has been loaded
-      console.log('check if video source is not oblsolete', this.state.duration)
-      if (this.props.source && (this.state.duration === '0.0' || this.state.duration === 0)) {
-        this.props.selectTrack()
+      console.log('check if video source is not obsolete', this.state.duration)
+      if (this.props.source && parseInt(this.state.duration) === 0) {
+        this.props.selectTrack(true)
       }
     }, 1000)
   }
@@ -71,6 +73,7 @@ export default class VideoWrapper extends React.Component {
 
   render() {
     const isRepeatIndicatorShow = +this.props.repeatsIndicator > 0;
+    // position to coordinates
     const completed = this.props.currentTime ? parseFloat(this.props.currentTime) / parseFloat(this.state.duration) * 100: 0;
     const remaining = 100 - completed;
   	const played = this.reformat(this.props.currentTime);
@@ -94,9 +97,12 @@ export default class VideoWrapper extends React.Component {
             onEnd={() => console.log('ended')}
             onError={(e) => console.log(e)}
             repeat={true}
-            style={[this.props.style, {flex: 1, height: window.height / 3, width: window.width}]}>
+            style={[this.props.style, {flex: 1, height: VIDEO_HEIGHT, width: window.width}]}>
           </Video>
         </TouchableWithoutFeedback>
+        <Cursor
+          position={completed * window.width / 100 - 15}
+          onMove={x => this.props.onProgressChange(x / window.width * this.state.duration)} />
         <View style={{position: 'absolute', top: window.height / 3 - 50}}>
           <View style={[styles.trackingControls, {width: window.width, opacity: 0.5}]}>
             <View style={[styles.progress]}>

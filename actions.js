@@ -65,8 +65,8 @@ export function justSelectTrack(track) {
     track
   }
 }
-export function selectTrack(track) {
-  if (track.source && track.sourceDate && ((new Date() - new Date(track.sourceDate)) < 10*60*60*1000)) {
+export function selectTrack(track, force) {
+  if (!force && track.source && track.sourceDate && ((new Date() - new Date(track.sourceDate)) < 2*60*60*1000)) {
     return justSelectTrack(track);
   } else {
     return (dispatch) => {

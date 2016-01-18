@@ -104,7 +104,6 @@ export default function reducer(state = defaultState, action): GlobalState {
           foundTracks: [...state.foundTracks]
         }
       } else {
-        console.log('source set')
         state.savedTracks[state.selectedIndex.index].source = action.source;
         state.savedTracks[state.selectedIndex.index].sourceDate = new Date();
         return {
@@ -114,6 +113,9 @@ export default function reducer(state = defaultState, action): GlobalState {
       }
 
     case FETCHED_CAPTIONS_FOR_TRACK:
+      if (action.timestamps.length === 0) {
+        return state;
+      }
       if (state.selectedIndex.type === 'found') {
         state.foundTracks[state.selectedIndex.index].timestamps = action.timestamps;
         return {
@@ -121,6 +123,10 @@ export default function reducer(state = defaultState, action): GlobalState {
           foundTracks: [...state.foundTracks]
         }
       } else {
+        if (state.savedTracks[state.selectedIndex.index].timestamps &&
+          state.savedTracks[state.selectedIndex.index].timestamps.length > 0) {
+            return state;
+          }
         state.savedTracks[state.selectedIndex.index].timestamps = action.timestamps;
         return {
           ...state,

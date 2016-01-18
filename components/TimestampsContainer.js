@@ -16,6 +16,7 @@ class TimestampControl extends React.Component {
 
   render() {
     const playedStyle = this.props.isPlayed ? {backgroundColor: '#F6FBC7'} : {};
+    console.log(this.props.isSelected)
     const selectedStyle = this.props.isSelected ? { borderLeftColor: '#FF9500', borderLeftWidth: 10} : {};
     const progress = this.props.currentTime >= this.props.prevTime && this.props.currentTime < this.props.time &&
       ((this.props.currentTime - this.props.prevTime) / (this.props.time - this.props.prevTime));
@@ -40,6 +41,7 @@ class TimestampControl extends React.Component {
 }
 
 const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+
 export default class TimestampsContainer extends React.Component {
   constructor(props) {
     super();
@@ -61,8 +63,8 @@ export default class TimestampsContainer extends React.Component {
         currentTime={this.props.currentTime}
         prevTime={rowID > 0 ? this.props.timestamps[parseInt(rowID, 10) - 1].time : 0}
         nextTime={rowID < this.props.timestamps.length - 1 ? this.props.timestamps[parseInt(rowID, 10) + 1].time : this.props.timestamps[this.props.timestamps.length - 1].time}
-        isPlayed={this.props.currentTime > rowData.time}
-        isSelected={this.props.selectedIndex === rowID}
+        isPlayed={this.props.currentTime + 0.1 > rowData.time}
+        isSelected={this.props.selectedIndex === parseInt(rowID, 10) - 1}
         onSelect={() => this.props.onSelect(rowID) }
         onDelete={() => this.props.onDelete(rowID) }
         onTitleChange={title => this.props.onTitleChange(rowID, title)}
@@ -70,9 +72,9 @@ export default class TimestampsContainer extends React.Component {
     )
   }
   render() {
+
     return (
       <View style={{justifyContent: 'flex-start', alignItems: 'center'}}>
-
         <ListView
           dataSource={this.state.dataSource}
           showsVerticalScrollIndicator={true}

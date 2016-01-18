@@ -32,6 +32,6 @@ export default class EditableCaption extends React.Component {
 }
 
 const styles = {
-  captionText: { fontSize: 16 },
+  captionText: { fontSize: 16 , backgroundColor: 'transparent'},
   captionInput: {width: 200, height: 26},
 }
