@@ -27,7 +27,6 @@ export default class SingleTrackContainer extends React.Component {
 		super();
 		this.state = {
 			currentTime: 0.0,
-			timestamps: [],
 			paused: false,
 			modeChapterDelete: false,
 			practice: false,
@@ -50,13 +49,6 @@ export default class SingleTrackContainer extends React.Component {
 			this.props.savedTracks[this.props.selectedIndex.index];
 	}
 
-	parseVideoData() {
-		// TimestampsAPI
-		// 	.restore(this.props.meta.id.videoId) // TODO: platform independent
-		// 	.then(raw => JSON.parse(raw))
-		// 	.then(timestamps => this.setState({timestamps}))
-	}
-
 	componentWillReceiveProps(nextProps) {
 		LayoutAnimation.easeInEaseOut();
 	}
@@ -70,14 +62,15 @@ export default class SingleTrackContainer extends React.Component {
 	}
 
 	playTimestamp(index) {
+		const track = this.getTrack();
 		if (index < 0) {
 			index = 0;
 		}
-		if (this.state.timestamps && index > this.state.timestamps.length - 1) {
-			index = this.state.timestamps.length - 1;
+		if (track.timestamps && index > track.timestamps.length - 1) {
+			index = track.timestamps.length - 1;
 		}
-		this.setState({currentTimestampIndex: index, currentTime: this.state.timestamps[index].time});
-		this._videoComponent.seek(this.state.timestamps[index].time);
+		this.setState({currentTimestampIndex: index, currentTime: track.timestamps[index].time});
+		this._videoComponent.seek(track.timestamps[index].time);
 		// this.setState({paused: false}); TODO: should we played even we've already in the pause?
 	}
 
@@ -88,51 +81,6 @@ export default class SingleTrackContainer extends React.Component {
 	moveTimestamp(index, delta) {
 		this.setState({timestamps: TimestampsAPI.moveTimestamp(this.state.timestamps, index, delta)});
 	}
-
-	playIcon() {
-		return !this.state.paused ? 'pause' : 'play';
-	}
-
-	renderChapterControls() {
-
-		const isChaptersAvailable = this.state.timestamps ? !(this.state.timestamps.length === 0) : false;
-		const isChapterMoreThenTwo = this.state.timestamps ? this.state.timestamps.length > 1 : false;
-		const width = 100, height = 100; // TODO: remove?
-		const playIcon = this.playIcon();
-		return (
-			<View style={{
-				width: width * 0.9, top: height * 0.01,
-				backgroundColor: 'transparent',
-				justifyContent: 'center', alignItems: 'center',
-				flexDirection: 'row',
-			}}>
-				{isChapterMoreThenTwo &&
-					<TouchableOpacity
-						onPress={ () => this.playTimestamp(TimestampsAPI.getIndexByTime(this.state.timestamps, this.state.currentTime) + 1) }>
-						<Icon name='skip-backward' size={30} color='#FF9500' style={{padding: 15}}/>
-					</TouchableOpacity>
-				}
-
-				{!this.state.practice &&
-					<TouchableOpacity
-						style={{}}
-						onPress={ () => this.setState({timestamps: TimestampsAPI.addTimestamp(this.state.timestamps, this.state.currentTime)}) }>
-						<Icon name='scissors' size={35} color='#FF9500'
-							style={{padding: 15}}
-						/>
-					</TouchableOpacity>
-				}
-
-				{isChapterMoreThenTwo &&
-					<TouchableOpacity
-						onPress={() => this.playTimestamp(TimestampsAPI.getIndexByTime(this.state.timestamps, this.state.currentTime) - 1) }>
-						<Icon name='skip-forward' size={30} color='#FF9500' style={{marginHorizontal: 10}}/>
-					</TouchableOpacity>
-				}
-			</View>
-		)
-	}
-
 
 	togglePractice() {
 		/*
@@ -177,46 +125,50 @@ export default class SingleTrackContainer extends React.Component {
 
 
 	render() {
-		if (!this.getTrack() || !this.getTrack().source) {
+		const track = this.getTrack();
+		if (track && track.source && track.source.length > 0) {
+			return (
+				<View style={{justifyContent: 'flex-start', alignItems: 'center'}}>
+					{/* VideoWrapper для отображение видео (потом можно добавить AudioWrapper или YoutubeWrapper) */}
+					<VideoWrapper
+						ref={component => this._videoComponent = component}
+						onProgress={s => this.setState(s)}
+						source={track.source}
+						selectTrack={() => this.props.selectTrack(track)}
+						paused={this.state.paused}
+						currentTime={ this.state.currentTime }
+						onPlayPause={() => this.setState({paused: !this.state.paused})}
+						repeatsIndicator={this.state.repeatsIndicator}
+						addTimestamp={() => this.props.addTimestamp(this.state.currentTime)}
+					/>
 
+					{/* Если меток нет, то отображать приветствие */}
+					{(!track.timestamps || track.timestamps.length === 0) && <OnboardingTip where={'Edit'} /> }
+
+					{/* Если выбран не режим практики, а редактирования, то показать контейнер с метками */}
+				  {(track.timestamps && track.timestamps.length > 0) &&
+						<TimestampsContainer
+							currentTime={ this.state.currentTime }
+							timestamps={ track.timestamps }
+							inPractice={ this.state.practice }
+							selectedIndex={ this.state.currentTimestampIndex }
+							onSelect={ index => { this.setState({practice: false, repeatsIndicator: 0}); this.playTimestamp(index); } }
+							onDelete={ index => this.deleteTimestamp(index) }
+							startPractice={ () => this.togglePractice() }
+							onMove={(index, delta) => this.moveTimestamp(index, delta) }
+						/> }
+
+				</View>
+			)
+		}
+		else {
 			return (
 				<View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
 					<ActivityIndicatorIOS size={'large'} />
 				</View>
 			)
 		}
-		return (
-			<View style={{justifyContent: 'flex-start', alignItems: 'center'}}>
 
-				{/* VideoWrapper для отображение видео (потом можно добавить AudioWrapper или YoutubeWrapper) */}
-				<VideoWrapper
-					ref={component => this._videoComponent = component}
-					onProgress={s => this.setState(s)}
-					source={this.getTrack().source}
-					selectTrack={() => this.props.selectTrack(this.getTrack())}
-					paused={this.state.paused}
-					onPlayPause={() => this.setState({paused: !this.state.paused})}
-					repeatsIndicator={this.state.repeatsIndicator}
-				/>
-
-				{/* Если меток нет, то отображать приветствие */}
-				{!this.state.timestamps && <OnboardingTip where={'Edit'} /> }
-
-				{/* Если выбран не режим практики, а редактирования, то показать контейнер с метками */}
-			  {this.state.timestamps &&
-					<TimestampsContainer
-						currentTime={ this.state.currentTime }
-						timestamps={ this.state.timestamps }
-						inPractice={ this.state.practice }
-						selectedIndex={ this.state.currentTimestampIndex }
-						onSelect={ index => { this.setState({practice: false, repeatsIndicator: 0}); this.playTimestamp(index); } }
-						onDelete={ index => this.deleteTimestamp(index) }
-						startPractice={ () => this.togglePractice() }
-						onMove={(index, delta) => this.moveTimestamp(index, delta) }
-					/> }
-
-			</View>
-		)
 	}
 }
 

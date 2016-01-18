@@ -30,42 +30,30 @@ export function searchYoutube(query) {
 
 export function obtainVideoFromLink(youtubeId) {
   const NativeModules = require('react-native').NativeModules;
-  const link = NativeModules.YoutubeParser.obtainVideoFromLink('http://www.youtube.com/watch?v=' + youtubeId);
-  //console.log(youtubeId, link);
-  return link;
+  return NativeModules.YoutubeParser.obtainVideoFromLink('http://www.youtube.com/watch?v=' + youtubeId);
 }
 
 function parseIntoTimestamps(xml) {
-  // var parseString = require('xml2js').parseString;
-  // var xml = "<root>Hello xml2js!</root>"
-  // parseString(xml, function (err, result) {
-  //     console.dir(result);
-  // });
+  if (!xml) {
+    return [];
+  }
   var doc = new DOMParser().parseFromString(
     xml
     ,'text/xml');
-
   const childs = [];
   for (var i=0; i<doc.documentElement.childNodes.length; i++) {
     let node = doc.documentElement.childNodes[i];
     childs.push({
       title: node.firstChild.data,
-      time: node.getAttribute('start'),
+      time: parseFloat(node.getAttribute('start')),
       isMuted: false
     });
-    childs.push({
-      title: '',
-      time: node.getAttribute('start') + node.getAttribute('dur'),
-      isMuted: true
-    });
   }
-  //console.log('elements <text>', doc.documentElement.childNodes.map(a => a.getAttribute()).join(','))
   return childs;
-  //console.log(doc.documentElement.getElementsByTagName('transcript')[0].getElementsByTagName('text').map(a => a.getAttribute()).join(',')) //.childNamed('transcript')
 }
 export function getCaptions(lang, youtubeId) {
   return fetch(CAPTIONS_ENDPOINT + lang + '&v=' + youtubeId)
     .then(r => r.text())
     .then(r => parseIntoTimestamps(r))
-    .catch(e => console.error(e))
+    .catch(e => console.error('getCaptions error', e))
 }

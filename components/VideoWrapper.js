@@ -16,7 +16,7 @@ export default class VideoWrapper extends React.Component {
 			muted: false,
 			resizeMode: 'cover',
 			duration: 0.0,
-			currentTime: 0.0,
+			//currentTime: 0.0,
 			chapters: [],
 			currentChapter: null,
 			paused: true,
@@ -31,14 +31,16 @@ export default class VideoWrapper extends React.Component {
 	}
 
   onLoad(data) {
-    this.setState({duration: data.duration});
+    if (data.duration > this.state.duration) {
+      this.setState({duration: data.duration});
+    }
   }
 
   componentDidMount() {
     setTimeout(() => {
       // check if video has been loaded
-      console.log('check if video is loaded', this.state.duration)
-      if (this.state.duration === '0.0' || this.state.duration === 0) {
+      console.log('check if video source is not oblsolete', this.state.duration)
+      if (this.props.source && (this.state.duration === '0.0' || this.state.duration === 0)) {
         this.props.selectTrack()
       }
     }, 1000)
@@ -50,7 +52,7 @@ export default class VideoWrapper extends React.Component {
         currentTime: Math.round(data.currentTime * 100, 1) / 100,
 				duration: data.playableDuration,
       }
-      this.setState({currentTime: progress.currentTime, duration: progress.duration});
+      //this.setState({duration: progress.duration});
 			this.props.onProgress(progress);
 		// }
 	}
@@ -69,11 +71,11 @@ export default class VideoWrapper extends React.Component {
 
   render() {
     const isRepeatIndicatorShow = +this.props.repeatsIndicator > 0;
-    const completed = this.state.currentTime ? parseFloat(this.state.currentTime) / parseFloat(this.state.duration) * 100: 0;
+    const completed = this.props.currentTime ? parseFloat(this.props.currentTime) / parseFloat(this.state.duration) * 100: 0;
     const remaining = 100 - completed;
-  	const played = this.reformat(this.state.currentTime);
+  	const played = this.reformat(this.props.currentTime);
     const duration = this.reformat(this.state.duration);
-  
+
     return (
       <View style={{
         alignItems: 'center', justifyContent: 'flex-start'
@@ -105,11 +107,23 @@ export default class VideoWrapper extends React.Component {
           <View style={styles.controls}>
             <TouchableOpacity onPress={() => this.props.onPlayPause() }>
               <Icon name={this.props.paused ? 'play' : 'pause'}
+                size={28} color='#F5D700'
+                style={{paddingVertical: 4, paddingHorizontal: 15}}/>
+            </TouchableOpacity>
+            <Text style={{color: '#F5D700'}}>{played} / {duration}</Text>
+            <TouchableOpacity onPress={() => this.setState({rate: 1}) }
+              style={[styles.rateButton, this.state.rate === 1 ? {backgroundColor: '#F5D700'} : {}]}>
+              <Text style={{color:  this.state.rate === 1 ? 'black' : '#F5D700'}}>1.0x</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => this.setState({rate: 0.5}) }
+              style={[styles.rateButton, this.state.rate === 0.5 ? {backgroundColor: '#F5D700'} : {}]}>
+              <Text style={{color:  this.state.rate === 1 ? '#F5D700' : 'black'}}>0.5x</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => this.props.addTimestamp() }>
+            <Icon name={'scissors'}
               size={28} color='#F5D700'
               style={{paddingVertical: 4, paddingHorizontal: 15}}/>
             </TouchableOpacity>
-
-            <Text style={{color: '#F5D700'}}>{played} / {duration}</Text>
           </View>
         </View>
         {isRepeatIndicatorShow &&
@@ -147,5 +161,6 @@ const styles = {
     position: 'absolute', top: window.width * 0.05,
     right: window.width * 0.05,
   },
-  controls: {height: 40, alignItems: 'center', width: window.width, flexDirection: 'row', backgroundColor: 'black', opacity: 0.7}
+  rateButton: {marginLeft: 10, padding: 5, borderWidth: 1, borderColor: '#F5D700'},
+  controls: {height: 40, alignItems: 'center', width: window.width, flexDirection: 'row', justifyContent: 'space-around', backgroundColor: 'black', opacity: 0.7}
 }

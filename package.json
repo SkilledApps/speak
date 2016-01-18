@@ -7,6 +7,7 @@
     "bundle": "react-native bundle --entry-file index.ios.js --platform ios --dev false --bundle-output ./main.jsbundle"
   },
   "dependencies": {
+    "html-entities": "^1.2.0",
     "react": "^0.14.6",
     "react-native": "SkilledApps/react-native",
     "react-native-audio": "^0.3.2",

@@ -11,6 +11,12 @@ export const SELECT_TRACK = 'SELECT_TRACK';
 export const FETCHED_SOURCE_FOR_TRACK = 'FETCHED_SOURCE_FOR_TRACK';
 export const FETCHED_CAPTIONS_FOR_TRACK = 'FETCHED_CAPTIONS_FOR_TRACK';
 
+export const ADD_TIMESTAMP = 'ADD_TIMESTAMP';
+export const MOVE_TIMESTAMP = 'MOVE_TIMESTAMP';
+export const DELETE_TIMESTAMP = 'DELETE_TIMESTAMP';
+export const RENAME_TIMESTAMP = 'RENAME_TIMESTAMP';
+export const MUTE_TIMESTAMP = 'MUTE_TIMESTAMP';
+
 function searchingYoutube() {
   return {
     type: SEARCHING_YOUTUBE
@@ -59,7 +65,7 @@ export function justSelectTrack(track) {
   }
 }
 export function selectTrack(track) {
-  if (track.source && track.sourceDate && (track.sourceDate - new Date() < 10*60*60*100)) {
+  if (track.source && track.sourceDate && ((new Date() - new Date(track.sourceDate)) < 10*60*60*1000)) {
     return justSelectTrack(track);
   } else {
     return (dispatch) => {
@@ -84,6 +90,13 @@ export function fetchedCaptions(track, timestamps) {
   return {
     type: FETCHED_CAPTIONS_FOR_TRACK,
     track,
-    source,
+    timestamps
+  }
+}
+
+export function addTimestamp(time) {
+  return {
+    type: ADD_TIMESTAMP,
+    time
   }
 }

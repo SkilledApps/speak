@@ -1,65 +1,93 @@
 import React from 'react-native';
+import { AllHtmlEntities } from 'html-entities';
 
-const { View, Text, TouchableOpacity, Dimensions, ScrollView } = React;
+const entitiesDecoder = new AllHtmlEntities();
+
+
+const { View, Text, TouchableOpacity, Dimensions, ListView, TextInput, LayoutAnimation } = React;
 import Icon from 'react-native-vector-icons/Ionicons';
 const layout = Dimensions.get('window');
 
 class TimestampControl extends React.Component {
-  render() {
-    const playedStyle = this.props.isPlayed ? {backgroundColor: 'rgba(0,0,0,0.5)'} : {};
-    const selectedStyle = this.props.isSelected ? { borderColor: '#FF9500', borderWidth: 2} : {};
-    return (
-      <View style={[styles.timestampControl]}>
-        <View style={{justifyContent: 'space-between', flexDirection: 'row'}}>
-          <TouchableOpacity style={styles.button2}
-                            onPress={ () => { this.props.onMove(this.props.key, -0.2) }}>
-            <Icon name='minus' size={30} color='#FF9500'/>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button2}
-                            onPress={ () => { this.props.onMove(this.props.key, 0.2); }}>
-            <Icon name='plus' size={30} color='#FF9500'/>
-          </TouchableOpacity>
-        </View>
-        <TouchableOpacity
-          style={[styles.caption, selectedStyle, playedStyle]}
-          onPress={() => { this.props.onSelect(this.props.key) }}>
-          <Text style={styles.captionText}>{this.props.title} {this.props.time} s.</Text>
-        </TouchableOpacity>
+  reformat(time) {
+    time = Math.round(time);
+    const pad = v => (new Array(3).join('0') + v).slice(-2);
+    const minutes = Math.floor(time / 60);
+    const seconds = time - minutes * 60;
+    return pad(minutes) + ':' + pad(seconds);
+  }
 
-        <View style={{justifyContent: 'space-between', flexDirection: 'row'}}>
-            <TouchableOpacity style={styles.button2}
-                            onPress={ () => { this.props.onDelete(this.props.key); }}>
-            <Icon name='trash-a' size={30} color='#FF9500'/>
-            </TouchableOpacity>
+  render() {
+    const playedStyle = this.props.isPlayed ? {backgroundColor: '#FFF8CA'} : {};
+    const selectedStyle = this.props.isSelected ? { borderLeftColor: '#FF9500', borderLeftWidth: 10} : {};
+    const progress = this.props.currentTime >= this.props.prevTime && this.props.currentTime < this.props.time &&
+      ((this.props.currentTime - this.props.prevTime) / (this.props.time - this.props.prevTime));
+
+    return (
+      <TouchableOpacity style={[styles.timestampControl, playedStyle, selectedStyle]} onPress={this.props.onSelect}>
+        <View style={{position: 'absolute', backgroundColor: '#FFF8CA', width: layout.width * progress, height: 53, top: 0, left: 0}} />
+
+        <Text style={styles.timingText}>{this.reformat(this.props.prevTime)} - {this.reformat(this.props.time)}</Text>
+        <View style={{width: 200}}>
+          {!this.props.title ?
+            <TouchableOpacity style={styles.button2} onPress={ () => this.setState({showInput: true})}>
+              <TextInput style={styles.captionInput} placeholder={'Add caption'}/>
+            </TouchableOpacity> :
+            <Text style={styles.captionText} numberOfLines={2}>{entitiesDecoder.decode(this.props.title)}</Text>
+          }
         </View>
-      </View>
-    );
+        <View style={{justifyContent: 'space-between', flexDirection: 'row', backgroundColor: 'transparent'}}>
+          <TouchableOpacity style={styles.button2} onPress={ () => { }}>
+            <Icon name='ios-arrow-down' size={30} color='#FF9500'/>
+          </TouchableOpacity>
+        </View>
+
+      </TouchableOpacity>
+    )
   }
 }
 
+const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
 export default class TimestampsContainer extends React.Component {
+  constructor(props) {
+    super();
+    this.state = {
+      dataSource: ds.cloneWithRows(props.timestamps)
+    }
+  }
+  componentWillReceiveProps(nextProps) {
+    if (this.props.timestamps.length !== nextProps.timestamps.length) {
+      LayoutAnimation.spring();
+    } else {
+      LayoutAnimation.linear();
+    }
+    this.setState({dataSource: ds.cloneWithRows(nextProps.timestamps)})
+  }
+  renderRow(rowData, sectionID, rowID, highlightRow) {
+    return (
+      <TimestampControl {...rowData}
+        currentTime={this.props.currentTime}
+        prevTime={rowID > 0 ? this.props.timestamps[parseInt(rowID, 10) - 1].time : 0}
+        nextTime={rowID < this.props.timestamps.length - 1 ? this.props.timestamps[parseInt(rowID, 10) + 1].time : this.props.timestamps[this.props.timestamps.length - 1].time}
+        isPlayed={this.props.currentTime > rowData.time}
+        isSelected={this.props.selectedIndex === rowID}
+        onSelect={() => this.props.onSelect(rowID) }
+        onDelete={() => this.props.onDelete(rowID) }
+        onMove={(k, delta) => this.props.onMove(rowID, delta) }/>
+    )
+  }
   render() {
-    const timestamps = this.props.timestamps.map ((t, i) =>
-      <TimestampControl {...t} key={t.time}
-        isPlayed={this.props.currentTime > t.time}
-        isSelected={this.props.selectedIndex === i}
-        onSelect={() => this.props.onSelect(i) }
-        onDelete={() => this.props.onDelete(i) }
-        onMove={(k, delta) => this.props.onMove(i, delta) }/>);
-
     return (
       <View style={{justifyContent: 'flex-start', alignItems: 'center'}}>
 
-        <ScrollView
+        <ListView
+          dataSource={this.state.dataSource}
           showsVerticalScrollIndicator={true}
           horizontal={false}
-          contentContainerStyle={{
-            justifyContent: 'flex-start',
+          renderRow = {this.renderRow.bind(this)}
+          contentContainerStyle={{justifyContent: 'flex-start',
             alignItems: 'center', paddingBottom: 25}}
-            style={{height: 2 * layout.height / 3 - 50, width: layout.width}}
-        >
-          {timestamps}
-        </ScrollView>
+            style={{height: 2 * layout.height / 3 - 50, width: layout.width}} />
 
         <TouchableOpacity
           onPress={() => this.props.startPractice() }
@@ -68,7 +96,6 @@ export default class TimestampsContainer extends React.Component {
           <Text style={{paddingVertical: 15,
             paddingHorizontal: 20,
             color: '#494000', fontSize: 20,
-            
           }}>{this.props.inPractice ? 'Stop Practice' : 'Start Practice'}</Text>
         </TouchableOpacity>
       </View>
@@ -78,24 +105,31 @@ export default class TimestampsContainer extends React.Component {
 
 const styles = {
     timestampControl: {
-        marginVertical: 10,
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'flex-end',
+        alignItems: 'center',
         flex: 1,
-        width: layout.width * 0.9
+        width: layout.width,
+        borderBottomColor: '#ccc',
+        borderBottomWidth: 1,
+        padding: 10,
     },
     caption: {
         paddingVertical: 5,
         paddingHorizontal: 30,
         borderRadius: 15,
         overflow: 'hidden',
-        backgroundColor: '#34AADC'
+        backgroundColor: '#34AADC',
+        width: 200,
+        padding: 5
     },
+    hyperlink: {textDecorationLine: 'underline', color: '#494000', textDecorationStyle: 'dotted', fontSize: 16},
+    captionInput: {width: 200, height: 26},
     button2: {
         marginHorizontal: 10
     },
-    captionText: { color: '#fff', fontSize: 16 },
+    captionText: { fontSize: 16 },
+    timingText: { fontSize: 12, backgroundColor: 'transparent'},
     voiceButton: { position: 'absolute', left: layout.width * 0.2, }
 
 

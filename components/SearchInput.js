@@ -38,7 +38,10 @@ export default class SearchInput extends React.Component {
   					if (query.length < 3) {
   						return;
   					}
-            this.props.onSearch(query)
+						if (this.t) {
+							clearTimeout(this.t);
+						}
+						this.t = setTimeout(() => this.props.onSearch(query), 500);
   			}} />
       </View>
     )

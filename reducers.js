@@ -8,7 +8,9 @@ import {
   ADD_TRACK_TO_COLLECTION,
   DELETE_TRACK_FROM_COLLECTION,
   SELECT_TRACK,
-  FETCHED_SOURCE_FOR_TRACK
+  FETCHED_SOURCE_FOR_TRACK,
+  FETCHED_CAPTIONS_FOR_TRACK,
+  ADD_TIMESTAMP
 } from './actions';
 
 import { LOAD, SAVE } from 'redux-storage';
@@ -98,19 +100,62 @@ export default function reducer(state = defaultState, action): GlobalState {
         state.foundTracks[state.selectedIndex.index].sourceDate = new Date();
         return {
           ...state,
-          foundTracks: state.foundTracks
+          foundTracks: [...state.foundTracks]
         }
       } else {
+        console.log('source set')
         state.savedTracks[state.selectedIndex.index].source = action.source;
         state.savedTracks[state.selectedIndex.index].sourceDate = new Date();
         return {
           ...state,
-          savedTracks: state.savedTracks
+          savedTracks: [...state.savedTracks]
+        }
+      }
+
+    case FETCHED_CAPTIONS_FOR_TRACK:
+      if (state.selectedIndex.type === 'found') {
+        state.foundTracks[state.selectedIndex.index].timestamps = action.timestamps;
+        return {
+          ...state,
+          foundTracks: [...state.foundTracks]
+        }
+      } else {
+        state.savedTracks[state.selectedIndex.index].timestamps = action.timestamps;
+        return {
+          ...state,
+          savedTracks: [...state.savedTracks]
         }
       }
 
 
+    case ADD_TIMESTAMP:
+      const track = getTrack(state)
+      const isDublicate = track.timestamps && track.timestamps.filter(t =>
+        t.time === action.time || Math.abs(t.time - action.time)*1000 < 200).length > 0 // 200 ms thrueshold
+      if (isDublicate) {
+        return state;
+      } else {
+        const newTimestamp = {
+          title: '',
+          isMuted: false,
+          time: action.time
+        }
+        track.timestamps = track.timestamps ? track.timestamps.concat([newTimestamp]).sort((a, b) => a.time - b.time) : [newTimestamp];
+        return {
+          ...state,
+          foundTracks: state.foundTracks,
+          savedTracks: state.savedTracks
+        }
+      }
+
     default:
       return state;
   }
+}
+
+
+function getTrack(state) {
+  return state.selectedIndex.type === 'found' ?
+    state.foundTracks[state.selectedIndex.index] :
+    state.savedTracks[state.selectedIndex.index];
 }
