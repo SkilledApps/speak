@@ -7,16 +7,16 @@ const layout = Dimensions.get('window');
 
 class TimestampControl extends React.Component {
   reformat(time) {
-    time = Math.round(time);
+    const roundedTime = Math.round(time);
     const pad = v => (new Array(3).join('0') + v).slice(-2);
-    const minutes = Math.floor(time / 60);
-    const seconds = time - minutes * 60;
-    return pad(minutes) + ':' + pad(seconds);
+    const minutes = Math.floor(roundedTime / 60);
+    const seconds = roundedTime - minutes * 60;
+    const milliseconds = time - roundedTime;
+    return <Text>{pad(minutes) + ':' + pad(seconds)}<Text style={{color: '#888'}}>{':' + pad(milliseconds)}</Text></Text>;
   }
 
   render() {
     const playedStyle = this.props.isPlayed ? {backgroundColor: '#F6FBC7'} : {};
-    console.log(this.props.isSelected)
     const selectedStyle = this.props.isSelected ? { borderLeftColor: '#FF9500', borderLeftWidth: 10} : {};
     const progress = this.props.currentTime >= this.props.prevTime && this.props.currentTime < this.props.time &&
       ((this.props.currentTime - this.props.prevTime) / (this.props.time - this.props.prevTime));
@@ -25,7 +25,7 @@ class TimestampControl extends React.Component {
       <TouchableOpacity style={[styles.timestampControl, playedStyle, selectedStyle]} onPress={this.props.onSelect}>
         <View style={{position: 'absolute', backgroundColor: '#FFF8CA', width: layout.width * progress, height: 53, top: 0, left: 0}} />
 
-        <Text style={styles.timingText}>{this.reformat(this.props.prevTime)} - {this.reformat(this.props.time)}</Text>
+        <Text style={styles.timingText} numberOfLines={2}>{this.reformat(this.props.prevTime)} {this.reformat(this.props.time)}</Text>
         <View style={{width: 200}}>
           <EditableCaption editMode={!this.props.title} title={this.props.title} onTitleChange={this.props.onTitleChange}/>
         </View>
@@ -53,18 +53,21 @@ export default class TimestampsContainer extends React.Component {
     if (this.props.timestamps.length !== nextProps.timestamps.length) {
       LayoutAnimation.spring();
     } else {
-      LayoutAnimation.linear();
+      if (!this.props.paused) {
+        LayoutAnimation.linear();
+      }
     }
     this.setState({dataSource: ds.cloneWithRows(nextProps.timestamps)})
   }
   renderRow(rowData, sectionID, rowID, highlightRow) {
+    const { timestamps, currentTime, selectedIndex } = this.props;
     return (
       <TimestampControl {...rowData}
-        currentTime={this.props.currentTime}
-        prevTime={rowID > 0 ? this.props.timestamps[parseInt(rowID, 10) - 1].time : 0}
-        nextTime={rowID < this.props.timestamps.length - 1 ? this.props.timestamps[parseInt(rowID, 10) + 1].time : this.props.timestamps[this.props.timestamps.length - 1].time}
-        isPlayed={this.props.currentTime + 0.1 > rowData.time}
-        isSelected={this.props.selectedIndex === parseInt(rowID, 10) - 1}
+        currentTime={currentTime}
+        prevTime={rowID > 0 ? timestamps[parseInt(rowID, 10) - 1].time : 0}
+        nextTime={rowID < timestamps.length - 1 ? timestamps[parseInt(rowID, 10) + 1].time : timestamps[timestamps.length - 1].time}
+        isPlayed={currentTime + 0.1 > rowData.time}
+        isSelected={parseInt(selectedIndex, 10) === parseInt(rowID, 10)}
         onSelect={() => this.props.onSelect(rowID) }
         onDelete={() => this.props.onDelete(rowID) }
         onTitleChange={title => this.props.onTitleChange(rowID, title)}
@@ -122,7 +125,7 @@ const styles = {
     button2: {
         marginHorizontal: 10
     },
-    timingText: { fontSize: 12, backgroundColor: 'transparent'},
+    timingText: { fontSize: 12, fontFamily: 'courier', width: 60, backgroundColor: 'transparent'},
     voiceButton: { position: 'absolute', left: layout.width * 0.2, }
 
 

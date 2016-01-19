@@ -12,6 +12,7 @@ import {
   FETCHED_CAPTIONS_FOR_TRACK,
   ADD_TIMESTAMP,
   CHANGE_TITLE_FOR_TIMESTAMP,
+  MOVE_TIMESTAMP,
 } from './actions';
 
 import { LOAD, SAVE } from 'redux-storage';
@@ -163,6 +164,17 @@ export default function reducer(state = defaultState, action): GlobalState {
         foundTracks: [...state.foundTracks],
         savedTracks: [...state.savedTracks]
       }
+
+    case MOVE_TIMESTAMP:
+      const track3 = getTrack(state)
+      track3.timestamps[action.index].time = action.time;
+      return {
+        ...state,
+        foundTracks: [...state.foundTracks],
+        savedTracks: [...state.savedTracks]
+      }
+
+
     default:
       return state;
   }

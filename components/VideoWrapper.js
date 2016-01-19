@@ -4,37 +4,31 @@ import Video from 'react-native-video';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Cursor from './Cursor';
 
-const { View, Dimensions, Text, TouchableWithoutFeedback, TouchableOpacity } = React;
+const { View, Dimensions, Text, TouchableWithoutFeedback, LayoutAnimation, TouchableOpacity } = React;
 
 const window = Dimensions.get('window'); // TODO: get rid of it
 const VIDEO_HEIGHT = window.height / 3;
 
 export default class VideoWrapper extends React.Component {
-  constructor() {
+  constructor(props) {
 		super();
 		this.state = {
 			rate: 1,
 			volume: 1,
 			muted: false,
-			resizeMode: 'cover',
 			duration: 0.0,
-			//currentTime: 0.0,
-			chapters: [],
-			currentChapter: null,
 			paused: true,
-			playIcon: 'pause',
-			modeChapterDelete: false,
-			practice: false,
-			practiceScheme: {
-				repeating: 3, 	// repeat chapter 3 times
-				interval: 1, 	// 1s between repeatings
-			}
+      progress: {
+        start: 0,
+        end: 0
+      }
 		};
 	}
 
-  onLoad(data) {
+  onLoad(data: any) {
     if (data.duration > this.state.duration) {
-      this.setState({duration: data.duration});
+      // TODO: simpilify
+      this.setState({duration: parseFloat(data.duration), progress: { start: 0, end: parseFloat(data.duration)}});
     }
   }
 
@@ -48,11 +42,20 @@ export default class VideoWrapper extends React.Component {
     }, 1000)
   }
 
-	onProgress(data) {
+	onProgress(data: any) {
+
 		// if (Math.round(data.currentTime, -2) % 0.05) {
       const progress = {
         currentTime: Math.round(data.currentTime * 100, 1) / 100,
 				duration: data.playableDuration,
+      }
+      if (progress.currentTime > this.state.progress.end) {
+        this.setState({
+          progress: {
+            start: this.state.progress.start,
+            end: progress.currentTime + 3 < this.state.duration ? progress.currentTime + 3 : this.state.duration
+          }
+        })
       }
       //this.setState({duration: progress.duration});
 			this.props.onProgress(progress);
@@ -61,6 +64,23 @@ export default class VideoWrapper extends React.Component {
 
   seek(time) {
     this._videoComponent.seek(time);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.currentTimestampIndex !== this.props.currentTimestampIndex && nextProps.track) {
+      //LayoutAnimation.spring();
+      const segment = {
+        start: nextProps.currentTimestampIndex === 0 ? 0 : nextProps.track.timestamps[nextProps.currentTimestampIndex - 1].time,
+        end: nextProps.track.timestamps[nextProps.currentTimestampIndex].time
+      };
+
+      this.setState({
+        progress: {
+          start: segment.start === 0 ? 0 : segment.start - (segment.end - segment.start),
+          end: segment.end + (segment.end - segment.start)
+        }
+      });
+    }
   }
 
   reformat(time) {
@@ -73,11 +93,28 @@ export default class VideoWrapper extends React.Component {
 
   render() {
     const isRepeatIndicatorShow = +this.props.repeatsIndicator > 0;
-    // position to coordinates
-    const completed = this.props.currentTime ? parseFloat(this.props.currentTime) / parseFloat(this.state.duration) * 100: 0;
+
+    const { track, currentTimestampIndex, currentTime } = this.props;
+    const { progress } = this.state;
+    // transform position to coordinates
+    const completed = currentTime ? (currentTime - progress.start) / (progress.end - progress.start)* 100: 0;
     const remaining = 100 - completed;
-  	const played = this.reformat(this.props.currentTime);
+    // get time
+  	const played = this.reformat(currentTime);
     const duration = this.reformat(this.state.duration);
+    // if segment is selected then we animate
+    const progressHeight = currentTimestampIndex ? 30 : 10;
+
+    const secondsMarkers = currentTimestampIndex &&
+      Array.apply(null, Array(Math.round(progress.end - progress.start))).map((_, i) => i);
+
+    // if (currentTimestampIndex) {
+    //   console.log('secondsMarkers',
+    //     Math.round(progress.end - progress.start),
+    //     progress.end,
+    //     track.timestamps[currentTimestampIndex - 1].time,
+    //     (track.timestamps[currentTimestampIndex - 1].time - progress.start) / (progress.end - progress.start))
+    // }
 
     return (
       <View style={{
@@ -86,28 +123,51 @@ export default class VideoWrapper extends React.Component {
         <TouchableWithoutFeedback onPress={() => this.props.onPlayPause()}>
           <Video
             ref={component => this._videoComponent = component}
-            source={{uri: this.props.source}} // Can be a URL or a local file.
+            source={{uri: track.source}} // Can be a URL or a local file.
             rate={this.state.rate}
             paused={this.props.paused}
             volume={this.state.volume}
             muted={this.state.muted}
-            resizeMode={this.state.resizeMode}
+            resizeMode={'cover'}
+            onVideoLoadStart={() => console.log('start loading...')}
             onLoad={(data) => { this.onLoad(data) }}
-            onProgress={(d) => this.onProgress.bind(this)(d) }
+            onProgress={(d) => this.onProgress(d) }
             onEnd={() => console.log('ended')}
-            onError={(e) => console.log(e)}
+            onError={(e) => console.error('video error:', e)}
             repeat={true}
             style={[this.props.style, {flex: 1, height: VIDEO_HEIGHT, width: window.width}]}>
           </Video>
         </TouchableWithoutFeedback>
-        <Cursor
-          position={completed * window.width / 100 - 15}
-          onMove={x => this.props.onProgressChange(x / window.width * this.state.duration)} />
-        <View style={{position: 'absolute', top: window.height / 3 - 50}}>
-          <View style={[styles.trackingControls, {width: window.width, opacity: 0.5}]}>
+
+        {!currentTimestampIndex &&
+          <Cursor
+            position={completed * window.width / 100 - 15}
+            progressHeight={progressHeight}
+            color={'white'}
+            onMove={x => this.props.onProgressChange(x / window.width * this.state.duration)} />
+        }
+
+        {!!currentTimestampIndex && currentTimestampIndex > 0 &&
+          <Cursor
+            position={((track.timestamps[currentTimestampIndex - 1].time - progress.start) / (progress.end - progress.start)) * window.width - 15}
+            progressHeight={progressHeight}
+            color={'#F5D700'}
+            onMove={x => this.props.moveTimestamp(currentTimestampIndex - 1, x / window.width * (progress.end - progress.start))} />
+        }
+
+        {!!currentTimestampIndex &&
+          <Cursor
+            position={((track.timestamps[currentTimestampIndex].time - progress.start) / (progress.end - progress.start)) * window.width - 15}
+            progressHeight={progressHeight}
+            color={'#F5D700'}
+            onMove={x => this.props.moveTimestamp(currentTimestampIndex, x / window.width * (progress.end - progress.start))}  />
+        }
+
+        <View style={{position: 'absolute', top: window.height / 3 - (40 + progressHeight)}}>
+          <View style={[styles.trackingControls, {width: window.width, opacity: 0.5, height: progressHeight}]}>
             <View style={[styles.progress]}>
-              <View style={[styles.innerProgressCompleted, {flex: completed}]} />
-              <View style={[styles.innerProgressRemaining, {flex: remaining}]} />
+              <View style={[styles.innerProgressCompleted, {flex: completed, height: progressHeight}]} />
+              <View style={[styles.innerProgressRemaining, {flex: remaining, height: progressHeight}]} />
             </View>
           </View>
           <View style={styles.controls}>
@@ -156,12 +216,10 @@ const styles = {
     overflow: 'hidden',
   },
   innerProgressCompleted: {
-    height: 25,
     backgroundColor: '#FF9500',
   },
   innerProgressRemaining: {
     top: -5,
-    height: 25,
     backgroundColor: '#f7f7f7',
   },
   repeatsIndicator: {

@@ -109,3 +109,11 @@ export function changeTitleForTimestamp(index, title) {
     title
   }
 }
+
+export function moveTimestamp(index, time) {
+  return {
+    type: MOVE_TIMESTAMP,
+    index,
+    time
+  }
+}

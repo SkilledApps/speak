@@ -49,33 +49,29 @@ export default class SingleTrackContainer extends React.Component {
 			this.props.savedTracks[this.props.selectedIndex.index];
 	}
 
-	componentWillReceiveProps(nextProps) {
-		LayoutAnimation.easeInEaseOut();
-	}
+	// componentWillReceiveProps(nextProps) {
+	// 	LayoutAnimation.easeInEaseOut();
+	// }
 
-	componentWillUpdate(nextProps, nextState) {
-		// TODO: immutable js or dirty flag
-		if (this.state.timestamps && nextState.timestamps && nextState.timestamps !== this.state.timestamps) {
-			LayoutAnimation.easeInEaseOut();
-			//TimestampsAPI.persist(this.props.meta.id.videoId, nextState.timestamps);
-		}
-	}
+	// componentWillUpdate(nextProps, nextState) {
+	// 	// TODO: immutable js or dirty flag
+	// 	if (this.state.timestamps && nextState.timestamps && nextState.timestamps !== this.state.timestamps) {
+	// 		LayoutAnimation.easeInEaseOut();
+	// 		//TimestampsAPI.persist(this.props.meta.id.videoId, nextState.timestamps);
+	// 	}
+	// }
 
 	playTimestamp(index) {
 		const track = this.getTrack();
-		if (index < 0) {
-			index = 0;
-		}
 		if (track.timestamps && index > track.timestamps.length - 1) {
 			index = track.timestamps.length - 1;
 		}
-		//this.setState();
-		this.playTime(track.timestamps[index].time, index);
+		this.playTime(parseInt(index, 10) === 0 ? 0 : track.timestamps[index - 1].time, index);
 		// this.setState({paused: false}); TODO: should we played even we've already in the pause?
 	}
 	playTime(time, index) {
 		this._videoComponent.seek(time);
-		console.log(time, index)
+			console.log(index)
 		this.setState({currentTime: time, currentTimestampIndex: index})
 	}
 
@@ -126,18 +122,17 @@ export default class SingleTrackContainer extends React.Component {
 		if (track && track.source && track.source.length > 0) {
 			return (
 				<View style={{justifyContent: 'flex-start', alignItems: 'center'}}>
-					{/* VideoWrapper для отображение видео (потом можно добавить AudioWrapper или YoutubeWrapper) */}
+					{/* VideoWrapper для отображение видео (потом можно добавить например AudioWrapper) */}
 					<VideoWrapper
 						ref={component => this._videoComponent = component}
-						onProgress={s => this.setState(s)}
-						source={track.source}
-						selectTrack={(force) => this.props.selectTrack(track, force)}
-						paused={this.state.paused}
-						currentTime={ this.state.currentTime }
+						track={track}
+						{...this.state}
 						onPlayPause={() => this.setState({paused: !this.state.paused})}
-						repeatsIndicator={this.state.repeatsIndicator}
-						addTimestamp={() => this.props.addTimestamp(this.state.currentTime)}
+						onProgress={s => this.setState(s)}
 						onProgressChange={x => this.playTime(x)}
+						addTimestamp={() => this.props.addTimestamp(this.state.currentTime)}
+						moveTimestamp={this.props.moveTimestamp}
+						selectTrack={(forceUpdating) => this.props.selectTrack(track, forceUpdating)}
 					/>
 
 					{/* Если меток нет, то отображать приветствие */}
@@ -147,14 +142,15 @@ export default class SingleTrackContainer extends React.Component {
 				  {(track.timestamps && track.timestamps.length > 0) &&
 						<TimestampsContainer
 							currentTime={ this.state.currentTime }
+							paused={this.state.paused}
 							timestamps={ track.timestamps }
 							inPractice={ this.state.practice }
 							selectedIndex={ this.state.currentTimestampIndex }
-							onSelect={ index => { this.setState({practice: false, repeatsIndicator: 0}); this.playTimestamp(index - 1); } }
+							onSelect={index => { this.setState({practice: false, repeatsIndicator: 0}); this.playTimestamp(index); } }
 							onTitleChange={(index, title) => this.props.changeTitleForTimestamp(index, title)}
-							onDelete={ index => this.deleteTimestamp(index) }
-							startPractice={ () => this.togglePractice() }
+							onDelete={index => this.deleteTimestamp(index) }
 							onMove={(index, delta) => this.moveTimestamp(index, delta) }
+							startPractice={ () => this.togglePractice() }
 						/> }
 
 				</View>
@@ -174,10 +170,10 @@ export default class SingleTrackContainer extends React.Component {
 
 var styles = StyleSheet.create({
 	container: {
-	flex: 1,
-	justifyContent: 'center',
-	alignItems: 'center',
-	backgroundColor: 'black',
+		flex: 1,
+		justifyContent: 'center',
+		alignItems: 'center',
+		backgroundColor: 'black',
 	},
 
 	controls: {
