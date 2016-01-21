@@ -5,7 +5,7 @@ import SingleTrackContainer from './SingleTrackContainer';
 import TracksList from './TracksList';
 import Navbar from './Navbar';
 import SearchInput from './SearchInput';
-
+import Bench from './Benchmarking';
 
 const {
 	StyleSheet,
@@ -22,7 +22,7 @@ export default class App extends React.Component {
 		return (
 			<Navigator
 					ref={'navigator'}
-					initialRouteStack={[{name: 'TracksList'}]}
+					initialRouteStack={[{name: 'Track'}]}
 					renderScene={this.renderContainer.bind(this)}
 			/>
 		);
@@ -60,8 +60,19 @@ export default class App extends React.Component {
     }
 		if (route.name === 'Track') {
         return <SingleTrackContainer
-					navigator={navigator}
 					{...this.props}
+				/>
+    }
+
+		if (route.name === 'Bench') {
+				const t = {
+					currentTime: '5.01',
+					source: 'https://r4---sn-8ph2xajvh-axqe.googlevideo.com/videoplayback?key=yt6&mime=video/mp4&dur=192.052&sver=3&ratebypass=yes&fexp=9408502,9414808,9416126,9419476,9420452,9420540,9422596,9423662,9424135,9426414,9426492,9426719&sparams=dur,id,initcwndbps,ip,ipbits,itag,lmt,mime,mm,mn,ms,mv,pcm2cms,pl,ratebypass,requiressl,source,upn,expire&lmt=1441353190333351&ipbits=0&requiressl=yes&source=youtube&initcwndbps=2620000&ip=95.24.49.75&mm=31&mn=sn-8ph2xajvh-axqe&expire=1453329333&itag=18&pl=19&signature=64F3F4BA7FBE99F8A1F24FD6B6E5F98D6BC79DFE.8A7CE4C2FA2FF326503B512E2F2B959A497B0058&id=o-AFjkxNFQhjpelWMT-x1n0qdRtNyuli_iPXS5T7FfhXQF&mt=1453307649&mv=m&upn=PNRLcyLj-GE&pcm2cms=yes&ms=au&signature=18',
+				}
+        return <Bench
+					track={t}
+					currentTime={t && t.currentTime}
+					onProgress={(t) => this.props.tick(t.currentTime)}
 				/>
     }
 	}
@@ -83,12 +94,32 @@ export default class App extends React.Component {
 	}
 }
 
+
+class Debug extends React.Component {
+	constructor() {
+		super();
+		this.state = {
+			currenTime: 0,
+			paused: true
+		}
+	}
+
+  render() {
+		const t = this.props.savedTracks[0];
+    return <Bench
+      {...this.props}
+      track={t}
+      currentTime={this.state.currenTime}
+      onProgress={(t) => this.setState(t)} />
+  }
+}
+
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		// justifyContent: 'center',
 		// alignItems: 'center',
-		backgroundColor: '#fff',
+		//backgroundColor: '#fff',
 	},
 	welcome: {
 		fontSize: 20,

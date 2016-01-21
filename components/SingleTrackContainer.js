@@ -6,6 +6,7 @@
 'use strict';
 
 import React from 'react-native';
+import { Map, List } from 'immutable';
 
 import Slider from 'react-native-slider';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -23,21 +24,17 @@ const { Dimensions, StyleSheet, View, TouchableOpacity, LayoutAnimation, Modal, 
 const layout = Dimensions.get('window');
 
 export default class SingleTrackContainer extends React.Component {
-	constructor() {
+	constructor(props) {
 		super();
 		this.state = {
 			currentTime: 0.0,
-			paused: false,
-			modeChapterDelete: false,
-			practice: false,
-			repeatsIndicator: 0,
-			titlePrepMode: 'Prep Mode',
-			titlePracticeMode: 'Practice Mode',
-			practiceScheme: {
-				repeats: 3, 	// repeat chapter 3 times
-				intervalRatio: 3, 	// ratio between repeatings, 1 sec become 2.5 sec
-			}
+			paused: true,
 		};
+	}
+
+	componentDidMount() {
+		//requestAnimationFrame(() => this.setState({paused: false}))
+		setTimeout(() => this.setState({paused: false}), 1500)
 	}
 
 	getTrack() {
@@ -48,6 +45,10 @@ export default class SingleTrackContainer extends React.Component {
 			this.props.foundTracks[this.props.selectedIndex.index] :
 			this.props.savedTracks[this.props.selectedIndex.index];
 	}
+	//
+	// componentWillUpdate() {
+	// 	console.log('update', new Date())
+	// }
 
 	// componentWillReceiveProps(nextProps) {
 	// 	LayoutAnimation.easeInEaseOut();
@@ -62,6 +63,9 @@ export default class SingleTrackContainer extends React.Component {
 	// }
 
 	playTimestamp(index) {
+		if (index === null) {
+			return this.setState({currentTimestampIndex: null})
+		}
 		const track = this.getTrack();
 		if (track.timestamps && index > track.timestamps.length - 1) {
 			index = track.timestamps.length - 1;
@@ -70,8 +74,8 @@ export default class SingleTrackContainer extends React.Component {
 		// this.setState({paused: false}); TODO: should we played even we've already in the pause?
 	}
 	playTime(time, index) {
+		console.log('playTime', time)
 		this._videoComponent.seek(time);
-			console.log(index)
 		this.setState({currentTime: time, currentTimestampIndex: index})
 	}
 
@@ -128,7 +132,7 @@ export default class SingleTrackContainer extends React.Component {
 						track={track}
 						{...this.state}
 						onPlayPause={() => this.setState({paused: !this.state.paused})}
-						onProgress={s => this.setState(s)}
+						onProgress={(s, seek) => seek ? this.playTime(s.currentTime, this.state.currentTimestampIndex) : this.setState(s)}
 						onProgressChange={x => this.playTime(x)}
 						addTimestamp={() => this.props.addTimestamp(this.state.currentTime)}
 						moveTimestamp={this.props.moveTimestamp}
@@ -148,11 +152,19 @@ export default class SingleTrackContainer extends React.Component {
 							selectedIndex={ this.state.currentTimestampIndex }
 							onSelect={index => { this.setState({practice: false, repeatsIndicator: 0}); this.playTimestamp(index); } }
 							onTitleChange={(index, title) => this.props.changeTitleForTimestamp(index, title)}
-							onDelete={index => this.deleteTimestamp(index) }
-							onMove={(index, delta) => this.moveTimestamp(index, delta) }
+							deleteTimestamp={index => this.props.deleteTimestamp(index) }
 							startPractice={ () => this.togglePractice() }
 						/> }
 
+						<TouchableOpacity
+		          onPress={() => this.props.startPractice() }
+		          style={{alignItems: 'center', justifyContent: 'center', flexDirection: 'row', width: layout.width, backgroundColor: '#F5D700'}}>
+		          <Icon name={'mic-a'} size={25} color={'#494000'}/>
+		          <React.Text style={{paddingVertical: 15,
+		            paddingHorizontal: 20,
+		            color: '#494000', fontSize: 20,
+		          }}>{this.props.inPractice ? 'Stop Practice' : 'Start Practice'}</React.Text>
+		        </TouchableOpacity>
 				</View>
 			)
 		}

@@ -8,8 +8,9 @@
   },
   "dependencies": {
     "html-entities": "^1.2.0",
+    "immutable": "^3.7.6",
     "react": "^0.14.6",
-    "react-native": "SkilledApps/react-native",
+    "react-native": "0.18.0",
     "react-native-audio": "^0.3.2",
     "react-native-navbar": "^1.1.6",
     "react-native-slider": "*",

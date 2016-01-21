@@ -46,12 +46,15 @@ export default class Cursor extends React.Component {
     });
   }
 
-  render() {
+  shouldComponentUpdate(nextProps) {
+    return (nextProps.position !== this.props.position);
+  }
 
+  render() {
     return (
       <View {...this._panResponder.panHandlers}
       style={[styles.cursor, {
-        left:this.props.position,
+        left:this.props.position-13,
         top: VIDEO_HEIGHT - 95 - this.props.progressHeight
       }]}>
         <Icon name={'ios-location'} size={50} color={this.props.color} />
@@ -62,5 +65,5 @@ export default class Cursor extends React.Component {
 }
 
 const styles = {
-  cursor: {position: 'absolute', alignItems: 'center', opacity: 0.7, backgroundColor: 'transparent'}
+  cursor: {position: 'absolute', alignItems: 'center', opacity: 1, backgroundColor: 'transparent'}
 }

@@ -5,7 +5,7 @@ import { createStore, applyMiddleware, bindActionCreators } from 'redux';
 import { Provider, connect } from 'react-redux/native';
 import logger from 'redux-logger';
 import thunk from 'redux-thunk';
-import storage from 'redux-storage';
+import storage, { decorators } from 'redux-storage';
 import createEngine from 'redux-storage/engines/reactNativeAsyncStorage';
 
 
@@ -13,13 +13,16 @@ import * as Actions from './actions';
 import reducer from './reducers';
 import App from './components/App';
 
-const engine = createEngine('speakapp_');
+const engine = decorators.filter(createEngine('speakapp_'), [
+    'savedTracks',
+    'selectedIndex'
+]);
 const wrappedReducer = storage.reducer(reducer);
-const storageMiddleware = storage.createMiddleware(engine);
+const storageMiddleware = storage.createMiddleware(engine, [ 'MOVE_TIMESTAMP' ]);
 
 const middleware = process.env.NODE_ENV === 'production' ?
   [ thunk, storageMiddleware ] :
-  [ thunk, logger(), storageMiddleware ];
+  [ thunk, storageMiddleware ]; //logger(),
 
 const createStoreWithMiddleware = applyMiddleware(...middleware)(createStore);
 const store = createStoreWithMiddleware(wrappedReducer);
@@ -41,15 +44,7 @@ class SpeakApp extends React.Component {
     );
   }
 }
-//
-// class Container extends React.Component {
-//   render() {
-//     console.log(this.props)
-//     const actions = bindActionCreators(Actions, this.props.dispatch);
-//     console.log(actions)
-//     return <App actions={actions} />;
-//   }
-// }
+
 
 function mapStateToProps(state) {
   return state;

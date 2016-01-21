@@ -13,6 +13,8 @@ import {
   ADD_TIMESTAMP,
   CHANGE_TITLE_FOR_TIMESTAMP,
   MOVE_TIMESTAMP,
+  DELETE_TIMESTAMP,
+  TICK
 } from './actions';
 
 import { LOAD, SAVE } from 'redux-storage';
@@ -32,6 +34,16 @@ export default function reducer(state = defaultState, action): GlobalState {
         ...state,
         isLoading: false,
         isSearching: false,
+      };
+
+    case TICK:
+      //const t = getTrack(state)
+      // DEBUG
+      state.savedTracks[0].currentTime = action.time;
+
+      return {
+        ...state,
+        savedTracks: [...state.savedTracks]
       };
 
     case SEARCHING_YOUTUBE:
@@ -70,7 +82,6 @@ export default function reducer(state = defaultState, action): GlobalState {
       }
       return {
         ...state,
-        foundTracks: state.foundTracks,
         savedTracks: state.savedTracks.filter(tr => tr !== action.track)
       }
 
@@ -167,6 +178,9 @@ export default function reducer(state = defaultState, action): GlobalState {
 
     case MOVE_TIMESTAMP:
       const track3 = getTrack(state)
+      // if (track3.timestamps[action.index - 1].time > action.time) {
+      //   track3.timestamps[action.index - 1].time > action.time
+      // }
       track3.timestamps[action.index].time = action.time;
       return {
         ...state,
@@ -174,6 +188,18 @@ export default function reducer(state = defaultState, action): GlobalState {
         savedTracks: [...state.savedTracks]
       }
 
+    case DELETE_TIMESTAMP:
+      const track4 = getTrack(state)
+      // if (track3.timestamps[action.index - 1].time > action.time) {
+      //   track3.timestamps[action.index - 1].time > action.time
+      // }
+      track4.timestamps = track4.timestamps.filter((e, i) => parseInt(action.index, 10) !== i);
+      console.log(track4.timestamps)
+      return {
+        ...state,
+        foundTracks: [...state.foundTracks],
+        savedTracks: [...state.savedTracks]
+      }
 
     default:
       return state;

@@ -18,6 +18,8 @@ export const DELETE_TIMESTAMP = 'DELETE_TIMESTAMP';
 export const RENAME_TIMESTAMP = 'RENAME_TIMESTAMP';
 export const MUTE_TIMESTAMP = 'MUTE_TIMESTAMP';
 
+export const TICK = 'TICK';
+
 function searchingYoutube() {
   return {
     type: SEARCHING_YOUTUBE
@@ -114,6 +116,20 @@ export function moveTimestamp(index, time) {
   return {
     type: MOVE_TIMESTAMP,
     index,
+    time
+  }
+}
+
+export function deleteTimestamp(index) {
+  return {
+    type: DELETE_TIMESTAMP,
+    index
+  }
+}
+
+export function tick(time) {
+  return {
+    type: TICK,
     time
   }
 }
