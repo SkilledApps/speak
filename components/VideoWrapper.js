@@ -53,7 +53,7 @@ export default class VideoWrapper extends React.Component {
 
 		// if (Math.round(data.currentTime, -2) % 0.05) {
       const progress = {
-        currentTime: Math.round(data.currentTime * 100, 1) / 100,
+        currentTime: data.currentTime,
 				duration: data.playableDuration,
       }
       if (progress.currentTime > this.state.progress.end) {
@@ -66,7 +66,7 @@ export default class VideoWrapper extends React.Component {
       }
       // loop the selected
 
-      if (this.props.currentTimestampIndex &&
+      if (!this.props.practice && this.props.currentTimestampIndex &&
         progress.currentTime - 0.150 > this.props.track.timestamps[this.props.currentTimestampIndex].time) {
           this.props.onProgress({
             currentTime: parseInt(this.props.currentTimestampIndex, 0) === 0 ? 0 : this.props.track.timestamps[this.props.currentTimestampIndex - 1].time
@@ -103,7 +103,7 @@ export default class VideoWrapper extends React.Component {
   }
 
   reformat(time) {
-    time = Math.round(time);
+    time = Math.floor(time);
     const pad = v => (new Array(3).join('0') + v).slice(-2);
     const minutes = Math.floor(time / 60);
     const seconds = time - minutes * 60;
@@ -207,7 +207,7 @@ export default class VideoWrapper extends React.Component {
               <View style={[styles.innerProgressCompleted, {flex: completed, height: progressHeight}]} />
               <View style={[styles.innerProgressRemaining, {flex: remaining, height: progressHeight}]} />
             </View>
-            {currentTimestampIndex &&
+            {!!currentTimestampIndex &&
               <View style={{flexDirection: 'row', backgroundColor: 'transparent'}}>
                 {secondsMarkers}
               </View>

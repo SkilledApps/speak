@@ -8,8 +8,8 @@ import Icon from 'react-native-vector-icons/Ionicons';
 const layout = Dimensions.get('window');
 
 const reformat = (time) => {
-  console.log(time, 'reformat')
-  const roundedTime = Math.round(time);
+  //console.log('reformat', time)
+  const roundedTime = Math.floor(time);
   const pad = v => (new Array(3).join('0') + v).slice(-2);
   const minutes = Math.floor(roundedTime / 60);
   const seconds = roundedTime - minutes * 60;
@@ -27,17 +27,14 @@ class TimestampControl extends React.Component {
     return (nextProps.isPlayed !== this.props.isPlayed ||
       nextProps.isSelected !== this.props.isSelected ||
       nextProps.isExpanded !== this.props.isExpanded ||
-      (nextProps.progress !== this.props.progress))
+      (nextProps.progress !== this.props.progress) ||
+      nextProps.time !== this.props.time)
   }
-  componentWillUpdate() {
-    console.log('update component for', this.props.time)
-  }
-
+  
 
   render() {
     const playedStyle = this.props.isPlayed ? {backgroundColor: '#F6FBC7'} : {};
     const selectedStyle = this.props.isSelected ? { borderLeftColor: '#FF9500', borderLeftWidth: 10} : {};
-
 
     return (
       <View style={styles.row}>
@@ -47,11 +44,11 @@ class TimestampControl extends React.Component {
           <View style={{width: 200}}>
             <EditableCaption editMode={!this.props.title} title={this.props.title} onTitleChange={this.props.onTitleChange} />
           </View>
-          <View style={{justifyContent: 'space-between', flexDirection: 'row', backgroundColor: 'transparent'}}>
+
             <TouchableOpacity style={styles.button2} onPress={ () => this.props.onExpand() }>
               <Icon name={this.props.isExpanded ? 'ios-arrow-up': 'ios-arrow-down'} size={30} color='#222'/>
             </TouchableOpacity>
-          </View>
+
         </TouchableOpacity>
       {this.props.isExpanded &&
         <View style={{flexDirection: 'row', flex: 1, marginVertical: 10, width: layout.width, justifyContent: 'space-around'}}>
@@ -84,7 +81,6 @@ export default class TimestampsContainer extends React.Component {
     }
   }
   componentWillReceiveProps(nextProps) {
-    console.log('====================================================')
     if (this.props.timestamps.length !== nextProps.timestamps.length) {
       LayoutAnimation.spring();
     }
@@ -101,23 +97,24 @@ export default class TimestampsContainer extends React.Component {
 
     const progress = currentTime >= prevTime && currentTime < rowData.time &&
       ((currentTime - prevTime) / (rowData.time - prevTime));
+      // TODO: optimization
     rowData.currentTime = currentTime;
     rowData.prevTime= prevTime
     rowData.nextTime=nextTime
     rowData.progress=progress
     rowData.isPlayed=isPlayed
     rowData.isSelected=parseInt(selectedIndex, 10) === parseInt(rowID, 10)
-    rowData.isExpanded=this.state && this.state.expanded === rowID
+    rowData.isExpanded=this.state && parseInt(this.state.expanded) === parseInt(rowID)
     return {...rowData};
   }
 
   expanded(rowID) {
     LayoutAnimation.easeInEaseOut();
-    if (this.state.expanded) {
-      this.setState({expanded: null}); this.props.onSelect(null)
-    } else {
-      this.setState({expanded: rowID}); this.props.onSelect(rowID)
-    }
+    this.setState({
+      expanded: this.state.expanded ? null : rowID,
+      dataSource: this.state.dataSource.cloneWithRows(this.props.timestamps.map(this.fillRow.bind(this, this.props)))
+    });
+    this.props.onSelect(rowID)
   }
 
   renderRow(rowData, sectionID, rowID, highlightRow) {
@@ -218,9 +215,10 @@ const styles = StyleSheet.create({
     },
     hyperlink: {textDecorationLine: 'underline', color: '#494000', textDecorationStyle: 'dotted', fontSize: 16},
     button2: {
-        marginHorizontal: 10,
+        //marginHorizontal: 10,
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        padding: 10
     },
     timingText: { fontSize: 12, fontFamily: 'courier', width: 60, backgroundColor: 'transparent'},
     voiceButton: { position: 'absolute', left: layout.width * 0.2, },

@@ -13,13 +13,8 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import VideoWrapper from './VideoWrapper';
 import OnboardingTip from './OnboardingTip';
 import TimestampsContainer from './TimestampsContainer';
-// import TimestampsAPI from '../timestampsAPI';
-// import { getCaptions } from '../API/youtubeAPI'
 
-
-const debug = false;
-
-const { Dimensions, StyleSheet, View, TouchableOpacity, LayoutAnimation, Modal, SliderIOS, ActivityIndicatorIOS} = React;
+const { Dimensions, StyleSheet, View, TouchableOpacity, LayoutAnimation, Text, ActivityIndicatorIOS} = React;
 
 const layout = Dimensions.get('window');
 
@@ -45,22 +40,6 @@ export default class SingleTrackContainer extends React.Component {
 			this.props.foundTracks[this.props.selectedIndex.index] :
 			this.props.savedTracks[this.props.selectedIndex.index];
 	}
-	//
-	// componentWillUpdate() {
-	// 	console.log('update', new Date())
-	// }
-
-	// componentWillReceiveProps(nextProps) {
-	// 	LayoutAnimation.easeInEaseOut();
-	// }
-
-	// componentWillUpdate(nextProps, nextState) {
-	// 	// TODO: immutable js or dirty flag
-	// 	if (this.state.timestamps && nextState.timestamps && nextState.timestamps !== this.state.timestamps) {
-	// 		LayoutAnimation.easeInEaseOut();
-	// 		//TimestampsAPI.persist(this.props.meta.id.videoId, nextState.timestamps);
-	// 	}
-	// }
 
 	playTimestamp(index) {
 		if (index === null) {
@@ -74,7 +53,6 @@ export default class SingleTrackContainer extends React.Component {
 		// this.setState({paused: false}); TODO: should we played even we've already in the pause?
 	}
 	playTime(time, index) {
-		console.log('playTime', time)
 		this._videoComponent.seek(time);
 		this.setState({currentTime: time, currentTimestampIndex: index})
 	}
@@ -88,33 +66,41 @@ export default class SingleTrackContainer extends React.Component {
 		*/
 		this.setState({practice: !this.state.practice});
 		if (this.state.practice) {
-			const nextLoop = (repeats, timestamp) => {
-				const nextTimestampIndex = timestamp >= 0 ? timestamp - 1 : 0;
-				if (nextTimestampIndex === timestamp) { // конец
+			const { settings } = this.props;
+			const timestamps = this.getTrack().timestamps;
+			const nextLoop = (repeatsDone, timestampIndex) => {
+
+				const nextTimestampIndex = timestampIndex < timestamps.length ? timestampIndex + 1 : timestamps.length - 1;
+
+				if (nextTimestampIndex === timestampIndex) { // конец
 					return;
 				} else {
-					if (this.state.timestamps[nextTimestampIndex] === undefined) { return; }
-					const deltaTime = this.state.timestamps[nextTimestampIndex].time ? this.state.timestamps[nextTimestampIndex].time - this.state.timestamps[timestamp].time : 1;
-					this.playTimestamp(timestamp);
-					this.setState({paused: false});
-					// поставить на паузу после проигрывания этого участка
-					this.t1 = setTimeout(() => this.setState({paused: true}), deltaTime * 1000);
-					if (repeats < this.state.practiceScheme.repeats) {
-						// текущий урок, продолжаем повторять
-						this.t2 = setTimeout(() => nextLoop(repeats + 1, timestamp), deltaTime * 1000 * this.state.practiceScheme.intervalRatio);
+					const deltaTime = timestampIndex === -1 ?
+						timestamps[nextTimestampIndex].time :
+						timestamps[nextTimestampIndex].time - timestamps[timestampIndex].time
+					console.log('nextLoop', repeatsDone, timestampIndex, nextTimestampIndex, deltaTime * 1000)
+					this.playTimestamp(nextTimestampIndex);
+					this.setState({paused: false, repeatsIndicator: repeatsDone + 1, recording: false});
+					// поставить на паузу после проигрывания этого участка и включить микрофон
+					this.t1 = setTimeout(() => this.setState({paused: true, recording: true}), deltaTime * 1000 + 250);
+					if (repeatsDone + 1 < this.props.settings.repeats) {
+						// текущий отрезок, продолжаем повторять
+						this.t2 = setTimeout(() =>
+							nextLoop(repeatsDone + 1, timestampIndex), deltaTime * 1000 * settings.intervalRatio);
 					} else {
-						// следующий урок (минус один потому что порядок обратный)
-						this.t2 = setTimeout(() => nextLoop(0, timestamp - 1), deltaTime * 1000 * this.state.practiceScheme.intervalRatio);
+						// повтори достаточное количество раз, на следующий отрезок
+						this.t2 = setTimeout(() => nextLoop(0, nextTimestampIndex), deltaTime * 1000 * settings.intervalRatio);
 					}
-					this.setState({repeatsIndicator: repeats + 1});
+
 				}
 			}
 
-			const currentTimestampIndex = TimestampsAPI.getIndexByTime(this.state.timestamps, this.state.currentTime);
-			nextLoop(0, currentTimestampIndex < this.state.timestamps ? currentChapterIndex : currentTimestampIndex - 1);
+			const currentTimestampIndex = timestamps.length - timestamps.filter(t => t.time > this.state.currentTime).length - 1;
+			nextLoop(0, currentTimestampIndex < timestamps.length ? currentTimestampIndex : currentTimestampIndex - 1);
 
 		} else {
 			// удалить таймауты чтобы корректно остановить режим тренировки
+			this.setState({paused: true})
 			clearTimeout(this.t1);
 			clearTimeout(this.t2);
 		}
@@ -153,18 +139,18 @@ export default class SingleTrackContainer extends React.Component {
 							onSelect={index => { this.setState({practice: false, repeatsIndicator: 0}); this.playTimestamp(index); } }
 							onTitleChange={(index, title) => this.props.changeTitleForTimestamp(index, title)}
 							deleteTimestamp={index => this.props.deleteTimestamp(index) }
-							startPractice={ () => this.togglePractice() }
 						/> }
 
-						<TouchableOpacity
-		          onPress={() => this.props.startPractice() }
-		          style={{alignItems: 'center', justifyContent: 'center', flexDirection: 'row', width: layout.width, backgroundColor: '#F5D700'}}>
-		          <Icon name={'mic-a'} size={25} color={'#494000'}/>
-		          <React.Text style={{paddingVertical: 15,
-		            paddingHorizontal: 20,
-		            color: '#494000', fontSize: 20,
-		          }}>{this.props.inPractice ? 'Stop Practice' : 'Start Practice'}</React.Text>
-		        </TouchableOpacity>
+						<PracticeButton onPress={() => this.togglePractice() } inPractice={this.state.practice} />
+						{this.state.practice &&
+								<View style={styles.practiceIndicators}>
+									{!this.state.recording && <Text style={styles.practiceText}>Listen</Text> }
+									{!this.state.recording && <Icon name={'ios-volume-high'} size={300} color={'#222'}/> }
+									{this.state.recording && <Text style={styles.practiceText}>Speak</Text> }
+									{this.state.recording && <Icon name={'mic-a'} size={300} color={'#222'} /> }
+									<Text style={styles.practiceText}>{this.state.repeatsIndicator} / {this.props.settings.repeats}</Text>
+								</View>
+						 }
 				</View>
 			)
 		}
@@ -179,15 +165,27 @@ export default class SingleTrackContainer extends React.Component {
 	}
 }
 
+const PracticeButton = (props) => <TouchableOpacity
+	onPress={props.onPress}
+	style={styles.practiceButton}>
+		<Icon name={'mic-a'} size={25} color={'#494000'}/>
+		<Text style={styles.practiceButtonText}>{props.inPractice ? 'Stop Practice' : 'Start Practice'}</Text>
+</TouchableOpacity>
 
-var styles = StyleSheet.create({
+const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		justifyContent: 'center',
 		alignItems: 'center',
 		backgroundColor: 'black',
 	},
-
+	practiceText: {fontSize: 80, fontWeight: '200', backgroundColor: '#ccc', color: '#222', textShadowOffset: {width: 0.5, height: 0.5}, textShadowRadius: 2, textShadowColor: 'white'},
+	practiceIndicators: {position: 'absolute', top: 0, flex: 1, width: layout.width, height: layout.height - 100, opacity: 0.8, justifyContent: 'center', alignItems: 'center'},
+	practiceButton: {alignItems: 'center', justifyContent: 'center', flexDirection: 'row', width: layout.width, backgroundColor: '#F5D700'},
+	practiceButtonText: {paddingVertical: 15,
+		paddingHorizontal: 20,
+		color: '#494000', fontSize: 20,
+	},
 	controls: {
 	backgroundColor: "transparent",
 	borderRadius: 5,

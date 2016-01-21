@@ -49,7 +49,6 @@ export default class App extends React.Component {
 	renderScene(route, navigator) {
 		if (route.name === 'TracksList') {
         return <TracksList
-					navigator={navigator}
 					tracks={this.props.isSearching ? this.props.foundTracks : this.props.savedTracks}
 					isLoading={this.props.isLoading}
 					{...this.props}
@@ -60,6 +59,10 @@ export default class App extends React.Component {
     }
 		if (route.name === 'Track') {
         return <SingleTrackContainer
+					settings={{
+						repeats: 3,
+						intervalRatio: 2
+					}}
 					{...this.props}
 				/>
     }
