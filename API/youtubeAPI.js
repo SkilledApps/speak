@@ -1,4 +1,5 @@
 var DOMParser = require('xmldom').DOMParser
+import { List, Map } from 'immutable';
 
 const API_KEY = 'AIzaSyCnkNKecXxIbzhI-0BMLzFwza_0BUv29ek';
 
@@ -45,7 +46,7 @@ function parseIntoTimestamps(xml) {
     let node = doc.documentElement.childNodes[i];
     childs.push({
       title: node.firstChild.data,
-      time: parseFloat(node.getAttribute('start')),
+      time: parseFloat(node.getAttribute('start')) + parseFloat(node.getAttribute('dur')),
       isMuted: false
     });
   }

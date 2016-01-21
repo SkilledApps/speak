@@ -34,7 +34,7 @@ export default class SingleTrackContainer extends React.Component {
 
 	componentDidMount() {
 		//requestAnimationFrame(() => this.setState({paused: false}))
-		setTimeout(() => this.setState({paused: false}), 1500)
+		//setTimeout(() => this.setState({paused: false}), 1500)
 	}
 
 	getTrack() {

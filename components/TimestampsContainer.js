@@ -23,14 +23,14 @@ const Timings = (props) => {
 
 class TimestampControl extends React.Component {
 
-  // shouldComponentUpdate(nextProps) {
-  //   return (nextProps.isPlayed !== this.props.isPlayed ||
-  //     nextProps.isSelected !== this.props.isSelected ||
-  //     nextProps.isExpanded !== this.props.isExpanded ||
-  //     (nextProps.progress !== this.props.progress))
-  // }
+  shouldComponentUpdate(nextProps) {
+    return (nextProps.isPlayed !== this.props.isPlayed ||
+      nextProps.isSelected !== this.props.isSelected ||
+      nextProps.isExpanded !== this.props.isExpanded ||
+      (nextProps.progress !== this.props.progress))
+  }
   componentWillUpdate() {
-    console.log('update', this.props.title)
+    console.log('update component for', this.props.time)
   }
 
 
@@ -80,19 +80,37 @@ export default class TimestampsContainer extends React.Component {
   constructor(props) {
     super();
     this.state = {
-      dataSource: ds.cloneWithRows(props.timestamps)
+      dataSource: ds.cloneWithRows(props.timestamps.map(this.fillRow.bind(this, props)))
     }
   }
   componentWillReceiveProps(nextProps) {
+    console.log('====================================================')
     if (this.props.timestamps.length !== nextProps.timestamps.length) {
       LayoutAnimation.spring();
-    } else {
-      //if (!this.props.paused) {
-      //  LayoutAnimation.easeInEaseOut();
-      //}
     }
-    this.setState({dataSource: this.state.dataSource.cloneWithRows(nextProps.timestamps)})
+    this.setState({
+      dataSource: this.state.dataSource
+        .cloneWithRows(nextProps.timestamps.map(this.fillRow.bind(this, nextProps)))
+      })
   }
+  fillRow(props, rowData, rowID) {
+    const { timestamps, currentTime, selectedIndex } = props;
+    const isPlayed = currentTime + 0.1 > rowData.time;
+    const prevTime= rowID > 0 ? timestamps[parseInt(rowID, 10) - 1].time : 0
+    const nextTime= rowID < timestamps.length - 1 ? timestamps[parseInt(rowID, 10) + 1].time : timestamps[timestamps.length - 1].time;
+
+    const progress = currentTime >= prevTime && currentTime < rowData.time &&
+      ((currentTime - prevTime) / (rowData.time - prevTime));
+    rowData.currentTime = currentTime;
+    rowData.prevTime= prevTime
+    rowData.nextTime=nextTime
+    rowData.progress=progress
+    rowData.isPlayed=isPlayed
+    rowData.isSelected=parseInt(selectedIndex, 10) === parseInt(rowID, 10)
+    rowData.isExpanded=this.state && this.state.expanded === rowID
+    return {...rowData};
+  }
+
   expanded(rowID) {
     LayoutAnimation.easeInEaseOut();
     if (this.state.expanded) {
@@ -103,13 +121,33 @@ export default class TimestampsContainer extends React.Component {
   }
 
   renderRow(rowData, sectionID, rowID, highlightRow) {
+
+    return (
+      <TimestampControl {...rowData}
+        key={rowID}
+        {...rowData}
+        onSelect={() => {
+          LayoutAnimation.easeInEaseOut();
+          this.props.onSelect(rowID);
+        } }
+        deleteTimestamp={() => {
+          this.expanded(rowID);
+          this.props.deleteTimestamp(rowID);
+        } }
+        onTitleChange={title => this.props.onTitleChange(rowID, title)}
+        onMove={(k, delta) => this.props.onMove(rowID, delta) }
+        onExpand={() => this.expanded(rowID) } />
+    )
+  }
+
+  renderRow1(rowData, sectionID, rowID, highlightRow) {
     const { timestamps, currentTime, selectedIndex } = this.props;
     const isPlayed = currentTime + 0.1 > rowData.time;
     const prevTime= rowID > 0 ? timestamps[parseInt(rowID, 10) - 1].time : 0
     const nextTime= rowID < timestamps.length - 1 ? timestamps[parseInt(rowID, 10) + 1].time : timestamps[timestamps.length - 1].time;
 
-    const progress = this.props.currentTime >= this.props.prevTime && this.props.currentTime < this.props.time &&
-      ((this.props.currentTime - this.props.prevTime) / (this.props.time - this.props.prevTime));
+    const progress = currentTime >= prevTime && currentTime < rowData.time &&
+      ((currentTime - prevTime) / (rowData.time - prevTime));
 
     return (
       <TimestampControl {...rowData}
@@ -118,6 +156,7 @@ export default class TimestampsContainer extends React.Component {
         nextTime={nextTime}
         progress={progress}
         isPlayed={isPlayed}
+        key={rowID}
         isSelected={parseInt(selectedIndex, 10) === parseInt(rowID, 10)}
         isExpanded={this.state.expanded === rowID}
         onSelect={() => {
@@ -134,7 +173,10 @@ export default class TimestampsContainer extends React.Component {
     )
   }
   render1() {
-    return null;
+    const rows = this.props.timestamps.map((row, index) =>this.renderRow(row, null, index))
+    return <React.ScrollView removeClippedSubviews={true} style={{width: layout.width, height: 2 * layout.height / 3 - 118}} >
+      {rows}
+    </React.ScrollView>;
   }
   render() {
 
@@ -149,7 +191,7 @@ export default class TimestampsContainer extends React.Component {
           removeClippedSubviews={true}
           renderRow = {this.renderRow.bind(this)}
           style={{width: layout.width, height: 2 * layout.height / 3 - 118}} />
-    
+
     );
   }
 }

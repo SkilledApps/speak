@@ -22,7 +22,7 @@ export default class App extends React.Component {
 		return (
 			<Navigator
 					ref={'navigator'}
-					initialRouteStack={[{name: 'Track'}]}
+					initialRouteStack={[{name: 'TracksList'}]}
 					renderScene={this.renderContainer.bind(this)}
 			/>
 		);

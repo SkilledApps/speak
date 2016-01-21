@@ -80,7 +80,6 @@ export default class VideoWrapper extends React.Component {
         });
         this.props.onProgress(progress);
       }
-      //
 
 	}
 
@@ -90,15 +89,14 @@ export default class VideoWrapper extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.currentTimestampIndex && nextProps.currentTimestampIndex !== this.props.currentTimestampIndex && nextProps.track) {
-      //LayoutAnimation.spring();
       const segment = {
         start: parseInt(nextProps.currentTimestampIndex,10) === 0 ? 0 : nextProps.track.timestamps[nextProps.currentTimestampIndex - 1].time,
         end: nextProps.track.timestamps[nextProps.currentTimestampIndex].time
       };
       this.setState({
         progress: {
-          start: segment.start === 0 ? 0 : segment.start - (segment.end - segment.start),
-          end: segment.end + (segment.end - segment.start)
+          start: segment.start === 0 ? 0 : segment.start - (segment.end - segment.start) / 2,
+          end: segment.end + (segment.end - segment.start) / 2
         }
       });
     }

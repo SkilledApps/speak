@@ -18,6 +18,7 @@ import {
 } from './actions';
 
 import { LOAD, SAVE } from 'redux-storage';
+import { List } from 'immutable';
 
 type GlobalState = any;
 
