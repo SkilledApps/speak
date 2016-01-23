@@ -65,7 +65,10 @@ export default class Cursor extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    this.setState({pos: nextProps.position})
+    if (!this.state.moving) {
+      this.setState({pos: nextProps.position})
+    }
+
   }
 
   render() {

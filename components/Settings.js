@@ -4,14 +4,31 @@ const { View, Text, TouchableOpacity, SliderIOS, StyleSheet, Dimensions, Switch,
 const { width, height } = Dimensions.get('window');
 
 export default class Settings extends React.Component {
+	getEstimates() {
+		if (!this.props.selectedIndex) {
+			return 0;
+		}
+		const t = this.props.selectedIndex.type === 'found' ?
+			this.props.foundTracks[this.props.selectedIndex.index] :
+			this.props.savedTracks[this.props.selectedIndex.index];
+
+		return Math.round(
+			Math.round(
+				this.props.settings.repeats * t.timestamps[t.timestamps.length - 1].time * (this.props.settings.intervalRatio + 1)) / 60);
+	}
+
 	render() {
+
 		return (
 			<View style={styles.wrapper}>
 
 				<Text style={[styles.title, { marginTop: 20 }]}>Start From</Text>
 				<View style={styles.toggleWrapper}>
 					<Text style={[styles.title, { paddingRight: 55 }]}>Beginning</Text>
-					<Switch onTintColor="#FF9500" value={this.props.settings.startFromPause} onValueChange={() => this.props.onSettingsChange()}/>
+					<Switch onTintColor="#FF9500"
+						value={this.props.settings.startFromPause}
+						onValueChange={(startFromPause) => this.props.onSettingsChanged({startFromPause}) }
+				  />
 					<Text style={[styles.title, { paddingLeft: 30 }]}>Current Pause</Text>
 				</View>
 
@@ -23,15 +40,12 @@ export default class Settings extends React.Component {
 						maximumValue={10}
 						step={1}
 						value={this.props.settings.repeats}
-						onValueChange={(value) => {
-						this.props.onRepeatsValueChange(value);
-						if (this.props.debug) {console.log(value);}}
-					}
+						onValueChange={(repeats) => this.props.onSettingsChanged({repeats}) }
 						style={[styles.sliderIOSBasics]}
 					/>
 					<View style={styles.slidersParams}>
 						<Text style={styles.slidersParam}>1</Text>
-						<Text style={styles.slidersParam}>{this.props.settings.repeats}</Text>
+						<Text style={styles.slidersParam}>Current: {this.props.settings.repeats}</Text>
 						<Text style={styles.slidersParam}>10</Text>
 					</View>
 				</View>
@@ -42,19 +56,19 @@ export default class Settings extends React.Component {
 						minimumTrackTintColor="#FF9500"
 						minimumValue={1}
 						maximumValue={5}
-						step={0.5}
+						step={0.1}
 						value={this.props.settings.intervalRatio}
 						onValueChange={(intervalRatio) => this.props.onSettingsChanged({intervalRatio}) }
 						style={[styles.sliderIOSBasics]}
 					/>
 					<View style={styles.slidersParams}>
 						<Text style={styles.slidersParam}>2x</Text>
-						<Text style={styles.slidersParam}>{this.props.settings.intervalRatio}x</Text>
+						<Text style={styles.slidersParam}>Current: {this.props.settings.intervalRatio}x</Text>
 						<Text style={styles.slidersParam}>10x</Text>
 					</View>
 				</View>
 
-				<Text style={styles.title}>Estimate Practice Time:  <Text>{this.props.estimatePracticeTime}</Text> min.</Text>
+				<Text style={styles.title}>Estimate Practice Time:  <Text>{this.getEstimates()}</Text> min.</Text>
 			</View>
 		)
 	}

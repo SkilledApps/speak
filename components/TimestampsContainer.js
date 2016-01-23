@@ -67,7 +67,7 @@ class TimestampControl extends React.Component {
             <Text>Add to favorites</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.button2} onPress={ () => this.props.muteTimestamp() }>
-            <Icon name={this.props.isMuted ? 'android-volume-off' : 'android-volume-up'} size={30} color='#222'/>
+            <Icon name={this.props.isMuted ? 'android-volume-up' : 'android-volume-off'} size={30} color='#222'/>
             <Text>{this.props.isMuted ? 'Unmute' : 'Mute'}</Text>
           </TouchableOpacity>
         </View>
@@ -120,7 +120,7 @@ export default class TimestampsContainer extends React.Component {
   expanded(rowID) {
     LayoutAnimation.easeInEaseOut();
     this.setState({
-      expanded: this.state.expanded ? null : rowID,
+      expanded: this.state.expanded === rowID ? null : rowID,
       dataSource: this.state.dataSource.cloneWithRows(this.props.timestamps.map(this.fillRow.bind(this, this.props)))
     });
     this.props.onSelect(rowID)
@@ -135,6 +135,9 @@ export default class TimestampsContainer extends React.Component {
         onSelect={() => {
           LayoutAnimation.easeInEaseOut();
           this.scrollTo(parseInt(rowID) + 1, this.props.timestamps.length)
+          if (rowData.isSelected && rowData.isExpanded) {
+            this.expanded(rowID)
+          }
           this.props.onSelect(rowData.isSelected ? null : rowID);
         } }
         deleteTimestamp={() => {

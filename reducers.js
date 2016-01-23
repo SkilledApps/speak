@@ -217,7 +217,7 @@ export default function reducer(state = defaultState, action): GlobalState {
     case APPLY_SETTINGS:
       return {
         ...state,
-        settings
+        settings: action.settings
       }
 
 

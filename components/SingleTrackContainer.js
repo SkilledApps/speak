@@ -69,27 +69,33 @@ export default class SingleTrackContainer extends React.Component {
 			const { settings } = this.props;
 			const timestamps = this.getTrack().timestamps;
 			const nextLoop = (repeatsDone, timestampIndex) => {
+				if (!this.state.practice) {
+					return;
+				}
 				const nextTimestampIndex = timestampIndex < timestamps.length ? timestampIndex + 1 : timestamps.length - 1;
 				if (nextTimestampIndex === timestampIndex) { // конец
 					return;
-				} else {
-					const deltaTime = timestampIndex === -1 ?
-						timestamps[nextTimestampIndex].time :
-						timestamps[nextTimestampIndex].time - timestamps[timestampIndex].time
-					this.playTimestamp(nextTimestampIndex);
-					this.setState({paused: false, repeatsIndicator: repeatsDone + 1, recording: false});
-					// поставить на паузу после проигрывания этого участка и включить микрофон
-					this.t1 = setTimeout(() => this.setState({paused: true, recording: true}), deltaTime * 1000 + 250);
-					if (repeatsDone + 1 < this.props.settings.repeats) {
-						// текущий отрезок, продолжаем повторять
-						this.t2 = setTimeout(() =>
-							nextLoop(repeatsDone + 1, timestampIndex), deltaTime * 1000 * (settings.intervalRatio + 1));
-					} else {
-						// повтори достаточное количество раз, на следующий отрезок
-						this.t2 = setTimeout(() => nextLoop(0, nextTimestampIndex), deltaTime * 1000 * (settings.intervalRatio + 1));
-					}
-
 				}
+				if (timestamps[nextTimestampIndex].isMuted) {
+					return nextLoop(repeatsDone, timestampIndex + 1);
+				}
+				const deltaTime = timestampIndex === -1 ?
+					timestamps[nextTimestampIndex].time :
+					timestamps[nextTimestampIndex].time - timestamps[timestampIndex].time
+				this.playTimestamp(nextTimestampIndex);
+				this.setState({paused: false, repeatsIndicator: repeatsDone + 1, recording: false});
+				// поставить на паузу после проигрывания этого участка и включить микрофон
+				this.t1 = setTimeout(() => this.setState({paused: true, recording: true}), deltaTime * 1000 + 250);
+				if (repeatsDone + 1 < this.props.settings.repeats) {
+					// текущий отрезок, продолжаем повторять
+					this.t2 = setTimeout(() =>
+						nextLoop(repeatsDone + 1, timestampIndex), deltaTime * 1000 * (settings.intervalRatio + 1));
+				} else {
+					// повтори достаточное количество раз, на следующий отрезок
+					this.t2 = setTimeout(() => nextLoop(0, nextTimestampIndex), deltaTime * 1000 * (settings.intervalRatio + 1));
+				}
+
+
 			}
 
 			const currentTimestampIndex = timestamps.length - timestamps.filter(t => t.time > this.state.currentTime).length - 1;
@@ -145,10 +151,11 @@ export default class SingleTrackContainer extends React.Component {
 					}
 					{this.state.practice &&
 							<View style={styles.practiceIndicators}>
-								{!this.state.recording && <Text style={styles.practiceText}>Listen</Text> }
-								{!this.state.recording && <Icon name={'ios-volume-high'} size={300} color={'#222'}/> }
-								{this.state.recording && <Text style={styles.practiceText}>Speak</Text> }
-								{this.state.recording && <Icon name={'mic-a'} size={300} color={'#222'} /> }
+								{this.state.recordingT && <Icon name={'ios-volume-high'} size={100} color={'#222'}/> }
+								{!this.state.recording && <Text style={styles.practiceText}>Listen </Text> }
+								{this.state.recordingT && <Icon name={'mic-a'} size={100} color={'#222'} /> }
+								{this.state.recording && <Text style={styles.practiceText}>Speak </Text> }
+
 								<Text style={styles.practiceText}>{this.state.repeatsIndicator} / {this.props.settings.repeats}</Text>
 							</View>
 					 }
@@ -180,8 +187,13 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		backgroundColor: 'black',
 	},
-	practiceText: {fontSize: 80, fontWeight: '200', backgroundColor: '#ddd', color: '#222', textShadowOffset: {width: 0.5, height: 0.5}, textShadowRadius: 2, textShadowColor: 'white'},
-	practiceIndicators: {position: 'absolute', top: 0, flex: 1, width: layout.width, height: layout.height - 100, opacity: 0.8, justifyContent: 'center', alignItems: 'center'},
+	practiceText: {fontSize: 40, fontWeight: '200', color: '#222', textShadowOffset: {width: 0.5, height: 0.5}, textShadowRadius: 2, textShadowColor: 'white'},
+	practiceIndicators: {flexDirection: 'row',
+		backgroundColor: '#ddd',
+		padding: 20,
+		position: 'absolute', top: 0, flex: 1,
+		width: layout.width, opacity: 0.7,
+		justifyContent: 'center', marginTop: 40},
 	practiceButton: {alignItems: 'center', justifyContent: 'center', flexDirection: 'row', width: layout.width, backgroundColor: '#F5D700'},
 	practiceButtonText: {paddingVertical: 15,
 		paddingHorizontal: 20,

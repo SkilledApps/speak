@@ -47,6 +47,7 @@ export default class App extends React.Component {
 				<Navbar
 					titleComponent={this.renderTitle(route)}
 					isBack={route.name !== 'TracksList'}
+					isSettings={route.name === 'Settings'}
 					onBack={() => navigator.pop()}
 					onSettings={() => navigator.push({name: 'Settings'})}
 				/>
@@ -75,7 +76,7 @@ export default class App extends React.Component {
 		if (route.name === 'Settings') {
 				const { settings } = this.props;
 				return <Settings
-					settings={settings}
+					{...this.props}
 					onSettingsChanged={newSettings => this.props.applySettings({...settings, ...newSettings})}
 				/>
 		}

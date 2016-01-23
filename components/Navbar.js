@@ -22,7 +22,7 @@ export default class TracksListItem extends React.Component {
       <NavigationBar
         title={this.props.titleComponent}
         tintColor={'#F5D700'}
-        rightButton={rightButtonConfig}
+        rightButton={this.props.isSettings ? {title: ''} : rightButtonConfig}
 				leftButton={this.props.isBack ? leftButton : {title:''}} />
     );
   }
