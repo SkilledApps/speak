@@ -6,6 +6,8 @@ import TracksList from './TracksList';
 import Navbar from './Navbar';
 import SearchInput from './SearchInput';
 import Bench from './Benchmarking';
+import TabBar from './Tabbar';
+import Settings from './Settings';
 
 const {
 	StyleSheet,
@@ -24,6 +26,17 @@ export default class App extends React.Component {
 					ref={'navigator'}
 					initialRouteStack={[{name: 'TracksList'}]}
 					renderScene={this.renderContainer.bind(this)}
+					configureScene={route =>
+						route.name === 'Settings' ?
+							Navigator.SceneConfigs.VerticalUpSwipeJump :
+							{
+								...Navigator.SceneConfigs.HorizontalSwipeJump,
+								gestures: {
+									jumpBack: null,
+									jumpForward: null
+								}
+							}
+						}
 			/>
 		);
 	}
@@ -34,21 +47,17 @@ export default class App extends React.Component {
 				<Navbar
 					titleComponent={this.renderTitle(route)}
 					isBack={route.name !== 'TracksList'}
-					onBack={() => navigator.pop()}/>
+					onBack={() => navigator.pop()}
+					onSettings={() => navigator.push({name: 'Settings'})}
+				/>
 				{this.renderScene(route, navigator)}
 			</View>
 		);
 	}
 
-	componentDidMount() {
-		// debug
-		//console.log('get captions')
-		//getCaptions('en', 'yJXTXN4xrI8').then(r => console.log(r));
-	}
-
 	renderScene(route, navigator) {
 		if (route.name === 'TracksList') {
-        return <TracksList
+        const tab1 = <TracksList
 					tracks={this.props.isSearching ? this.props.foundTracks : this.props.savedTracks}
 					isLoading={this.props.isLoading}
 					{...this.props}
@@ -56,16 +65,20 @@ export default class App extends React.Component {
 						this.props.selectTrack(track);
 						navigator.push({name: 'Track', trackId: track.id});
 					}} />
+				return <TabBar tab1={tab1} />
     }
 		if (route.name === 'Track') {
         return <SingleTrackContainer
-					settings={{
-						repeats: 3,
-						intervalRatio: 2
-					}}
 					{...this.props}
 				/>
     }
+		if (route.name === 'Settings') {
+				const { settings } = this.props;
+				return <Settings
+					settings={settings}
+					onSettingsChanged={newSettings => this.props.applySettings({...settings, ...newSettings})}
+				/>
+		}
 
 		if (route.name === 'Bench') {
 				const t = {

@@ -14,7 +14,9 @@ import {
   CHANGE_TITLE_FOR_TIMESTAMP,
   MOVE_TIMESTAMP,
   DELETE_TIMESTAMP,
-  TICK
+  MUTE_TIMESTAMP,
+  TICK,
+  APPLY_SETTINGS
 } from './actions';
 
 import { LOAD, SAVE } from 'redux-storage';
@@ -25,7 +27,12 @@ type GlobalState = any;
 const defaultState: GlobalState = {
   savedTracks: [],
   foundTracks: [],
-  isLoading: false
+  isLoading: false,
+  settings: {
+    repeats: 3,
+    intervalRatio: 1.5,
+    startFromPause: true
+  }
 };
 
 export default function reducer(state = defaultState, action): GlobalState {
@@ -38,10 +45,7 @@ export default function reducer(state = defaultState, action): GlobalState {
       };
 
     case TICK:
-      //const t = getTrack(state)
-      // DEBUG
       state.savedTracks[0].currentTime = action.time;
-
       return {
         ...state,
         savedTracks: [...state.savedTracks]
@@ -195,12 +199,27 @@ export default function reducer(state = defaultState, action): GlobalState {
       //   track3.timestamps[action.index - 1].time > action.time
       // }
       track4.timestamps = track4.timestamps.filter((e, i) => parseInt(action.index, 10) !== i);
-      console.log(track4.timestamps)
       return {
         ...state,
         foundTracks: [...state.foundTracks],
         savedTracks: [...state.savedTracks]
       }
+
+    case MUTE_TIMESTAMP:
+      const track5 = getTrack(state)
+      track5.timestamps[action.index].isMuted = !track5.timestamps[action.index].isMuted;
+      return {
+        ...state,
+        foundTracks: [...state.foundTracks],
+        savedTracks: [...state.savedTracks]
+      }
+
+    case APPLY_SETTINGS:
+      return {
+        ...state,
+        settings
+      }
+
 
     default:
       return state;

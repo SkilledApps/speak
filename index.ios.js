@@ -22,7 +22,7 @@ const storageMiddleware = storage.createMiddleware(engine, [ 'MOVE_TIMESTAMP' ])
 
 const middleware = process.env.NODE_ENV === 'production' ?
   [ thunk, storageMiddleware ] :
-  [ thunk, storageMiddleware ]; //logger(),
+  [ thunk, logger(), storageMiddleware ]; //logger(),
 
 const createStoreWithMiddleware = applyMiddleware(...middleware)(createStore);
 const store = createStoreWithMiddleware(wrappedReducer);

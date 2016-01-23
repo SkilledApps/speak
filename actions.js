@@ -19,6 +19,7 @@ export const RENAME_TIMESTAMP = 'RENAME_TIMESTAMP';
 export const MUTE_TIMESTAMP = 'MUTE_TIMESTAMP';
 
 export const TICK = 'TICK';
+export const APPLY_SETTINGS = 'APPLY_SETTINGS';
 
 function searchingYoutube() {
   return {
@@ -127,9 +128,23 @@ export function deleteTimestamp(index) {
   }
 }
 
+export function muteTimestamp(index) {
+  return {
+    type: MUTE_TIMESTAMP,
+    index
+  }
+}
+
 export function tick(time) {
   return {
     type: TICK,
     time
+  }
+}
+
+export function applySettings(settings) {
+  return {
+    type: APPLY_SETTINGS,
+    settings
   }
 }

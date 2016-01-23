@@ -27,7 +27,6 @@ export default class Cursor extends React.Component {
         // The guesture has started. Show visual feedback so the user knows
         // what is happening!
         this.setState({moving: true})
-        console.log('moving')
         // gestureState.{x,y}0 will be set to zero now
       },
       onPanResponderMove: (evt, gestureState) => {
@@ -63,6 +62,10 @@ export default class Cursor extends React.Component {
   shouldComponentUpdate(nextProps, nextState) {
     return (nextProps.position !== this.props.position
       || nextState.pos !== this.state.pos || nextState.moving !== this.state.moving);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.setState({pos: nextProps.position})
   }
 
   render() {

@@ -24,32 +24,38 @@ const Timings = (props) => {
 class TimestampControl extends React.Component {
 
   shouldComponentUpdate(nextProps) {
+    //TODO: immutable?
     return (nextProps.isPlayed !== this.props.isPlayed ||
       nextProps.isSelected !== this.props.isSelected ||
       nextProps.isExpanded !== this.props.isExpanded ||
-      (nextProps.progress !== this.props.progress) ||
-      nextProps.time !== this.props.time)
+      nextProps.progress !== this.props.progress ||
+      nextProps.time !== this.props.time ||
+      nextProps.title !== this.props.title ||
+      nextProps.isMuted !== this.props.isMuted)
   }
-  
 
   render() {
     const playedStyle = this.props.isPlayed ? {backgroundColor: '#F6FBC7'} : {};
     const selectedStyle = this.props.isSelected ? { borderLeftColor: '#FF9500', borderLeftWidth: 10} : {};
-
+    const mutedStyle = this.props.isMuted ? { opacity: 0.5} : {};
     return (
-      <View style={styles.row}>
-        <TouchableOpacity style={[styles.timestampControl, playedStyle, selectedStyle]} onPress={this.props.onSelect} onLongPress={() => console.log('long press')}>
+      <View style={[styles.row, mutedStyle]}>
+
+        <TouchableOpacity style={[styles.timestampControl, playedStyle, selectedStyle]}
+          onPress={this.props.onSelect} onLongPress={() => this.props.onExpand()}>
           <View style={[styles.progressBar,  {width: layout.width * this.props.progress}]} />
           <Timings prevTime={this.props.prevTime} time={this.props.time} />
           <View style={{width: 200}}>
-            <EditableCaption editMode={!this.props.title} title={this.props.title} onTitleChange={this.props.onTitleChange} />
+            <EditableCaption
+              editMode={!this.props.title || this.props.isExpanded}
+              title={this.props.title}
+              onTitleChange={this.props.onTitleChange} />
           </View>
-
-            <TouchableOpacity style={styles.button2} onPress={ () => this.props.onExpand() }>
-              <Icon name={this.props.isExpanded ? 'ios-arrow-up': 'ios-arrow-down'} size={30} color='#222'/>
-            </TouchableOpacity>
-
+          <TouchableOpacity style={styles.button2} onPress={ () => this.props.onExpand() }>
+            <Icon name={this.props.isExpanded ? 'ios-arrow-up': 'ios-arrow-down'} size={30} color='#222'/>
+          </TouchableOpacity>
         </TouchableOpacity>
+
       {this.props.isExpanded &&
         <View style={{flexDirection: 'row', flex: 1, marginVertical: 10, width: layout.width, justifyContent: 'space-around'}}>
           <TouchableOpacity style={styles.button2} onPress={ () => this.props.deleteTimestamp() }>
@@ -61,8 +67,8 @@ class TimestampControl extends React.Component {
             <Text>Add to favorites</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.button2} onPress={ () => this.props.muteTimestamp() }>
-            <Icon name='android-microphone-off' size={30} color='#222'/>
-            <Text>Mute</Text>
+            <Icon name={this.props.isMuted ? 'android-volume-off' : 'android-volume-up'} size={30} color='#222'/>
+            <Text>{this.props.isMuted ? 'Unmute' : 'Mute'}</Text>
           </TouchableOpacity>
         </View>
       }
@@ -83,6 +89,10 @@ export default class TimestampsContainer extends React.Component {
   componentWillReceiveProps(nextProps) {
     if (this.props.timestamps.length !== nextProps.timestamps.length) {
       LayoutAnimation.spring();
+      if (this.props.timestamps.length < nextProps.timestamps.length) {
+        const currentTimestampIndex = nextProps.timestamps.length - nextProps.timestamps.filter(t => t.time > this.props.currentTime).length + 1;
+        this.scrollTo(currentTimestampIndex, nextProps.timestamps.length);
+      }
     }
     this.setState({
       dataSource: this.state.dataSource
@@ -94,7 +104,6 @@ export default class TimestampsContainer extends React.Component {
     const isPlayed = currentTime + 0.1 > rowData.time;
     const prevTime= rowID > 0 ? timestamps[parseInt(rowID, 10) - 1].time : 0
     const nextTime= rowID < timestamps.length - 1 ? timestamps[parseInt(rowID, 10) + 1].time : timestamps[timestamps.length - 1].time;
-
     const progress = currentTime >= prevTime && currentTime < rowData.time &&
       ((currentTime - prevTime) / (rowData.time - prevTime));
       // TODO: optimization
@@ -125,7 +134,8 @@ export default class TimestampsContainer extends React.Component {
         {...rowData}
         onSelect={() => {
           LayoutAnimation.easeInEaseOut();
-          this.props.onSelect(rowID);
+          this.scrollTo(parseInt(rowID) + 1, this.props.timestamps.length)
+          this.props.onSelect(rowData.isSelected ? null : rowID);
         } }
         deleteTimestamp={() => {
           this.expanded(rowID);
@@ -133,53 +143,27 @@ export default class TimestampsContainer extends React.Component {
         } }
         onTitleChange={title => this.props.onTitleChange(rowID, title)}
         onMove={(k, delta) => this.props.onMove(rowID, delta) }
-        onExpand={() => this.expanded(rowID) } />
+        onExpand={() => this.expanded(rowID) }
+        muteTimestamp={() => this.props.muteTimestamp(rowID)}
+      />
     )
   }
 
-  renderRow1(rowData, sectionID, rowID, highlightRow) {
-    const { timestamps, currentTime, selectedIndex } = this.props;
-    const isPlayed = currentTime + 0.1 > rowData.time;
-    const prevTime= rowID > 0 ? timestamps[parseInt(rowID, 10) - 1].time : 0
-    const nextTime= rowID < timestamps.length - 1 ? timestamps[parseInt(rowID, 10) + 1].time : timestamps[timestamps.length - 1].time;
-
-    const progress = currentTime >= prevTime && currentTime < rowData.time &&
-      ((currentTime - prevTime) / (rowData.time - prevTime));
-
-    return (
-      <TimestampControl {...rowData}
-        currentTime={currentTime}
-        prevTime={prevTime}
-        nextTime={nextTime}
-        progress={progress}
-        isPlayed={isPlayed}
-        key={rowID}
-        isSelected={parseInt(selectedIndex, 10) === parseInt(rowID, 10)}
-        isExpanded={this.state.expanded === rowID}
-        onSelect={() => {
-          LayoutAnimation.easeInEaseOut();
-          this.props.onSelect(rowID);
-        } }
-        deleteTimestamp={() => {
-          this.expanded(rowID);
-          this.props.deleteTimestamp(rowID);
-        } }
-        onTitleChange={title => this.props.onTitleChange(rowID, title)}
-        onMove={(k, delta) => this.props.onMove(rowID, delta) }
-        onExpand={() => this.expanded(rowID) } />
-    )
+  scrollTo(index, total) {
+    if (index > 5) { // TODO:
+      const scrollProperties = this.refs.listview.scrollProperties;
+      const scrollOffset = scrollProperties.contentLength / total * (index + 1) - scrollProperties.visibleLength;
+      // console.log('index=', index, 'total=', total,
+      //   'perSegment=', scrollProperties.contentLength / total, 'absolute=',
+      //   scrollProperties.contentLength / total * parseInt(index, 10), 'visiableLength=', scrollProperties.visibleLength);
+      this.refs.listview.getScrollResponder().scrollTo(scrollOffset);
+    }
   }
-  render1() {
-    const rows = this.props.timestamps.map((row, index) =>this.renderRow(row, null, index))
-    return <React.ScrollView removeClippedSubviews={true} style={{width: layout.width, height: 2 * layout.height / 3 - 118}} >
-      {rows}
-    </React.ScrollView>;
-  }
+
   render() {
-
     return (
-
         <ListView
+          ref={'listview'}
           dataSource={this.state.dataSource}
           showsVerticalScrollIndicator={true}
           horizontal={false}

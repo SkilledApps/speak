@@ -69,16 +69,13 @@ export default class SingleTrackContainer extends React.Component {
 			const { settings } = this.props;
 			const timestamps = this.getTrack().timestamps;
 			const nextLoop = (repeatsDone, timestampIndex) => {
-
 				const nextTimestampIndex = timestampIndex < timestamps.length ? timestampIndex + 1 : timestamps.length - 1;
-
 				if (nextTimestampIndex === timestampIndex) { // конец
 					return;
 				} else {
 					const deltaTime = timestampIndex === -1 ?
 						timestamps[nextTimestampIndex].time :
 						timestamps[nextTimestampIndex].time - timestamps[timestampIndex].time
-					console.log('nextLoop', repeatsDone, timestampIndex, nextTimestampIndex, deltaTime * 1000)
 					this.playTimestamp(nextTimestampIndex);
 					this.setState({paused: false, repeatsIndicator: repeatsDone + 1, recording: false});
 					// поставить на паузу после проигрывания этого участка и включить микрофон
@@ -86,17 +83,17 @@ export default class SingleTrackContainer extends React.Component {
 					if (repeatsDone + 1 < this.props.settings.repeats) {
 						// текущий отрезок, продолжаем повторять
 						this.t2 = setTimeout(() =>
-							nextLoop(repeatsDone + 1, timestampIndex), deltaTime * 1000 * settings.intervalRatio);
+							nextLoop(repeatsDone + 1, timestampIndex), deltaTime * 1000 * (settings.intervalRatio + 1));
 					} else {
 						// повтори достаточное количество раз, на следующий отрезок
-						this.t2 = setTimeout(() => nextLoop(0, nextTimestampIndex), deltaTime * 1000 * settings.intervalRatio);
+						this.t2 = setTimeout(() => nextLoop(0, nextTimestampIndex), deltaTime * 1000 * (settings.intervalRatio + 1));
 					}
 
 				}
 			}
 
 			const currentTimestampIndex = timestamps.length - timestamps.filter(t => t.time > this.state.currentTime).length - 1;
-			nextLoop(0, currentTimestampIndex < timestamps.length ? currentTimestampIndex : currentTimestampIndex - 1);
+			nextLoop(0, currentTimestampIndex);
 
 		} else {
 			// удалить таймауты чтобы корректно остановить режим тренировки
@@ -119,7 +116,7 @@ export default class SingleTrackContainer extends React.Component {
 						{...this.state}
 						onPlayPause={() => this.setState({paused: !this.state.paused})}
 						onProgress={(s, seek) => seek ? this.playTime(s.currentTime, this.state.currentTimestampIndex) : this.setState(s)}
-						onProgressChange={x => this.playTime(x)}
+						onProgressChange={x => this.playTime(x, this.state.currentTimestampIndex)}
 						addTimestamp={() => this.props.addTimestamp(this.state.currentTime)}
 						moveTimestamp={this.props.moveTimestamp}
 						selectTrack={(forceUpdating) => this.props.selectTrack(track, forceUpdating)}
@@ -139,18 +136,22 @@ export default class SingleTrackContainer extends React.Component {
 							onSelect={index => { this.setState({practice: false, repeatsIndicator: 0}); this.playTimestamp(index); } }
 							onTitleChange={(index, title) => this.props.changeTitleForTimestamp(index, title)}
 							deleteTimestamp={index => this.props.deleteTimestamp(index) }
+							muteTimestamp={index => this.props.muteTimestamp(index)}
+
 						/> }
 
-						<PracticeButton onPress={() => this.togglePractice() } inPractice={this.state.practice} />
-						{this.state.practice &&
-								<View style={styles.practiceIndicators}>
-									{!this.state.recording && <Text style={styles.practiceText}>Listen</Text> }
-									{!this.state.recording && <Icon name={'ios-volume-high'} size={300} color={'#222'}/> }
-									{this.state.recording && <Text style={styles.practiceText}>Speak</Text> }
-									{this.state.recording && <Icon name={'mic-a'} size={300} color={'#222'} /> }
-									<Text style={styles.practiceText}>{this.state.repeatsIndicator} / {this.props.settings.repeats}</Text>
-								</View>
-						 }
+					{(track.timestamps && track.timestamps.length > 0) &&
+							<PracticeButton onPress={() => this.togglePractice() } inPractice={this.state.practice} />
+					}
+					{this.state.practice &&
+							<View style={styles.practiceIndicators}>
+								{!this.state.recording && <Text style={styles.practiceText}>Listen</Text> }
+								{!this.state.recording && <Icon name={'ios-volume-high'} size={300} color={'#222'}/> }
+								{this.state.recording && <Text style={styles.practiceText}>Speak</Text> }
+								{this.state.recording && <Icon name={'mic-a'} size={300} color={'#222'} /> }
+								<Text style={styles.practiceText}>{this.state.repeatsIndicator} / {this.props.settings.repeats}</Text>
+							</View>
+					 }
 				</View>
 			)
 		}
@@ -179,7 +180,7 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		backgroundColor: 'black',
 	},
-	practiceText: {fontSize: 80, fontWeight: '200', backgroundColor: '#ccc', color: '#222', textShadowOffset: {width: 0.5, height: 0.5}, textShadowRadius: 2, textShadowColor: 'white'},
+	practiceText: {fontSize: 80, fontWeight: '200', backgroundColor: '#ddd', color: '#222', textShadowOffset: {width: 0.5, height: 0.5}, textShadowRadius: 2, textShadowColor: 'white'},
 	practiceIndicators: {position: 'absolute', top: 0, flex: 1, width: layout.width, height: layout.height - 100, opacity: 0.8, justifyContent: 'center', alignItems: 'center'},
 	practiceButton: {alignItems: 'center', justifyContent: 'center', flexDirection: 'row', width: layout.width, backgroundColor: '#F5D700'},
 	practiceButtonText: {paddingVertical: 15,

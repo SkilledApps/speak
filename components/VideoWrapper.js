@@ -17,7 +17,7 @@ export default class VideoWrapper extends React.Component {
 			volume: 1,
 			muted: false,
 			duration: 0.0,
-      progress: {
+      range: {
         start: 0,
         end: 0
       }
@@ -27,7 +27,7 @@ export default class VideoWrapper extends React.Component {
   onLoad(data: any) {
     if (data.duration > this.state.duration) {
       // TODO: simpilify
-      this.setState({duration: parseFloat(data.duration), progress: { start: 0, end: parseFloat(data.duration)}});
+      this.setState({duration: parseFloat(data.duration), range: { start: 0, end: parseFloat(data.duration)}});
     }
   }
 
@@ -38,15 +38,7 @@ export default class VideoWrapper extends React.Component {
       if (this.props.track.source && parseInt(this.state.duration) === 0) {
         this.props.selectTrack(true)
       }
-    }, 2000)
-
-    // setInterval(() => {
-    //   const progress = {
-    //     currentTime: new Date() / 100,
-		// 		duration: '10.10',
-    //   }
-    //   this.props.onProgress(progress);
-    // }, 50)
+    }, 1000)
   }
 
 	onProgress(data: any) {
@@ -56,16 +48,40 @@ export default class VideoWrapper extends React.Component {
         currentTime: data.currentTime,
 				duration: data.playableDuration,
       }
-      if (progress.currentTime > this.state.progress.end) {
-        this.setState({
-          progress: {
-            start: this.state.progress.start,
-            end: progress.currentTime + 3 < this.state.duration ? progress.currentTime + 3 : this.state.duration
-          }
-        })
-      }
-      // loop the selected
+      // if (progress.currentTime > this.state.range.end) {
+      //   this.setState({
+      //     progress: {
+      //       start: this.state.range.start,
+      //       end: progress.currentTime + 3 < this.state.duration ? progress.currentTime + 3 : this.state.duration
+      //     }
+      //   })
+      // }
+      if (this.props.timestamps && this.props.timestamps.length > 0) {
+        const segment = this.getSegment(this.props);
+        const delta = (segment.end - segment.start) / 2;
+        // auto scale
+        if (progress.currentTime + delta - 0.5 > this.state.range.end) {
+          console.log('near the end!', progress.currentTime + delta, this.state.range.end)
+          this.setState({
+            range: {
+              start: this.state.range.start,
+              end: progress.currentTime + delta < this.state.duration ? progress.currentTime + delta : this.state.duration
+            }
+          })
+        }
 
+        if (this.state.range.start > 0 && progress.currentTime - delta < this.state.range.start) {
+          console.log('near the start!', progress.currentTime - delta, this.state.range.start)
+          this.setState({
+            range: {
+              start: progress.currentTime - delta < 0 ? 0 : progress.currentTime - delta,
+              end: this.state.range.end
+            }
+          })
+        }
+      }
+
+      // loop the selected
       if (!this.props.practice && this.props.currentTimestampIndex &&
         progress.currentTime - 0.150 > this.props.track.timestamps[this.props.currentTimestampIndex].time) {
           this.props.onProgress({
@@ -86,17 +102,26 @@ export default class VideoWrapper extends React.Component {
   seek(time) {
     this._videoComponent.seek(time);
   }
-
+  getSegment(props) {
+    return {
+      start: parseInt(props.currentTimestampIndex,10) === 0 ? 0 : props.track.timestamps[props.currentTimestampIndex - 1].time,
+      end: props.track.timestamps[props.currentTimestampIndex].time
+    };
+  }
   componentWillReceiveProps(nextProps) {
     if (nextProps.currentTimestampIndex && nextProps.currentTimestampIndex !== this.props.currentTimestampIndex && nextProps.track) {
-      const segment = {
-        start: parseInt(nextProps.currentTimestampIndex,10) === 0 ? 0 : nextProps.track.timestamps[nextProps.currentTimestampIndex - 1].time,
-        end: nextProps.track.timestamps[nextProps.currentTimestampIndex].time
-      };
+      const segment = this.getSegment(nextProps);
       this.setState({
-        progress: {
+        range: {
           start: segment.start === 0 ? 0 : segment.start - (segment.end - segment.start) / 2,
           end: segment.end + (segment.end - segment.start) / 2
+        }
+      });
+    } else if (!nextProps.currentTimestampIndex && nextProps.currentTimestampIndex !== this.props.currentTimestampIndex) {
+      this.setState({
+        range: {
+          start: 0,
+          end: this.state.duration
         }
       });
     }
@@ -110,22 +135,20 @@ export default class VideoWrapper extends React.Component {
     return pad(minutes) + ':' + pad(seconds);
   }
   getPos(time) {
-
-    return (time - this.state.progress.start) / (this.state.progress.end - this.state.progress.start) * window.width;
+    return (time - this.state.range.start) / (this.state.range.end - this.state.range.start) * window.width;
   }
   getTime(pos) {
-    const { progress } = this.state;
-    return (progress.end - progress.start) * pos / window.width + progress.start;
-    //return (time - this.state.progress.start) / (this.state.progress.end - this.state.progress.start) * window.width;
+    const { range } = this.state;
+    return (range.end - range.start) * pos / window.width + range.start;
   }
 
   render() {
     const isRepeatIndicatorShow = +this.props.repeatsIndicator > 0;
 
     const { track, currentTimestampIndex, currentTime } = this.props;
-    const { progress } = this.state;
+    const { range } = this.state;
     // transform position to coordinates
-    const completed = currentTime ? (currentTime - progress.start) / (progress.end - progress.start)* 100: 0;
+    const completed = currentTime ? (currentTime - range.start) / (range.end - range.start)* 100: 0;
 
     const remaining = 100 - completed;
     // get time
@@ -134,11 +157,11 @@ export default class VideoWrapper extends React.Component {
     // if segment is selected then we animate
     const progressHeight = currentTimestampIndex ? 30 : 10;
 
-    const seconds = Math.round(progress.end - progress.start);
+    const seconds = Math.round(range.end - range.start);
     // |---1---1---|
     const secondsMarkers = [];
     if (currentTimestampIndex) {
-      for (var j = Math.round(progress.start); j < progress.end; j+= (seconds < 7 ? 1 : 10)) {
+      for (var j = Math.round(range.start); j < range.end; j+= (seconds < 7 ? 1 : 5)) {
         //console.log(j, progress.start, progress.end)
         const pos = this.getPos(j);
         secondsMarkers.push(<View key={j} style={{left: pos}}><View style={[ styles.divider]} />
@@ -146,13 +169,6 @@ export default class VideoWrapper extends React.Component {
           </View>)
       }
     }
-    // const secondsMarkers = currentTimestampIndex &&
-    //   Array.apply(null, Array(seconds))
-    //     .map((_, i) => {
-    //       const pos = (i*(progress.end - progress.start)/seconds) / (progress.end - progress.start) * window.width;
-    //       console.log(progress, i, 'per second:', (progress.end - progress.start)/seconds, '', i*(progress.end - progress.start)/seconds, 'sec', pos)
-    //       return <View style={[{left: pos}, styles.divider]} />
-    //     });
 
     return (
       <View style={{
@@ -177,13 +193,13 @@ export default class VideoWrapper extends React.Component {
           </Video>
         </TouchableWithoutFeedback>
 
-        {!currentTimestampIndex &&
-          <Cursor
-            position={completed * window.width / 100}
-            progressHeight={progressHeight}
-            color={'white'}
-            onMove={x => this.props.onProgressChange(x / window.width * this.state.duration)} />
-        }
+
+        <Cursor
+          position={this.getPos(currentTime)}
+          progressHeight={progressHeight}
+          color={'white'}
+          onMove={x => this.props.onProgressChange(x / window.width * this.state.duration)} />
+
 
         {!!currentTimestampIndex && currentTimestampIndex > 0 &&
           <Cursor
