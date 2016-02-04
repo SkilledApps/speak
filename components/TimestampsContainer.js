@@ -30,8 +30,10 @@ class TimestampControl extends React.Component {
       nextProps.isExpanded !== this.props.isExpanded ||
       nextProps.progress !== this.props.progress ||
       nextProps.time !== this.props.time ||
+      nextProps.prevTime !== this.props.prevTime ||
       nextProps.title !== this.props.title ||
-      nextProps.isMuted !== this.props.isMuted)
+      nextProps.isMuted !== this.props.isMuted ||
+      nextProps.isLiked !== this.props.isLiked)
   }
 
   render() {
@@ -45,12 +47,16 @@ class TimestampControl extends React.Component {
           onPress={this.props.onSelect} onLongPress={() => this.props.onExpand()}>
           <View style={[styles.progressBar,  {width: layout.width * this.props.progress}]} />
           <Timings prevTime={this.props.prevTime} time={this.props.time} />
+
           <View style={{width: 200}}>
             <EditableCaption
               editMode={!this.props.title || this.props.isExpanded}
               title={this.props.title}
               onTitleChange={this.props.onTitleChange} />
           </View>
+          {this.props.isLiked &&
+            <Icon name={'ios-star'} size={30} color={'#F5D700'}/>
+          }
           <TouchableOpacity style={styles.button2} onPress={ () => this.props.onExpand() }>
             <Icon name={this.props.isExpanded ? 'ios-arrow-up': 'ios-arrow-down'} size={30} color='#222'/>
           </TouchableOpacity>
@@ -63,8 +69,8 @@ class TimestampControl extends React.Component {
             <Text>Delete</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.button2} onPress={ () => this.props.likeTimestamp() }>
-            <Icon name='ios-star-outline' size={30} color='#222'/>
-            <Text>Add to favorites</Text>
+            <Icon name={this.props.isLiked ? 'ios-star' : 'ios-star-outline'} size={30} color='#222'/>
+            <Text>{this.props.isLiked ? 'Remove from favorites' : 'Add to favorites'}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.button2} onPress={ () => this.props.muteTimestamp() }>
             <Icon name={this.props.isMuted ? 'android-volume-up' : 'android-volume-off'} size={30} color='#222'/>
@@ -148,12 +154,13 @@ export default class TimestampsContainer extends React.Component {
         onMove={(k, delta) => this.props.onMove(rowID, delta) }
         onExpand={() => this.expanded(rowID) }
         muteTimestamp={() => this.props.muteTimestamp(rowID)}
+        likeTimestamp={() => this.props.likeTimestamp(rowID)}
       />
     )
   }
 
   scrollTo(index, total) {
-    if (index > 5) { // TODO:
+    if (index > 6) { // TODO:
       const scrollProperties = this.refs.listview.scrollProperties;
       const scrollOffset = scrollProperties.contentLength / total * (index + 1) - scrollProperties.visibleLength;
       // console.log('index=', index, 'total=', total,

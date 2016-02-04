@@ -8,6 +8,7 @@ import SearchInput from './SearchInput';
 import Bench from './Benchmarking';
 import TabBar from './Tabbar';
 import Settings from './Settings';
+import CoursesList from './CoursesList';
 
 const {
 	StyleSheet,
@@ -66,7 +67,8 @@ export default class App extends React.Component {
 						this.props.selectTrack(track);
 						navigator.push({name: 'Track', trackId: track.id});
 					}} />
-				return <TabBar tab1={tab1} />
+				const tab2 = <CoursesList />
+				return <TabBar tab1={tab1} tab2={tab2} />
     }
 		if (route.name === 'Track') {
         return <SingleTrackContainer

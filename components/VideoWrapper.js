@@ -48,16 +48,11 @@ export default class VideoWrapper extends React.Component {
         currentTime: data.currentTime,
 				duration: data.playableDuration,
       }
-      // if (progress.currentTime > this.state.range.end) {
-      //   this.setState({
-      //     progress: {
-      //       start: this.state.range.start,
-      //       end: progress.currentTime + 3 < this.state.duration ? progress.currentTime + 3 : this.state.duration
-      //     }
-      //   })
-      // }
+
       if (this.props.timestamps && this.props.timestamps.length > 0) {
+        // getSegment returns current selected segement
         const segment = this.getSegment(this.props);
+
         const delta = (segment.end - segment.start) / 2;
         // auto scale
         if (progress.currentTime + delta - 0.5 > this.state.range.end) {
@@ -79,6 +74,7 @@ export default class VideoWrapper extends React.Component {
             }
           })
         }
+
       }
 
       // loop the selected
@@ -103,6 +99,7 @@ export default class VideoWrapper extends React.Component {
     this._videoComponent.seek(time);
   }
   getSegment(props) {
+    console.log(props.track.timestamps, props.currentTimestampIndex)
     return {
       start: parseInt(props.currentTimestampIndex,10) === 0 ? 0 : props.track.timestamps[props.currentTimestampIndex - 1].time,
       end: props.track.timestamps[props.currentTimestampIndex].time
@@ -124,6 +121,18 @@ export default class VideoWrapper extends React.Component {
           end: this.state.duration
         }
       });
+    } else if (nextProps.currentTimestampIndex) {
+      const segment = this.getSegment(nextProps);
+      const delta = segment.end - segment.start;
+      if (this.state.range.end - this.state.range.start > delta * 5 && delta > 0.3) {
+        console.log('two segements getting too close:', this.state.range.end - this.state.range.start, delta * 5)
+        this.setState({
+          range: {
+            start: segment.start === 0 ? 0 : segment.start - (segment.end - segment.start) / 2,
+            end: segment.end + (segment.end - segment.start) / 2
+          }
+        });
+      }
     }
   }
 

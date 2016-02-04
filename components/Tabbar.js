@@ -35,7 +35,7 @@ export default class Tabbar extends React.Component {
               selectedTab: 'university',
             });
           }}>
-          <Text>To do</Text>
+          {this.props.tab2}
         </Icon.TabBarItem>
         <Icon.TabBarItem
           title="My records"

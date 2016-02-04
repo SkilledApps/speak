@@ -17,6 +17,7 @@ export const MOVE_TIMESTAMP = 'MOVE_TIMESTAMP';
 export const DELETE_TIMESTAMP = 'DELETE_TIMESTAMP';
 export const RENAME_TIMESTAMP = 'RENAME_TIMESTAMP';
 export const MUTE_TIMESTAMP = 'MUTE_TIMESTAMP';
+export const LIKE_TIMESTAMP = 'LIKE_TIMESTAMP';
 
 export const TICK = 'TICK';
 export const APPLY_SETTINGS = 'APPLY_SETTINGS';
@@ -131,6 +132,13 @@ export function deleteTimestamp(index) {
 export function muteTimestamp(index) {
   return {
     type: MUTE_TIMESTAMP,
+    index
+  }
+}
+
+export function likeTimestamp(index) {
+  return {
+    type: LIKE_TIMESTAMP,
     index
   }
 }

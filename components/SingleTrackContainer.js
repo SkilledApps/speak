@@ -141,8 +141,9 @@ export default class SingleTrackContainer extends React.Component {
 							selectedIndex={ this.state.currentTimestampIndex }
 							onSelect={index => { this.setState({practice: false, repeatsIndicator: 0}); this.playTimestamp(index); } }
 							onTitleChange={(index, title) => this.props.changeTitleForTimestamp(index, title)}
-							deleteTimestamp={index => this.props.deleteTimestamp(index) }
-							muteTimestamp={index => this.props.muteTimestamp(index)}
+							deleteTimestamp={this.props.deleteTimestamp}
+							muteTimestamp={this.props.muteTimestamp}
+							likeTimestamp={this.props.likeTimestamp}
 
 						/> }
 
@@ -222,18 +223,18 @@ const styles = StyleSheet.create({
 	justifyContent: 'center',
 	},
 	resizeModeControl: {
-	flex: 1,
-	flexDirection: 'row',
-	alignItems: 'center',
-	justifyContent: 'center',
+		flex: 1,
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'center',
 	},
 	controlOption: {
-	alignSelf: 'center',
-	fontSize: 11,
-	color: "#000",
-	paddingLeft: 2,
-	paddingRight: 2,
-	lineHeight: 12,
+		alignSelf: 'center',
+		fontSize: 11,
+		color: "#000",
+		paddingLeft: 2,
+		paddingRight: 2,
+		lineHeight: 12,
 	},
 });
 var customStyles6 = StyleSheet.create({

@@ -18,7 +18,7 @@ const engine = decorators.filter(createEngine('speakapp_'), [
     'selectedIndex'
 ]);
 const wrappedReducer = storage.reducer(reducer);
-const storageMiddleware = storage.createMiddleware(engine, [ 'MOVE_TIMESTAMP' ]);
+const storageMiddleware = storage.createMiddleware(engine, []);
 
 const middleware = process.env.NODE_ENV === 'production' ?
   [ thunk, storageMiddleware ] :

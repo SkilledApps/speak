@@ -15,6 +15,7 @@ import {
   MOVE_TIMESTAMP,
   DELETE_TIMESTAMP,
   MUTE_TIMESTAMP,
+  LIKE_TIMESTAMP,
   TICK,
   APPLY_SETTINGS
 } from './actions';
@@ -208,6 +209,15 @@ export default function reducer(state = defaultState, action): GlobalState {
     case MUTE_TIMESTAMP:
       const track5 = getTrack(state)
       track5.timestamps[action.index].isMuted = !track5.timestamps[action.index].isMuted;
+      return {
+        ...state,
+        foundTracks: [...state.foundTracks],
+        savedTracks: [...state.savedTracks]
+      }
+
+    case LIKE_TIMESTAMP:
+      const track6 = getTrack(state)
+      track6.timestamps[action.index].isLiked = !track6.timestamps[action.index].isLiked;
       return {
         ...state,
         foundTracks: [...state.foundTracks],
