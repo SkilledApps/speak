@@ -181,7 +181,7 @@ export default class TimestampsContainer extends React.Component {
           pageSize={1}
           removeClippedSubviews={true}
           renderRow = {this.renderRow.bind(this)}
-          style={{width: layout.width, height: 2 * layout.height / 3 - 118}} />
+          style={{width: layout.width, height: 2 * layout.height / 3 - 116}} />
 
     );
   }

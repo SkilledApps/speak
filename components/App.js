@@ -61,21 +61,22 @@ export default class App extends React.Component {
 
 	renderScene(route, navigator) {
 		if (route.name === 'TracksList') {
-        const tab1 = <TracksList
+				const tabs = {}
+        tabs.tab1 = <TracksList
 					tracks={this.props.isSearching ? this.props.foundTracks : this.props.savedTracks}
 					isLoading={this.props.isLoading}
 					{...this.props}
 					onSelect={(track) => {
-						this.props.selectTrack(track);
-						navigator.push({name: 'Track', trackId: track.id});
+						navigator.push({name: 'Track', track});
 					}} />
-				const tab2 = <CoursesList />
-				const tab3 = <Recordings tracks={this.props.savedTracks} />
-				const tab4 = <LikedList tracks={this.props.savedTracks} />
-				return <TabBar tab1={tab1} tab2={tab2} tab3={tab3} tab4={tab4}/>
+				tabs.tab2 = <CoursesList />
+				tabs.tab3 = <Recordings tracks={this.props.savedTracks} />
+				tabs.tab4 = <LikedList tracks={this.props.savedTracks} />
+				return <TabBar ref={(ref) => this._tabbar = ref} tabs={tabs} />
     }
 		if (route.name === 'Track') {
         return <SingleTrackContainer
+					track={route.track}
 					{...this.props}
 				/>
     }
@@ -104,15 +105,14 @@ export default class App extends React.Component {
 		if (route.name === 'TracksList') {
         return <SearchInput
 					onSearch={q => this.props.searchYoutube(q)}
+					onFirstTabActive={() => this._tabbar.setFirstTab()}
 					onStopSearching={() => this.props.stopSearching()}
 				/>
     }
 		if (route.name === 'Track') {
-      return this.props.selectedIndex && <Text
-				style={{fontSize: 12, width: 200, top: 10, textAlign: 'center'}}
-				numberOfLines={2}>{(this.props.selectedIndex.type === 'found' ?
-					this.props.foundTracks[this.props.selectedIndex.index] :
-					this.props.savedTracks[this.props.selectedIndex.index]).snippet.title}</Text>;
+      return <Text
+				style={{fontSize: 12, width: 200, top: 5, textAlign: 'center'}}
+				numberOfLines={2}>{route.track.snippet.title}</Text>;
     }
 	}
 }

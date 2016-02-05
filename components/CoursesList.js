@@ -25,7 +25,7 @@ export default class CoursesList extends React.Component {
     return (
       <ScrollView style={{flex: 1}} keyboardShouldPersistTaps={true}>
         {COURSES.map( (e, index) =>
-            <View key={index} style={{flex: 1, borderColor: '#ccc', borderBottomWidth: 1, flexDirection: 'row', alignItems: 'center', padding: 20}}>
+            <View key={index} style={{flex: 1, borderColor: '#ccc', borderBottomWidth: 1, flexDirection: 'row', alignItems: 'center', padding: 10}}>
               <Image source={require('../comingsoon.png')} style={{width: 100, height: 100, marginRight: 10}}/>
               <View style={{justifyContent: 'center', alignItems: 'center'}}>
                 <Text style={{fontSize: 20}}>{e.title}</Text>

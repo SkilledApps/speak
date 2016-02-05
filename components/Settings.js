@@ -1,5 +1,4 @@
 import React from 'react-native';
-import Header from './Header';
 const { View, Text, TouchableOpacity, SliderIOS, StyleSheet, Dimensions, Switch,} = React;
 const { width, height } = Dimensions.get('window');
 
@@ -11,6 +10,10 @@ export default class Settings extends React.Component {
 		const t = this.props.selectedIndex.type === 'found' ?
 			this.props.foundTracks[this.props.selectedIndex.index] :
 			this.props.savedTracks[this.props.selectedIndex.index];
+
+		if (!t.timestamps) {
+			return 0;
+		}
 
 		return Math.round(
 			Math.round(

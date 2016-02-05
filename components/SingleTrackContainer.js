@@ -28,12 +28,16 @@ export default class SingleTrackContainer extends React.Component {
 			paused: true,
 			rate: 1
 		};
+		this.onPlayPause = this.onPlayPause.bind(this)
 	}
 
 	componentDidMount() {
-		//requestAnimationFrame(() => this.setState({paused: false}))
-		//setTimeout(() => this.setState({paused: false}), 1500)
+		setTimeout(() => this.props.selectTrack(this.props.track), 300);
 	}
+	// componentDidMount() {
+	// 	//requestAnimationFrame(() => this.setState({paused: false}))
+	// 	//setTimeout(() => this.setState({paused: false}), 1500)
+	// }
 
 	getTrack() {
 		if (!this.props.selectedIndex) {
@@ -59,7 +63,13 @@ export default class SingleTrackContainer extends React.Component {
 		this._videoComponent.seek(time);
 		this.setState({currentTime: time, currentTimestampIndex: index})
 	}
-
+	onPlayPause() {
+		if (this.state.practice) {
+			this.togglePractice()
+		} else {
+			this.setState({paused: !this.state.paused})
+		}
+	}
 	/*
 	 * Включаем и выключаем режим практики
 	 */
@@ -125,7 +135,7 @@ export default class SingleTrackContainer extends React.Component {
 					AudioRecorder.startRecording();
 					const startDate = new Date();
 					this.progressInterval = setInterval(() => this.setState({recordingProgress: (new Date() - startDate) / 1000*(recordTime-100) }) , 50);
-				}, deltaTime * 1000 + 250);
+				}, deltaTime * 1000);
 
 				/*
 				 *	Второй таймер отвечает за завершение записи звука и срабатывает позже
@@ -188,7 +198,7 @@ export default class SingleTrackContainer extends React.Component {
 						ref={component => this._videoComponent = component}
 						track={track}
 						{...this.state}
-						onPlayPause={() => this.setState({paused: !this.state.paused})}
+						onPlayPause={this.onPlayPause}
 						onProgress={(s, seek) => seek ? this.playTime(s.currentTime, this.state.currentTimestampIndex) : this.setState(s)}
 						onProgressChange={x => this.playTime(x, this.state.currentTimestampIndex)}
 						onRateChanged={rate => this.setState({rate})}

@@ -29,7 +29,7 @@ export default class Recordings extends React.Component {
               <Text style={styles.title}>{track.snippet.title}</Text>
               {track.recordings.map((recording, i) =>
                 <View key={i} style={styles.recording}>
-                  {recording.createdAt && <Text>Recording {moment(recording.createdAt).calendar()}</Text>}
+                  {recording.createdAt && <Text>Practiced {moment(recording.createdAt).calendar()}</Text>}
                   <View key={i} style={styles.recordingControls}>
                     <TouchableOpacity onPress={() => this.playRecording(recording)} style={{width: 50}}>
                       <Icon name={this.state.tracks[recording.trackName] && this.state.tracks[recording.trackName].isPlaying ? 'pause' : 'play'}

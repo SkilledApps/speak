@@ -77,12 +77,36 @@ export default class VideoWrapper extends React.Component {
 
       }
 
-      // loop the selected
+      // Закцикливаем текущий отрезок, если он дошел до конца
       if (!this.props.practice && this.props.currentTimestampIndex &&
-        progress.currentTime - 0.150 > this.props.track.timestamps[this.props.currentTimestampIndex].time) {
-          this.props.onProgress({
-            currentTime: parseInt(this.props.currentTimestampIndex, 0) === 0 ? 0 : this.props.track.timestamps[this.props.currentTimestampIndex - 1].time
-          }, true);
+        progress.currentTime + 0.150 > this.props.track.timestamps[this.props.currentTimestampIndex].time) {
+          /*
+           * Из-за того что наш таймер отрабатывает каждые 150 мс
+           * мы можем не попасть в конец, поэтому нужно запустить таймер
+           */
+          console.log(progress.currentTime)
+          //this.props.onProgress(progress);
+          const timeWhenPauseAndReplay = this.props.track.timestamps[this.props.currentTimestampIndex].time - progress.currentTime;
+          console.log('timeWhenPauseAndReplay', timeWhenPauseAndReplay)
+          if (timeWhenPauseAndReplay > 0) {
+            setTimeout(() => {
+              this.props.onPlayPause()
+              this.props.onProgress({currentTime: progress.currentTime + timeWhenPauseAndReplay - 0.01});
+            }, timeWhenPauseAndReplay * 1000)
+
+            setTimeout(() => {
+              this.props.onPlayPause()
+              this.props.onProgress({
+                currentTime: parseInt(this.props.currentTimestampIndex, 0) === 0 ? 0 : this.props.track.timestamps[this.props.currentTimestampIndex - 1].time
+              }, true)
+            }, timeWhenPauseAndReplay * 1000 + 100)
+          } else {
+            this.props.onProgress({
+              currentTime: parseInt(this.props.currentTimestampIndex, 0) === 0 ? 0 : this.props.track.timestamps[this.props.currentTimestampIndex - 1].time
+            }, true)
+          }
+
+
       } else {
         LayoutAnimation.configureNext({
           duration: 250,
@@ -90,6 +114,7 @@ export default class VideoWrapper extends React.Component {
             type: LayoutAnimation.Types.linear,
           },
         });
+        //console.log(progress.currentTime)
         this.props.onProgress(progress);
       }
 

@@ -10,6 +10,12 @@ export default class Tabbar extends React.Component {
     super();
     this.state = {selectedTab: 'trackslist'}
   }
+  isFirstTab() {
+    return this.state.selectedTab === 'trackslist';
+  }
+  setFirstTab() {
+    this.setState({selectedTab: 'trackslist'})
+  }
   render() {
     return (
       <TabBarIOS
@@ -17,14 +23,14 @@ export default class Tabbar extends React.Component {
         barTintColor="#F5D700">
         <Icon.TabBarItem
           title="Videos"
-          iconName="ios-list-outline"
+          iconName="ios-list"
           selected={this.state.selectedTab === 'trackslist'}
           onPress={() => {
             this.setState({
               selectedTab: 'trackslist',
             });
           }}>
-          {this.props.tab1}
+          {this.props.tabs.tab1}
         </Icon.TabBarItem>
         <Icon.TabBarItem
           title="Classes"
@@ -35,7 +41,7 @@ export default class Tabbar extends React.Component {
               selectedTab: 'university',
             });
           }}>
-          {this.props.tab2}
+          {this.props.tabs.tab2}
         </Icon.TabBarItem>
         <Icon.TabBarItem
           title="My recordings"
@@ -47,7 +53,7 @@ export default class Tabbar extends React.Component {
               selectedTab: 'recordings'
             });
           }}>
-          {this.props.tab3}
+          {this.props.tabs.tab3}
         </Icon.TabBarItem>
         <Icon.TabBarItem
           iconName="ios-star-outline"
@@ -59,7 +65,7 @@ export default class Tabbar extends React.Component {
               presses: this.state.presses + 1
             });
           }}>
-          {this.props.tab4}
+          {this.props.tabs.tab4}
         </Icon.TabBarItem>
       </TabBarIOS>
     );

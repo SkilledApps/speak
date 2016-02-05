@@ -11,11 +11,16 @@ export default class TracksListItem extends React.Component {
 
 	render() {
     const rightButtonConfig =  <TouchableOpacity onPress={() => this.props.onSettings()}>
-			<Icon name={'ios-settings'} size={28} color={'#222'} style={{marginHorizontal: 10, top: 0, marginTop: 0}}/>
+			<Icon name={'ios-settings'} size={28} color={'#222'} style={{marginHorizontal: 10, top: -5, paddingLeft: 10, marginTop: 0}}/>
 		</TouchableOpacity>
 
-		const leftButton = <TouchableOpacity onPress={() => this.props.onBack()}>
-			<Icon name={'ios-arrow-left'} size={28} color={'#222'} style={{marginHorizontal: 10, top: 0, marginTop: 0}}/>
+		// const leftButton = <TouchableOpacity onPress={() => this.props.onBack()}>
+		// 	<Icon name={'ios-arrow-left'} size={28} color={'#222'} style={{marginHorizontal: 10, top: -5, paddingRight: 10, marginTop: 0}}/>
+		// </TouchableOpacity>
+
+		const leftButton = <TouchableOpacity onPress={() => this.props.onBack()} style={{alignItems: 'center', flexDirection: 'row', marginHorizontal: 10, top: -5, paddingRight: 10, marginTop: 0}}>
+			<Icon name={'ios-arrow-left'} size={28} color={'#222'} style={{marginRight: 6}}/>
+			<Text color={'#222'}>Back</Text>
 		</TouchableOpacity>
 
     return (
