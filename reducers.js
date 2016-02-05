@@ -17,7 +17,9 @@ import {
   MUTE_TIMESTAMP,
   LIKE_TIMESTAMP,
   TICK,
-  APPLY_SETTINGS
+  APPLY_SETTINGS,
+  START_RECORDING,
+  STOP_RECORDING
 } from './actions';
 
 import { LOAD, SAVE } from 'redux-storage';
@@ -230,6 +232,31 @@ export default function reducer(state = defaultState, action): GlobalState {
         settings: action.settings
       }
 
+    case START_RECORDING:
+      const track7 = getTrack(state)
+      if (!track7.recordings) {
+        track7.recordings = [];
+      }
+      track7.recordings.push({
+        startTime: action.startTime,
+        createdAt: new Date(),
+        trackName: action.trackName
+      })
+
+      return {
+        ...state,
+        foundTracks: [...state.foundTracks],
+        savedTracks: [...state.savedTracks]
+      }
+
+    case STOP_RECORDING:
+      const track8 = getTrack(state)
+      track8.recordings.filter(r => r.trackName === action.trackName)[0].duration = action.duration;
+      return {
+        ...state,
+        foundTracks: [...state.foundTracks],
+        savedTracks: [...state.savedTracks]
+      }
 
     default:
       return state;

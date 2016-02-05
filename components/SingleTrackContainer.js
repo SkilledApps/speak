@@ -13,6 +13,8 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import VideoWrapper from './VideoWrapper';
 import OnboardingTip from './OnboardingTip';
 import TimestampsContainer from './TimestampsContainer';
+import RecordingProgressIndicator from './RecordingProgressIndicator';
+import * as AudioRecorder from './AudioRecorder';
 
 const { Dimensions, StyleSheet, View, TouchableOpacity, LayoutAnimation, Text, ActivityIndicatorIOS} = React;
 
@@ -24,6 +26,7 @@ export default class SingleTrackContainer extends React.Component {
 		this.state = {
 			currentTime: 0.0,
 			paused: true,
+			rate: 1
 		};
 	}
 
@@ -57,48 +60,110 @@ export default class SingleTrackContainer extends React.Component {
 		this.setState({currentTime: time, currentTimestampIndex: index})
 	}
 
+	/*
+	 * Включаем и выключаем режим практики
+	 */
 	togglePractice() {
-		/*
-			Начинаем играть с текущего времени в режиме повтора каждого участка
-
-			@param currentTime : this.state.currentTime;
-			@func startChapter : startChapter(startTime, chapter, index) {}
-		*/
 		this.setState({practice: !this.state.practice});
 		if (this.state.practice) {
 			const { settings } = this.props;
 			const timestamps = this.getTrack().timestamps;
 			const nextLoop = (repeatsDone, timestampIndex) => {
+				/*
+				 * Дополнительная проверка если вышли из режима практики
+				 * Может быть сделать универсальную функцию которая будет очищать все таймеры
+				 */
 				if (!this.state.practice) {
 					return;
 				}
-				const nextTimestampIndex = timestampIndex < timestamps.length ? timestampIndex + 1 : timestamps.length - 1;
-				if (nextTimestampIndex === timestampIndex) { // конец
-					return;
+				/*
+				 * Вычисляем следующую к текущей метку, если она равна текущей, значит конец
+				 */
+				const nextTimestampIndex = timestampIndex < timestamps.length - 1 ? timestampIndex + 1 : timestamps.length - 1;
+				if (nextTimestampIndex === timestampIndex) {
+					return; // конец, выходим
 				}
+				/*
+				 * Пропускаем "заглушенные" участки
+				 */
 				if (timestamps[nextTimestampIndex].isMuted) {
 					return nextLoop(repeatsDone, timestampIndex + 1);
 				}
-				const deltaTime = timestampIndex === -1 ?
-					timestamps[nextTimestampIndex].time :
-					timestamps[nextTimestampIndex].time - timestamps[timestampIndex].time
-				this.playTimestamp(nextTimestampIndex);
-				this.setState({paused: false, repeatsIndicator: repeatsDone + 1, recording: false});
-				// поставить на паузу после проигрывания этого участка и включить микрофон
-				this.t1 = setTimeout(() => this.setState({paused: true, recording: true}), deltaTime * 1000 + 250);
-				if (repeatsDone + 1 < this.props.settings.repeats) {
-					// текущий отрезок, продолжаем повторять
-					this.t2 = setTimeout(() =>
-						nextLoop(repeatsDone + 1, timestampIndex), deltaTime * 1000 * (settings.intervalRatio + 1));
-				} else {
-					// повтори достаточное количество раз, на следующий отрезок
-					this.t2 = setTimeout(() => nextLoop(0, nextTimestampIndex), deltaTime * 1000 * (settings.intervalRatio + 1));
-				}
 
+				/*
+				 * Длина участка воспроизведения, в секундах, учитывая режим воспроизвдения
+				 * (замедленный или обычный)
+				 */
+				const deltaTime = (timestampIndex === -1 ?
+					timestamps[nextTimestampIndex].time :
+					timestamps[nextTimestampIndex].time - timestamps[timestampIndex].time) / this.state.rate;
+				const recordTime = deltaTime * settings.intervalRatio
+
+				/*
+				 * Перемещаем воспроизведение в начало отрезка (следующая от текущей метка)
+				 */
+				this.playTimestamp(nextTimestampIndex);
+
+				/*
+				 * Синхронизируем стейт, чтобы инициировать render().
+				 * Запускаем плеер прежде всего.
+				 */
+				this.setState({
+					paused: false,
+					repeatsIndicator: repeatsDone + 1,
+					recording: false,
+					recordingProgress: 0
+				});
+
+				/*
+				 *	Первый таймер отвечает за воспроизведение. Мы воспроизводим до момента
+				 *	пока таймер не срабатывает.
+				 *	После этого, нужно поставить на паузу после проигрывания этого участка и включить микрофон
+				*/
+				this.t1 = setTimeout(() => {
+					this.setState({paused: true, recording: true});
+					AudioRecorder.startRecording();
+					const startDate = new Date();
+					this.progressInterval = setInterval(() => this.setState({recordingProgress: (new Date() - startDate) / 1000*(recordTime-100) }) , 50);
+				}, deltaTime * 1000 + 250);
+
+				/*
+				 *	Второй таймер отвечает за завершение записи звука и срабатывает позже
+				 *  После остановки записи микрофона и сброса индикатора прогресса, рекурсивно включаем следующий этап
+				*/
+				this.t2 = setTimeout(() => {
+					// приостанавливаем запись с микрофона
+					AudioRecorder.pauseRecording();
+					// останавливаем прогрессбар
+					clearInterval(this.progressInterval);
+					// всё ещё текущий отрезок, продолжаем повторять
+					if (repeatsDone + 1 < this.props.settings.repeats) {
+						nextLoop(repeatsDone + 1, timestampIndex);
+					// повторили достаточное количество раз, прыгаем на следующий отрезок
+					} else {
+						nextLoop(0, nextTimestampIndex);
+					}
+				}, 1000 * (recordTime + deltaTime) );
 
 			}
 
+			/*
+			 * Вычисляем по времени номер отрезка с которого мы начинаем режим практики
+			 *
+			 */
 			const currentTimestampIndex = timestamps.length - timestamps.filter(t => t.time > this.state.currentTime).length - 1;
+
+			/*
+			 * Создаем звуковой файл и запоминаем его в привязке к треку
+			 */
+			this.props.startRecording(
+				currentTimestampIndex < 0 ? 0 : timestamps[currentTimestampIndex].time,
+				AudioRecorder.prepareRecording(this.getTrack().id.videoId)
+			);
+
+			/*
+			 * ТОЧКА ВХОДА, первый запуск
+			 */
 			nextLoop(0, currentTimestampIndex);
 
 		} else {
@@ -106,6 +171,9 @@ export default class SingleTrackContainer extends React.Component {
 			this.setState({paused: true})
 			clearTimeout(this.t1);
 			clearTimeout(this.t2);
+			clearInterval(this.progressInterval);
+			// stop the recording
+			AudioRecorder.stopRecording().then((args) => this.props.stopRecording(args[0], args[1])).catch(e => console.error(e));
 		}
 	}
 
@@ -123,6 +191,7 @@ export default class SingleTrackContainer extends React.Component {
 						onPlayPause={() => this.setState({paused: !this.state.paused})}
 						onProgress={(s, seek) => seek ? this.playTime(s.currentTime, this.state.currentTimestampIndex) : this.setState(s)}
 						onProgressChange={x => this.playTime(x, this.state.currentTimestampIndex)}
+						onRateChanged={rate => this.setState({rate})}
 						addTimestamp={() => this.props.addTimestamp(this.state.currentTime)}
 						moveTimestamp={this.props.moveTimestamp}
 						selectTrack={(forceUpdating) => this.props.selectTrack(track, forceUpdating)}
@@ -152,11 +221,11 @@ export default class SingleTrackContainer extends React.Component {
 					}
 					{this.state.practice &&
 							<View style={styles.practiceIndicators}>
+								<RecordingProgressIndicator progress={this.state.recordingProgress} />
 								{this.state.recordingT && <Icon name={'ios-volume-high'} size={100} color={'#222'}/> }
 								{!this.state.recording && <Text style={styles.practiceText}>Listen </Text> }
 								{this.state.recordingT && <Icon name={'mic-a'} size={100} color={'#222'} /> }
 								{this.state.recording && <Text style={styles.practiceText}>Speak </Text> }
-
 								<Text style={styles.practiceText}>{this.state.repeatsIndicator} / {this.props.settings.repeats}</Text>
 							</View>
 					 }
@@ -189,11 +258,12 @@ const styles = StyleSheet.create({
 		backgroundColor: 'black',
 	},
 	practiceText: {fontSize: 40, fontWeight: '200', color: '#222', textShadowOffset: {width: 0.5, height: 0.5}, textShadowRadius: 2, textShadowColor: 'white'},
-	practiceIndicators: {flexDirection: 'row',
-		backgroundColor: '#ddd',
-		padding: 20,
-		position: 'absolute', top: 0, flex: 1,
-		width: layout.width, opacity: 0.7,
+	practiceIndicators: {
+	//	backgroundColor: '#ddd',
+	//	padding: 20,
+		position: 'absolute', top: -10, flex: 1,
+		width: layout.width, opacity: 0.8,
+		alignItems: 'center',
 		justifyContent: 'center', marginTop: 40},
 	practiceButton: {alignItems: 'center', justifyContent: 'center', flexDirection: 'row', width: layout.width, backgroundColor: '#F5D700'},
 	practiceButtonText: {paddingVertical: 15,
@@ -201,26 +271,26 @@ const styles = StyleSheet.create({
 		color: '#494000', fontSize: 20,
 	},
 	controls: {
-	backgroundColor: "transparent",
-	borderRadius: 5,
-	marginVertical: 20,
+		backgroundColor: "transparent",
+		borderRadius: 5,
+		marginVertical: 20,
 	},
 	generalControls: {
-	flex: 1,
-	flexDirection: 'row',
-	borderRadius: 4,
-	overflow: 'hidden',
-	paddingBottom: 10,
+		flex: 1,
+		flexDirection: 'row',
+		borderRadius: 4,
+		overflow: 'hidden',
+		paddingBottom: 10,
 	},
 	rateControl: {
-	flex: 1,
-	flexDirection: 'row',
-	justifyContent: 'center',
+		flex: 1,
+		flexDirection: 'row',
+		justifyContent: 'center',
 	},
 	volumeControl: {
-	flex: 1,
-	flexDirection: 'row',
-	justifyContent: 'center',
+		flex: 1,
+		flexDirection: 'row',
+		justifyContent: 'center',
 	},
 	resizeModeControl: {
 		flex: 1,

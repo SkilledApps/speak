@@ -22,6 +22,9 @@ export const LIKE_TIMESTAMP = 'LIKE_TIMESTAMP';
 export const TICK = 'TICK';
 export const APPLY_SETTINGS = 'APPLY_SETTINGS';
 
+export const START_RECORDING = 'START_RECORDING';
+export const STOP_RECORDING = 'STOP_RECORDING';
+
 function searchingYoutube() {
   return {
     type: SEARCHING_YOUTUBE
@@ -147,6 +150,23 @@ export function tick(time) {
   return {
     type: TICK,
     time
+  }
+}
+
+export function startRecording(startTime, trackName) {
+  return {
+    type: START_RECORDING,
+    startTime,
+    trackName
+  }
+}
+
+export function stopRecording(duration, trackName) {
+  console.log(duration, trackName)
+  return {
+    type: STOP_RECORDING,
+    duration,
+    trackName
   }
 }
 

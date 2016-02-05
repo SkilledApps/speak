@@ -38,17 +38,16 @@ export default class Tabbar extends React.Component {
           {this.props.tab2}
         </Icon.TabBarItem>
         <Icon.TabBarItem
-          title="My records"
+          title="My recordings"
           iconName="ios-mic"
           badge={this.state.notifCount > 0 ? this.state.notifCount : undefined}
-          selected={this.state.selectedTab === 'redTab'}
+          selected={this.state.selectedTab === 'recordings'}
           onPress={() => {
             this.setState({
-              selectedTab: 'redTab',
-              notifCount: this.state.notifCount + 1,
+              selectedTab: 'recordings'
             });
           }}>
-          <Text>To do</Text>
+          {this.props.tab3}
         </Icon.TabBarItem>
         <Icon.TabBarItem
           iconName="ios-star-outline"
@@ -60,7 +59,7 @@ export default class Tabbar extends React.Component {
               presses: this.state.presses + 1
             });
           }}>
-          <Text>To do</Text>
+          {this.props.tab4}
         </Icon.TabBarItem>
       </TabBarIOS>
     );

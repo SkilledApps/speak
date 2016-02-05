@@ -9,6 +9,8 @@ import Bench from './Benchmarking';
 import TabBar from './Tabbar';
 import Settings from './Settings';
 import CoursesList from './CoursesList';
+import Recordings from './Recordings';
+import LikedList from './LikedList';
 
 const {
 	StyleSheet,
@@ -68,7 +70,9 @@ export default class App extends React.Component {
 						navigator.push({name: 'Track', trackId: track.id});
 					}} />
 				const tab2 = <CoursesList />
-				return <TabBar tab1={tab1} tab2={tab2} />
+				const tab3 = <Recordings tracks={this.props.savedTracks} />
+				const tab4 = <LikedList tracks={this.props.savedTracks} />
+				return <TabBar tab1={tab1} tab2={tab2} tab3={tab3} tab4={tab4}/>
     }
 		if (route.name === 'Track') {
         return <SingleTrackContainer

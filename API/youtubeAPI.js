@@ -3,7 +3,7 @@ import { List, Map } from 'immutable';
 
 const API_KEY = 'AIzaSyCnkNKecXxIbzhI-0BMLzFwza_0BUv29ek';
 
-const SEARCH_ENDPOINT = 'https://www.googleapis.com/youtube/v3/search?type=video&maxResults=10&part=snippet&key=' + API_KEY + '&q='
+const SEARCH_ENDPOINT = 'https://www.googleapis.com/youtube/v3/search?type=video&maxResults=20&part=snippet&key=' + API_KEY + '&q='
 
 const VIDEO_ENDPOINT = 'https://www.googleapis.com/youtube/v3/videos?part=contentDetails,statistics&key=' + API_KEY + '&id='
 

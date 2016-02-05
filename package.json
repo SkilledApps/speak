@@ -9,6 +9,7 @@
   "dependencies": {
     "html-entities": "^1.2.0",
     "immutable": "^3.7.6",
+    "moment": "^2.11.2",
     "react": "^0.14.6",
     "react-native": "0.18.0",
     "react-native-audio": "^0.3.2",

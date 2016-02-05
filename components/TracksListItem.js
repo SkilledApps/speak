@@ -38,7 +38,7 @@ export default class TracksListItem extends React.Component {
 						<View style={{padding: 5, flexDirection: 'row', justifyContent: 'space-around'}}>
 							<View style={styles.statItem}>
 								<Icon name="ios-timer-outline" size={20} />
-								<Text style={{marginLeft: 5}}>5 min / 10%</Text>
+								<Text style={{marginLeft: 5}}>0 min / 0%</Text>
 							</View>
 							<View style={styles.statItem}>
 								<Icon name="bookmark" size={20} />
@@ -46,7 +46,7 @@ export default class TracksListItem extends React.Component {
 							</View>
 							<View style={styles.statItem}>
 								<Icon name="ios-star-outline" size={20} />
-								<Text style={{marginLeft: 5}}>{this.props.favs ? this.props.favs.length : 0}</Text>
+								<Text style={{marginLeft: 5}}>{this.props.timestamps ? this.props.timestamps.filter(t => t.isLiked).length : 0}</Text>
 							</View>
 						</View>
 					}

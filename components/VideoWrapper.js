@@ -99,7 +99,6 @@ export default class VideoWrapper extends React.Component {
     this._videoComponent.seek(time);
   }
   getSegment(props) {
-    console.log(props.track.timestamps, props.currentTimestampIndex)
     return {
       start: parseInt(props.currentTimestampIndex,10) === 0 ? 0 : props.track.timestamps[props.currentTimestampIndex - 1].time,
       end: props.track.timestamps[props.currentTimestampIndex].time
@@ -152,8 +151,6 @@ export default class VideoWrapper extends React.Component {
   }
 
   render() {
-    const isRepeatIndicatorShow = +this.props.repeatsIndicator > 0;
-
     const { track, currentTimestampIndex, currentTime } = this.props;
     const { range } = this.state;
     // transform position to coordinates
@@ -187,7 +184,7 @@ export default class VideoWrapper extends React.Component {
           <Video
             ref={component => this._videoComponent = component}
             source={{uri: track.source}} // Can be a URL or a local file.
-            rate={this.state.rate}
+            rate={this.props.rate}
             paused={this.props.paused}
             volume={this.state.volume}
             muted={this.state.muted}
@@ -247,13 +244,13 @@ export default class VideoWrapper extends React.Component {
             </TouchableOpacity>
             <Text style={{color: '#F5D700'}}>{played} / {duration}</Text>
             <View style={{position: 'absolute', alignItems: 'center', right: 0, flexDirection: 'row'}}>
-              <TouchableOpacity onPress={() => this.setState({rate: 1}) }
-                style={[styles.rateButton, this.state.rate === 1 ? {backgroundColor: '#F5D700'} : {}]}>
-                <Text style={{color:  this.state.rate === 1 ? 'black' : '#F5D700'}}>1.0x</Text>
+              <TouchableOpacity onPress={() => this.props.onRateChanged(1) }
+                style={[styles.rateButton, this.props.rate === 1 ? {backgroundColor: '#F5D700'} : {}]}>
+                <Text style={{color:  this.props.rate === 1 ? 'black' : '#F5D700'}}>1.0x</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => this.setState({rate: 0.5}) }
-                style={[styles.rateButton, this.state.rate === 0.5 ? {backgroundColor: '#F5D700'} : {}]}>
-                <Text style={{color:  this.state.rate === 1 ? '#F5D700' : 'black'}}>0.5x</Text>
+              <TouchableOpacity onPress={() => this.props.onRateChanged(0.5) }
+                style={[styles.rateButton, this.props.rate === 0.5 ? {backgroundColor: '#F5D700'} : {}]}>
+                <Text style={{color:  this.props.rate === 1 ? '#F5D700' : 'black'}}>0.5x</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={() => this.props.addTimestamp() }>
               <Icon name={'scissors'}
@@ -263,11 +260,7 @@ export default class VideoWrapper extends React.Component {
             </View>
           </View>
         </View>
-        {isRepeatIndicatorShow &&
-          <View style={styles.repeatsIndicator}>
-            <Text style={{color: '#000', fontSize: 13}}>{this.props.repeatsIndicator}</Text>
-          </View>
-        }
+
       </View>
     );
   }
