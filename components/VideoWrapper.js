@@ -217,7 +217,7 @@ export default class VideoWrapper extends React.Component {
             onVideoLoadStart={() => console.log('start loading...')}
             onLoad={(data) => { this.onLoad(data) }}
             onProgress={(d) => this.onProgress(d) }
-            onEnd={() => console.log('ended')}
+            onEnd={() => console.log('load ended')}
             onError={(e) => console.error('video error:', e)}
             repeat={true}
             style={[this.props.style, {flex: 1, height: VIDEO_HEIGHT, width: window.width}]}>

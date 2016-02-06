@@ -27,9 +27,11 @@ export default class SearchInput extends React.Component {
 					ref={(ref) => this._ref = ref}
 			    placeholder='Search'
 					hideBackground={true}
+					showsCancelButton={true}
 			    onChangeText={query => {
 							this.props.onFirstTabActive();
 	            if (query.length === 0) {
+								this._ref.blur();
 	              this.props.onStopSearching();
 	            }
 	  					if (query.length < 3) {
@@ -47,7 +49,7 @@ export default class SearchInput extends React.Component {
 					}}
 			    onCancelButtonPress={() => {
 						this._ref.blur();
-						this.props.stopSearching()
+						this.props.onStopSearching()
 					}}
 			    />
 			</View>

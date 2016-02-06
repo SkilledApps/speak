@@ -6,6 +6,9 @@ import { AudioRecorder, AudioPlayer } from 'react-native-audio';
 // function generateName() {
 //
 // }
+export function requestRecordPermission() {
+  AudioRecorder.requestRecordPermission()
+}
 export function prepareRecording(trackId) {
   const recordName = '/record_' + trackId + '_' + new Date() + '.caf';
   AudioRecorder.prepareRecordingAtPath(recordName);

@@ -32,7 +32,8 @@ export default class SingleTrackContainer extends React.Component {
 	}
 
 	componentDidMount() {
-		setTimeout(() => this.props.selectTrack(this.props.track), 300);
+		//this.props.selectTrack({})
+		setTimeout(() => this.props.selectTrack(this.props.track), 1000);
 	}
 	// componentDidMount() {
 	// 	//requestAnimationFrame(() => this.setState({paused: false}))
@@ -40,12 +41,13 @@ export default class SingleTrackContainer extends React.Component {
 	// }
 
 	getTrack() {
-		if (!this.props.selectedIndex) {
-			return false;
-		}
-		return this.props.selectedIndex.type === 'found' ?
-			this.props.foundTracks[this.props.selectedIndex.index] :
-			this.props.savedTracks[this.props.selectedIndex.index];
+		return this.props.track;
+		// if (!this.props.selectedIndex) {
+		// 	return false;
+		// }
+		// return this.props.selectedIndex.type === 'found' ?
+		// 	this.props.foundTracks[this.props.selectedIndex.index] :
+		// 	this.props.savedTracks[this.props.selectedIndex.index];
 	}
 
 	playTimestamp(index) {
@@ -224,7 +226,8 @@ export default class SingleTrackContainer extends React.Component {
 							muteTimestamp={this.props.muteTimestamp}
 							likeTimestamp={this.props.likeTimestamp}
 
-						/> }
+						/>
+					}
 
 					{(track.timestamps && track.timestamps.length > 0) &&
 							<PracticeButton onPress={() => this.togglePractice() } inPractice={this.state.practice} />
@@ -271,7 +274,7 @@ const styles = StyleSheet.create({
 	practiceIndicators: {
 	//	backgroundColor: '#ddd',
 	//	padding: 20,
-		position: 'absolute', top: -10, flex: 1,
+		position: 'absolute', top: -20, flex: 1,
 		width: layout.width, opacity: 0.8,
 		alignItems: 'center',
 		justifyContent: 'center', marginTop: 40},

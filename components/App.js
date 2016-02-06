@@ -117,26 +117,6 @@ export default class App extends React.Component {
 	}
 }
 
-
-class Debug extends React.Component {
-	constructor() {
-		super();
-		this.state = {
-			currenTime: 0,
-			paused: true
-		}
-	}
-
-  render() {
-		const t = this.props.savedTracks[0];
-    return <Bench
-      {...this.props}
-      track={t}
-      currentTime={this.state.currenTime}
-      onProgress={(t) => this.setState(t)} />
-  }
-}
-
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,

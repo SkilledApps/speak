@@ -17,10 +17,10 @@ export default class LikedList extends React.Component {
           timestamps: t.timestamps.filter(tt => tt.isLiked)
         }
       });
-      console.log(likedTracks)
+
     return (
       <ScrollView style={{flex: 1}}>
-        {likedTracks.map( (track, index) =>
+        {likedTracks && likedTracks.map( (track, index) =>
             <View key={index} style={styles.itemContainer}>
               <Text style={styles.title}>{track.snippet.title}</Text>
               {track.timestamps.map((timestamp, i) =>
@@ -31,6 +31,11 @@ export default class LikedList extends React.Component {
               )}
             </View>
         )}
+        {(!likedTracks || likedTracks.length === 0) &&
+          <View>
+            <Text style={styles.title}>Add new segments to favorites</Text>
+          </View>
+        }
 
       </ScrollView>
     );

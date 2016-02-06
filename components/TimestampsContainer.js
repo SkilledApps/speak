@@ -89,8 +89,13 @@ export default class TimestampsContainer extends React.Component {
   constructor(props) {
     super();
     this.state = {
+      loaded: false,
       dataSource: ds.cloneWithRows(props.timestamps.map(this.fillRow.bind(this, props)))
     }
+  }
+
+  componentDidMount() {
+    setTimeout(() => this.setState({loaded: true}), 500);
   }
   componentWillReceiveProps(nextProps) {
     if (this.props.timestamps.length !== nextProps.timestamps.length) {
@@ -171,6 +176,9 @@ export default class TimestampsContainer extends React.Component {
   }
 
   render() {
+    if (!this.state.loaded) {
+      return null;
+    }
     return (
         <ListView
           ref={'listview'}
