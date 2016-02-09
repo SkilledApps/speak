@@ -17,6 +17,9 @@
 		037F97351C639B83009D0DC3 /* AudioPlayerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 037F97321C639B82009D0DC3 /* AudioPlayerManager.m */; };
 		037F97361C639B83009D0DC3 /* AudioRecorderManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 037F97341C639B82009D0DC3 /* AudioRecorderManager.m */; };
 		0381CE9F1C53A200000D6939 /* libRNVectorIcons.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0381CE9E1C53A1FD000D6939 /* libRNVectorIcons.a */; };
+		03B1AE151C69F4BB0031A4EE /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03B1AE131C69F4BB0031A4EE /* Fabric.framework */; };
+		03B1AE161C69F4BB0031A4EE /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03B1AE141C69F4BB0031A4EE /* Crashlytics.framework */; };
+		03B1AE191C69F6F80031A4EE /* Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 03B1AE181C69F6F80031A4EE /* Utils.m */; };
 		133E29F31AD74F7200F7D852 /* libRCTLinking.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 78C398B91ACF4ADC00677621 /* libRCTLinking.a */; };
 		139105C61AF99C1200B5F7CC /* libRCTSettings.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 139105C11AF99BAD00B5F7CC /* libRCTSettings.a */; };
 		139FDEF61B0652A700C62182 /* libRCTWebSocket.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 139FDEF41B06529B00C62182 /* libRCTWebSocket.a */; };
@@ -149,6 +152,10 @@
 		037F97331C639B82009D0DC3 /* AudioRecorderManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AudioRecorderManager.h; path = "../node_modules/react-native-audio/ios/AudioRecorderManager.h"; sourceTree = "<group>"; };
 		037F97341C639B82009D0DC3 /* AudioRecorderManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AudioRecorderManager.m; path = "../node_modules/react-native-audio/ios/AudioRecorderManager.m"; sourceTree = "<group>"; };
 		0381CE8E1C53A1FD000D6939 /* RNVectorIcons.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RNVectorIcons.xcodeproj; path = "../node_modules/react-native-vector-icons/RNVectorIcons.xcodeproj"; sourceTree = "<group>"; };
+		03B1AE131C69F4BB0031A4EE /* Fabric.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Fabric.framework; sourceTree = "<group>"; };
+		03B1AE141C69F4BB0031A4EE /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
+		03B1AE171C69F6F80031A4EE /* Utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Utils.h; path = speak/Utils.h; sourceTree = "<group>"; };
+		03B1AE181C69F6F80031A4EE /* Utils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Utils.m; path = speak/Utils.m; sourceTree = "<group>"; };
 		139105B61AF99BAD00B5F7CC /* RCTSettings.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTSettings.xcodeproj; path = "../node_modules/react-native/Libraries/Settings/RCTSettings.xcodeproj"; sourceTree = "<group>"; };
 		139FDEE61B06529A00C62182 /* RCTWebSocket.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTWebSocket.xcodeproj; path = "../node_modules/react-native/Libraries/WebSocket/RCTWebSocket.xcodeproj"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* speak.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = speak.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -181,12 +188,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				0381CE9F1C53A200000D6939 /* libRNVectorIcons.a in Frameworks */,
+				03B1AE161C69F4BB0031A4EE /* Crashlytics.framework in Frameworks */,
 				15CA07441C2AAEDC00DF13F1 /* libRCTVideo.a in Frameworks */,
 				146834051AC3E58100842450 /* libReact.a in Frameworks */,
 				00C302E51ABCBA2D00DB3ED1 /* libRCTActionSheet.a in Frameworks */,
 				00C302E71ABCBA2D00DB3ED1 /* libRCTGeolocation.a in Frameworks */,
 				00C302E81ABCBA2D00DB3ED1 /* libRCTImage.a in Frameworks */,
 				133E29F31AD74F7200F7D852 /* libRCTLinking.a in Frameworks */,
+				03B1AE151C69F4BB0031A4EE /* Fabric.framework in Frameworks */,
 				00C302E91ABCBA2D00DB3ED1 /* libRCTNetwork.a in Frameworks */,
 				139105C61AF99C1200B5F7CC /* libRCTSettings.a in Frameworks */,
 				832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */,
@@ -291,6 +300,8 @@
 		13B07FAE1A68108700A75B9A /* speak */ = {
 			isa = PBXGroup;
 			children = (
+				03B1AE171C69F6F80031A4EE /* Utils.h */,
+				03B1AE181C69F6F80031A4EE /* Utils.m */,
 				032711231C47F9650020D5B8 /* YoutubeParser.h */,
 				032711241C47F9660020D5B8 /* YoutubeParser.m */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
@@ -346,6 +357,8 @@
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				03B1AE131C69F4BB0031A4EE /* Fabric.framework */,
+				03B1AE141C69F4BB0031A4EE /* Crashlytics.framework */,
 				037F97311C639B82009D0DC3 /* AudioPlayerManager.h */,
 				037F97321C639B82009D0DC3 /* AudioPlayerManager.m */,
 				037F97331C639B82009D0DC3 /* AudioRecorderManager.h */,
@@ -427,6 +440,7 @@
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
+				03B1AE121C69F4760031A4EE /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -658,6 +672,19 @@
 			shellPath = /bin/sh;
 			shellScript = "../node_modules/react-native/packager/react-native-xcode.sh";
 		};
+		03B1AE121C69F4760031A4EE /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "./Fabric.framework/run 2db177e8d0c8acd69e18b5630fd36c7c6accfbae 064e4723a6c92ad0cbd33a26760a72af927b5dc5b8f6af09187bc4bdcfa17748";
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -676,6 +703,7 @@
 				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
 				037F97351C639B83009D0DC3 /* AudioPlayerManager.m in Sources */,
 				032711251C47F9660020D5B8 /* YoutubeParser.m in Sources */,
+				03B1AE191C69F6F80031A4EE /* Utils.m in Sources */,
 				037F97361C639B83009D0DC3 /* AudioRecorderManager.m in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 			);
@@ -755,6 +783,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEAD_CODE_STRIPPING = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
@@ -775,6 +807,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,

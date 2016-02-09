@@ -20,9 +20,16 @@ const engine = decorators.filter(createEngine('speakapp_'), [
 const wrappedReducer = storage.reducer(reducer);
 const storageMiddleware = storage.createMiddleware(engine, []);
 
+const fabricLogger = store => next => action => {
+  if (action.type) {
+    React.NativeModules.Helpers.trackKeyAction(action.type, action);
+  }
+  return next(action);
+};
+
 const middleware = process.env.NODE_ENV === 'production' ?
-  [ thunk, storageMiddleware ] :
-  [ thunk, logger(), storageMiddleware ]; //logger(),
+  [ thunk, fabricLogger, storageMiddleware ] :
+  [ thunk, fabricLogger, logger(), storageMiddleware ]; //logger(),
 
 const createStoreWithMiddleware = applyMiddleware(...middleware)(createStore);
 const store = createStoreWithMiddleware(wrappedReducer);
