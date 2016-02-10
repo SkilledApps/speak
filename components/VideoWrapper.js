@@ -77,7 +77,7 @@ export default class VideoWrapper extends React.Component {
 
       }
 
-      // Закцикливаем текущий отрезок, если он дошел до конца
+      // Зацикливаем текущий отрезок, если он дошел до конца, не в режиме практике
       if (!this.props.practice && this.props.currentTimestampIndex &&
         progress.currentTime + 0.150 > this.props.track.timestamps[this.props.currentTimestampIndex].time) {
           /*

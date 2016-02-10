@@ -29,25 +29,18 @@ export default class SingleTrackContainer extends React.Component {
 			rate: 1
 		};
 		this.onPlayPause = this.onPlayPause.bind(this)
+		this.onProgress = this.onProgress.bind(this)
 	}
 
 	componentDidMount() {
-		//this.props.selectTrack({})
+		/*
+		 * Фоном вызываем редьюсер по выбору трека для последующих операций
+		 */
 		setTimeout(() => this.props.selectTrack(this.props.track), 1000);
 	}
-	// componentDidMount() {
-	// 	//requestAnimationFrame(() => this.setState({paused: false}))
-	// 	//setTimeout(() => this.setState({paused: false}), 1500)
-	// }
 
 	getTrack() {
 		return this.props.track;
-		// if (!this.props.selectedIndex) {
-		// 	return false;
-		// }
-		// return this.props.selectedIndex.type === 'found' ?
-		// 	this.props.foundTracks[this.props.selectedIndex.index] :
-		// 	this.props.savedTracks[this.props.selectedIndex.index];
 	}
 
 	playTimestamp(index) {
@@ -70,6 +63,17 @@ export default class SingleTrackContainer extends React.Component {
 			this.togglePractice()
 		} else {
 			this.setState({paused: !this.state.paused})
+		}
+	}
+	onProgress(s, seek) {
+		if (seek) {
+			this.playTime(s.currentTime, this.state.currentTimestampIndex);
+		} else {
+			if (this.progressHandlers) {
+				this.progressHandlers(s.currentTime, this.setState.bind(this));
+			} else {
+				this.setState(s);
+			}
 		}
 	}
 	/*
@@ -109,7 +113,7 @@ export default class SingleTrackContainer extends React.Component {
 				const deltaTime = (timestampIndex === -1 ?
 					timestamps[nextTimestampIndex].time :
 					timestamps[nextTimestampIndex].time - timestamps[timestampIndex].time) / this.state.rate;
-				const recordTime = deltaTime * settings.intervalRatio
+				const recordTime = deltaTime * settings.intervalRatio;
 
 				/*
 				 * Перемещаем воспроизведение в начало отрезка (следующая от текущей метка)
@@ -128,16 +132,27 @@ export default class SingleTrackContainer extends React.Component {
 				});
 
 				/*
-				 *	Первый таймер отвечает за воспроизведение. Мы воспроизводим до момента
-				 *	пока таймер не срабатывает.
+				 *	Первый таймер (хэндлер) отвечает за воспроизведение. Мы воспроизводим до момента
+				 *	пока условие не срабатывает.
 				 *	После этого, нужно поставить на паузу после проигрывания этого участка и включить микрофон
 				*/
-				this.t1 = setTimeout(() => {
-					this.setState({paused: true, recording: true});
-					AudioRecorder.startRecording();
-					const startDate = new Date();
-					this.progressInterval = setInterval(() => this.setState({recordingProgress: (new Date() - startDate) / 1000*(recordTime-100) }) , 50);
-				}, deltaTime * 1000);
+				this.progressHandlers = (currentTime, setState) => {
+					/*
+					 * Если ещё не конец отрезка, то просто прогрессируем
+					 */
+					if (currentTime < timestamps[nextTimestampIndex].time - 0.150) {
+						setState({currentTime})
+					} else {
+						setState({currentTime: timestamps[nextTimestampIndex].time, paused: true, recording: true});
+						AudioRecorder.startRecording();
+						const startDate = new Date();
+						this.progressHandlers = null;
+						this.progressInterval = setInterval(() => {
+							LayoutAnimation.linear();
+							setState({recordingProgress: (new Date() - startDate) / (1000 * recordTime - 150) })
+						}, 50);
+					}
+				}
 
 				/*
 				 *	Второй таймер отвечает за завершение записи звука и срабатывает позже
@@ -155,7 +170,7 @@ export default class SingleTrackContainer extends React.Component {
 					} else {
 						nextLoop(0, nextTimestampIndex);
 					}
-				}, 1000 * (recordTime + deltaTime) );
+				}, 1000 * (recordTime + deltaTime) + 250);
 
 			}
 
@@ -181,11 +196,13 @@ export default class SingleTrackContainer extends React.Component {
 		} else {
 			// удалить таймауты чтобы корректно остановить режим тренировки
 			this.setState({paused: true})
-			clearTimeout(this.t1);
+			this.progressHandlers = null;
 			clearTimeout(this.t2);
 			clearInterval(this.progressInterval);
 			// stop the recording
-			AudioRecorder.stopRecording().then((args) => this.props.stopRecording(args[0], args[1])).catch(e => console.error(e));
+			AudioRecorder.stopRecording()
+				.then((args) => this.props.stopRecording(args[0], args[1]))
+				.catch(e => console.error(e));
 		}
 	}
 
@@ -201,7 +218,7 @@ export default class SingleTrackContainer extends React.Component {
 						track={track}
 						{...this.state}
 						onPlayPause={this.onPlayPause}
-						onProgress={(s, seek) => seek ? this.playTime(s.currentTime, this.state.currentTimestampIndex) : this.setState(s)}
+						onProgress={this.onProgress}
 						onProgressChange={x => this.playTime(x, this.state.currentTimestampIndex)}
 						onRateChanged={rate => this.setState({rate})}
 						addTimestamp={() => this.props.addTimestamp(this.state.currentTime)}
@@ -274,10 +291,12 @@ const styles = StyleSheet.create({
 	practiceIndicators: {
 	//	backgroundColor: '#ddd',
 	//	padding: 20,
-		position: 'absolute', top: -20, flex: 1,
+		height: window.height / 5,
+		position: 'absolute', top: 0, flex: 1,
+	//	paddingVertical: 10,
 		width: layout.width, opacity: 0.8,
 		alignItems: 'center',
-		justifyContent: 'center', marginTop: 40},
+		justifyContent: 'center'},
 	practiceButton: {alignItems: 'center', justifyContent: 'center', flexDirection: 'row', width: layout.width, backgroundColor: '#F5D700'},
 	practiceButtonText: {paddingVertical: 15,
 		paddingHorizontal: 20,

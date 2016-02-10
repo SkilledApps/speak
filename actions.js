@@ -162,7 +162,7 @@ export function startRecording(startTime, trackName) {
 }
 
 export function stopRecording(duration, trackName) {
-  console.log(duration, trackName)
+
   return {
     type: STOP_RECORDING,
     duration,

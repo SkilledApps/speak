@@ -10,7 +10,7 @@ export function requestRecordPermission() {
   AudioRecorder.requestRecordPermission()
 }
 export function prepareRecording(trackId) {
-  const recordName = '/record_' + trackId + '_' + new Date() + '.caf';
+  const recordName = '/record_' + trackId + '_' + new Date().getTime() + '.caf';
   AudioRecorder.prepareRecordingAtPath(recordName);
   return recordName;
 }
@@ -24,6 +24,7 @@ export function pauseRecording() {
 }
 
 export function stopRecording() {
+  console.log('stopRecording()')
   return AudioRecorder.stopRecording();
 }
 

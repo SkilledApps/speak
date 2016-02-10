@@ -251,6 +251,7 @@ export default function reducer(state = defaultState, action): GlobalState {
 
     case STOP_RECORDING:
       const track8 = getTrack(state)
+      
       track8.recordings.filter(r => r.trackName === action.trackName)[0].duration = action.duration;
       return {
         ...state,

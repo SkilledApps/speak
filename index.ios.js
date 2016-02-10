@@ -22,7 +22,14 @@ const storageMiddleware = storage.createMiddleware(engine, []);
 
 const fabricLogger = store => next => action => {
   if (action.type) {
-    React.NativeModules.Helpers.trackKeyAction(action.type, action);
+    let params = {};
+    if (action.type === 'SELECT_TRACK') {
+      params = {trackName: action.track.id.videoId };
+    }
+    if (action.type === 'START_RECORDING') {
+      params = {trackName: action.trackName};
+    }
+    React.NativeModules.Helpers.trackKeyAction(action.type, params);
   }
   return next(action);
 };

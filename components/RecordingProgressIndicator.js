@@ -8,7 +8,6 @@ export default class RecordingProgressIndicator extends React.Component {
   render() {
     const { progress } = this.props;
     const completed = progress * 100;
-    //console.log(progress, completed);
     return (
       <View style={{position: 'absolute'}}>
         <View style={[styles.trackingControls, {width: window.width, height: window.height / 5}]}>
@@ -26,7 +25,7 @@ const styles = StyleSheet.create({
   trackingControls: {
     flex: 1,
     height: 10,
-    backgroundColor: '#f7f7f7'
+    backgroundColor: '#f7f7f7',
   },
   progress: {
     flexDirection: 'row',

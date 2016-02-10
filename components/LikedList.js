@@ -32,8 +32,9 @@ export default class LikedList extends React.Component {
             </View>
         )}
         {(!likedTracks || likedTracks.length === 0) &&
-          <View>
-            <Text style={styles.title}>Add new segments to favorites</Text>
+          <View style={{alignItems: 'center', justifyContent: 'center', flex: 1}}>
+            <Text numberOfLines={2} style={{fontSize: 20, marginTop: 100}}>Your favorite quotes will appear here</Text>
+            <Image source={require('./favexample.png')} resizeMode={'contain'} style={{width: 350}}/>
           </View>
         }
 

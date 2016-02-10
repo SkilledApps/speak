@@ -27,7 +27,7 @@ export default class Recordings extends React.Component {
         {recordings.map( (track, index) =>
             <View key={index} style={styles.itemContainer}>
               <Text style={styles.title}>{track.snippet.title}</Text>
-              {track.recordings.map((recording, i) =>
+              {track.recordings.reverse().map((recording, i) =>
                 <View key={i} style={styles.recording}>
                   {recording.createdAt && <Text>Practiced {moment(recording.createdAt).calendar()}</Text>}
                   <View key={i} style={styles.recordingControls}>

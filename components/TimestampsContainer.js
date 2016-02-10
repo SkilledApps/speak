@@ -90,6 +90,7 @@ export default class TimestampsContainer extends React.Component {
     super();
     this.state = {
       loaded: false,
+      playedTimestampIndex: 0,
       dataSource: ds.cloneWithRows(props.timestamps.map(this.fillRow.bind(this, props)))
     }
   }
@@ -98,14 +99,21 @@ export default class TimestampsContainer extends React.Component {
     setTimeout(() => this.setState({loaded: true}), 500);
   }
   componentWillReceiveProps(nextProps) {
+    const currentTimestampIndex = nextProps.timestamps.length - nextProps.timestamps.filter(t => t.time > this.props.currentTime).length - 1;
     if (this.props.timestamps.length !== nextProps.timestamps.length) {
       LayoutAnimation.spring();
+      /* отмотать в конец */
       if (this.props.timestamps.length < nextProps.timestamps.length) {
-        const currentTimestampIndex = nextProps.timestamps.length - nextProps.timestamps.filter(t => t.time > this.props.currentTime).length + 1;
         this.scrollTo(currentTimestampIndex, nextProps.timestamps.length);
       }
     }
+    /* мотать вслед за воспроизведением */
+    if (!nextProps.paused && this.state.playedTimestampIndex !== currentTimestampIndex) {
+      this.scrollTo(currentTimestampIndex, nextProps.timestamps.length);
+    }
+
     this.setState({
+      playedTimestampIndex: currentTimestampIndex,
       dataSource: this.state.dataSource
         .cloneWithRows(nextProps.timestamps.map(this.fillRow.bind(this, nextProps)))
       })
@@ -145,7 +153,7 @@ export default class TimestampsContainer extends React.Component {
         {...rowData}
         onSelect={() => {
           LayoutAnimation.easeInEaseOut();
-          this.scrollTo(parseInt(rowID) + 1, this.props.timestamps.length)
+
           if (rowData.isSelected && rowData.isExpanded) {
             this.expanded(rowID)
           }
@@ -165,14 +173,18 @@ export default class TimestampsContainer extends React.Component {
   }
 
   scrollTo(index, total) {
-    if (index > 6) { // TODO:
+    //if (total > 5) { // TODO:
       const scrollProperties = this.refs.listview.scrollProperties;
-      const scrollOffset = scrollProperties.contentLength / total * (index + 1) - scrollProperties.visibleLength;
-      // console.log('index=', index, 'total=', total,
+      const rowsHeight = 55 * (index);
+      const scrollOffset = rowsHeight;
+      console.log('scrollOffset=', scrollOffset, scrollProperties);
       //   'perSegment=', scrollProperties.contentLength / total, 'absolute=',
       //   scrollProperties.contentLength / total * parseInt(index, 10), 'visiableLength=', scrollProperties.visibleLength);
-      this.refs.listview.getScrollResponder().scrollTo(scrollOffset);
-    }
+      if (rowsHeight >  scrollProperties.visibleLength - 100) {
+          this.refs.listview.getScrollResponder().scrollTo(scrollOffset);
+      }
+
+  //  }
   }
 
   render() {
