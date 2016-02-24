@@ -41,10 +41,6 @@ const middleware = process.env.NODE_ENV === 'production' ?
 const createStoreWithMiddleware = applyMiddleware(...middleware)(createStore);
 const store = createStoreWithMiddleware(wrappedReducer);
 
-function mapStateToProps(state) {
-  return state;
-}
-
 class SpeakApp extends React.Component {
   componentWillMount() {
     const load = storage.createLoader(engine);
@@ -58,7 +54,6 @@ class SpeakApp extends React.Component {
     );
   }
 }
-
 
 function mapStateToProps(state) {
   return state;
