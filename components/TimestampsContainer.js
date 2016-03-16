@@ -39,7 +39,7 @@ class TimestampControl extends React.Component {
   render() {
     const playedStyle = this.props.isPlayed ? {backgroundColor: '#F6FBC7'} : {};
     const selectedStyle = this.props.isSelected ? { borderLeftColor: '#FF9500', borderLeftWidth: 10} : {};
-    const mutedStyle = this.props.isMuted ? { opacity: 0.5} : {};
+    const mutedStyle = this.props.isMuted ? { opacity: 0.3, backgroundColor: '#ddd'} : {};
     return (
       <View style={[styles.row, mutedStyle]}>
 

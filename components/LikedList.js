@@ -11,25 +11,20 @@ export default class LikedList extends React.Component {
   render() {
     const likedTracks = this.props.tracks
       .filter(c => c.timestamps && c.timestamps.filter(t => t.isLiked).length > 0)
-      .map(t => {
-        return {
-          ...t,
-          timestamps: t.timestamps.filter(tt => tt.isLiked)
-        }
-      });
 
     return (
       <ScrollView style={{flex: 1}}>
         {likedTracks && likedTracks.map( (track, index) =>
-            <View key={index} style={styles.itemContainer}>
+            <TouchableOpacity key={index} style={styles.itemContainer} onPress={() => this.props.onSelect(track)}>
               <Text style={styles.title}>{track.snippet.title}</Text>
-              {track.timestamps.map((timestamp, i) =>
-                <View key={i} style={styles.recording}>
+              {track.timestamps.filter(tt => tt.isLiked).map((timestamp, i) =>
+                <View key={i} style={styles.recording} onPress={() => this.props.onSelect(track)}>
+                  <Text style={{marginRight: 10, color: 'blue'}}>open</Text>
                   <Text>{timestamp.time.toFixed(2)}</Text>
                   <Text>{timestamp.title}</Text>
                 </View>
               )}
-            </View>
+            </TouchableOpacity>
         )}
         {(!likedTracks || likedTracks.length === 0) &&
           <View style={{alignItems: 'center', justifyContent: 'center', flex: 1}}>

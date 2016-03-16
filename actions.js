@@ -24,6 +24,7 @@ export const APPLY_SETTINGS = 'APPLY_SETTINGS';
 
 export const START_RECORDING = 'START_RECORDING';
 export const STOP_RECORDING = 'STOP_RECORDING';
+export const DELETE_RECORDING = 'DELETE_RECORDING';
 
 function searchingYoutube() {
   return {
@@ -162,11 +163,22 @@ export function startRecording(startTime, trackName) {
 }
 
 export function stopRecording(duration, trackName) {
-
+  
   return {
     type: STOP_RECORDING,
     duration,
     trackName
+  }
+
+
+}
+
+export function deleteRecording(trackIndex, recordIndex) {
+
+  return {
+    type: DELETE_RECORDING,
+    trackIndex,
+    recordIndex
   }
 }
 

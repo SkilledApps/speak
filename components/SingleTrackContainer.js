@@ -76,6 +76,18 @@ export default class SingleTrackContainer extends React.Component {
 			}
 		}
 	}
+
+	clearPractice() {
+		// удалить таймауты чтобы корректно остановить режим тренировки
+		this.setState({paused: true})
+		this.progressHandlers = null;
+		clearTimeout(this.t2);
+		clearInterval(this.progressInterval);
+		// stop the recording
+		AudioRecorder.stopRecording()
+			.then((args) => this.props.stopRecording(args[0], args[1]))
+			.catch(e => console.error(e));
+	}
 	/*
 	 * Включаем и выключаем режим практики
 	 */
@@ -90,14 +102,14 @@ export default class SingleTrackContainer extends React.Component {
 				 * Может быть сделать универсальную функцию которая будет очищать все таймеры
 				 */
 				if (!this.state.practice) {
-					return;
+					return this.clearPractice();
 				}
 				/*
 				 * Вычисляем следующую к текущей метку, если она равна текущей, значит конец
 				 */
 				const nextTimestampIndex = timestampIndex < timestamps.length - 1 ? timestampIndex + 1 : timestamps.length - 1;
 				if (nextTimestampIndex === timestampIndex) {
-					return; // конец, выходим
+					return this.clearPractice(); // конец, выходим
 				}
 				/*
 				 * Пропускаем "заглушенные" участки
@@ -134,8 +146,9 @@ export default class SingleTrackContainer extends React.Component {
 				/*
 				 *	Первый таймер (хэндлер) отвечает за воспроизведение. Мы воспроизводим до момента
 				 *	пока условие не срабатывает.
-				 *	После этого, нужно поставить на паузу после проигрывания этого участка и включить микрофон
-				*/
+				 *	После этого, нужно поставить на паузу после проигрывания этого участка и
+				 *  если необходимо включить микрофон
+				 **/
 				this.progressHandlers = (currentTime, setState) => {
 					/*
 					 * Если ещё не конец отрезка, то просто прогрессируем
@@ -144,7 +157,10 @@ export default class SingleTrackContainer extends React.Component {
 						setState({currentTime})
 					} else {
 						setState({currentTime: timestamps[nextTimestampIndex].time, paused: true, recording: true});
-						AudioRecorder.startRecording();
+						// записываем только последнюю попытку
+						if (repeatsDone + 1 < this.props.settings.repeats) {
+								AudioRecorder.startRecording();
+						}
 						const startDate = new Date();
 						this.progressHandlers = null;
 						this.progressInterval = setInterval(() => {
@@ -194,15 +210,7 @@ export default class SingleTrackContainer extends React.Component {
 			nextLoop(0, currentTimestampIndex);
 
 		} else {
-			// удалить таймауты чтобы корректно остановить режим тренировки
-			this.setState({paused: true})
-			this.progressHandlers = null;
-			clearTimeout(this.t2);
-			clearInterval(this.progressInterval);
-			// stop the recording
-			AudioRecorder.stopRecording()
-				.then((args) => this.props.stopRecording(args[0], args[1]))
-				.catch(e => console.error(e));
+			this.clearPractice()
 		}
 	}
 

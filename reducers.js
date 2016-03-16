@@ -19,7 +19,8 @@ import {
   TICK,
   APPLY_SETTINGS,
   START_RECORDING,
-  STOP_RECORDING
+  STOP_RECORDING,
+  DELETE_RECORDING
 } from './actions';
 
 import { LOAD, SAVE } from 'redux-storage';
@@ -251,11 +252,26 @@ export default function reducer(state = defaultState, action): GlobalState {
 
     case STOP_RECORDING:
       const track8 = getTrack(state)
-      
-      track8.recordings.filter(r => r.trackName === action.trackName)[0].duration = action.duration;
+      if (action.duration) {
+        track8.recordings.filter(r => r.trackName === action.trackName)[0].duration = action.duration;
+      } else {
+        // удаляем
+        track8.recordings = track8.recordings.filter(r => r.trackName !== action.trackName);
+      }
+
       return {
         ...state,
         foundTracks: [...state.foundTracks],
+        savedTracks: [...state.savedTracks]
+      }
+
+    case DELETE_RECORDING:
+      let t = state.savedTracks[action.trackIndex];
+      t.recordings =
+        state.savedTracks[action.trackIndex].recordings.filter((c, i) => parseInt(i, 10) !== action.recordIndex);
+
+      return {
+        ...state,
         savedTracks: [...state.savedTracks]
       }
 

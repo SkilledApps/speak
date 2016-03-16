@@ -37,8 +37,8 @@ export default class TracksListItem extends React.Component {
 					{!this.props.inSearch &&
 						<View style={{padding: 5, flexDirection: 'row', justifyContent: 'space-around'}}>
 							<View style={styles.statItem}>
-								<Icon name="ios-timer-outline" size={20} />
-								<Text style={{marginLeft: 5}}>0 min / 0%</Text>
+								<Icon name="ios-recording-outline" size={20} />
+								<Text style={{marginLeft: 5}}>{this.props.recordings ? this.props.recordings.length : 0}</Text>
 							</View>
 							<View style={styles.statItem}>
 								<Icon name="bookmark" size={20} />

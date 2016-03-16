@@ -8,6 +8,8 @@ import reformat from './reformatTime'
 
 const { View, Text, TouchableOpacity, StyleSheet, Image, ScrollView, LayoutAnimation } = React;
 
+const PROGRESS_WIDTH = 150;
+
 export default class Recordings extends React.Component {
   constructor() {
     super();
@@ -37,10 +39,18 @@ export default class Recordings extends React.Component {
                         style={styles.playIcon}
                       />
                     </TouchableOpacity>
-                    <View style={{height: 1, width: 200, backgroundColor: 'black'}}>
-                      <View style={[styles.progress, {left: this.state.tracks[recording.trackName] && this.state.tracks[recording.trackName].time / recording.duration * 200}]} />
+                    <View style={{height: 1, width: PROGRESS_WIDTH, backgroundColor: 'black'}}>
+                      <View style={[styles.progress, {
+                        left: this.state.tracks[recording.trackName] && this.state.tracks[recording.trackName].time / recording.duration * PROGRESS_WIDTH
+                      }]} />
                     </View>
                     <Text style={styles.timestamps}>{this.state.tracks[recording.trackName] ? reformat(this.state.tracks[recording.trackName].time): '00:00'} / {reformat(recording.duration)}</Text>
+                    <TouchableOpacity onPress={() => this.props.deleteRecording(index, i)} style={{width: 40}}>
+                      <Icon name={'ios-trash'}
+                        size={28} color='#ccc'
+                        style={styles.playIcon}
+                      />
+                    </TouchableOpacity>
                   </View>
                 </View>
               )}
@@ -64,7 +74,12 @@ export default class Recordings extends React.Component {
     })
   }
 
+  deleteRecording(trackIndex, recordIndex) {
+    this.props.deleteRecording(trackIndex, recordIndex);
+  }
+
   playRecording({trackName, duration}) {
+    console.log('trackName', trackName, duration)
     if (!this.state.tracks[trackName] || this.state.tracks[trackName].time === duration) {
       this.state.tracks[trackName] = {
         isPlaying: true,
@@ -101,7 +116,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   title: {
-    fontSize: 20
+    fontSize: 20,
+    textAlign: 'center',
+    backgroundColor: '#ddd'
   },
   recording: {
     marginVertical: 15

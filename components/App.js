@@ -70,8 +70,10 @@ export default class App extends React.Component {
 						navigator.push({name: 'Track', track});
 					}} />
 				tabs.tab2 = <CoursesList />
-				tabs.tab3 = <Recordings tracks={this.props.savedTracks} />
-				tabs.tab4 = <LikedList tracks={this.props.savedTracks} />
+				tabs.tab3 = <Recordings tracks={this.props.savedTracks} deleteRecording={this.props.deleteRecording}/>
+				tabs.tab4 = <LikedList tracks={this.props.savedTracks} onSelect={(track) => {
+					navigator.push({name: 'Track', track});
+				}} />
 				return <TabBar ref={(ref) => this._tabbar = ref} tabs={tabs} />
     }
 		if (route.name === 'Track') {
@@ -110,9 +112,9 @@ export default class App extends React.Component {
 				/>
     }
 		if (route.name === 'Track') {
-      return <Text
-				style={{fontSize: 12, width: 200, top: 5, textAlign: 'center'}}
-				numberOfLines={2}>{route.track.snippet.title}</Text>;
+      return <View style={{width: 200, top: 5, height: 35, justifyContent: 'center'}}><Text
+				style={{fontSize: 12, textAlign: 'center'}}
+				numberOfLines={2}>{route.track.snippet.title}</Text></View>;
     }
 	}
 }
